@@ -1,0 +1,70 @@
+{
+  "name": "qdk",
+  "version": "1.0.0",
+  "description": "QDK (Quick Development Kit) is a tooling solution for generating configuration files via TypeScript, inspired by Projen.",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "pkgroll",
+    "clean": "rm -rf ./build",
+    "clean:build": "npm run clean && npm run build",
+    "eslint": "eslint",
+    "eslint:fix": "eslint --fix",
+    "format": "prettier . --write",
+    "test": "tsx test/qdk.spec.ts",
+    "prepack": "npm run build && clean-pkg-json"
+  },
+  "author": "Gabriel Moreira <gabrielmoreira@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.11.1",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^20.16.10",
+    "@types/normalize-package-data": "^2.4.4",
+    "clean-pkg-json": "^1.2.0",
+    "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.10.0",
+    "normalize-package-data": "^7.0.0",
+    "pkgroll": "^2.5.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.1",
+    "type-fest": "^4.26.1",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.8.0"
+  },
+  "dependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@types/vinyl": "^2.0.12",
+    "hookable": "^5.5.3",
+    "immer": "^10.1.1",
+    "lodash-es": "^4.17.21",
+    "tree-console": "^1.2.1",
+    "vinyl": "^3.0.0",
+    "yaml": "^2.5.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrielmoreira/qdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gabrielmoreira/qdk/issues"
+  },
+  "homepage": "https://github.com/gabrielmoreira/qdk#readme"
+}
