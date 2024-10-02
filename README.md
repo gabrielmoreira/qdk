@@ -95,7 +95,8 @@ await root.synth();
 Run the following commands to initialize npm and set up your project:
 
 ```sh
-npm init -y; npm pkg set type="module"; npm install --save-dev qdk; npx tsx qdk.ts
+npm init -y; npm pkg set type="module"; npm install --save-dev qdk;
+npx tsx qdk.ts
 ```
 
 ## License
