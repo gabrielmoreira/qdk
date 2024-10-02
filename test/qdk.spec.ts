@@ -64,13 +64,17 @@ console.log(project.findFileOf('README.md', TextFile)?.change('123'));
 
 PackageJson.required(monorepo).addDeps('simple@workspace:*');
 
-interface PkgrollOptions {}
-class Pkgroll extends Component {
+interface PkgrollOptions {
+  version?: string;
+}
+class Pkgroll extends Component<PkgrollOptions> {
   constructor(scope: Node, options: PkgrollOptions) {
     super(scope, options);
     const buildDir = this.project.buildDir;
     PackageJson.required(scope)
-      .addDevDeps('pkgroll')
+      .addDevDeps(
+        'pkgroll' + (this.options?.version ? `@${this.options?.version}` : ''),
+      )
       .update(data => {
         return merge(data, {
           scripts: {

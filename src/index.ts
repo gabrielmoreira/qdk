@@ -195,7 +195,6 @@ export abstract class Node extends Hookable implements Scope {
   parent?: Scope;
   tags = new Set<string>();
   children: Node[] = [];
-  // eslint-disable-next-line @typescript-eslint/class-literal-property-style
   get nodeType(): NodeType {
     return 'node';
   }
@@ -1032,7 +1031,7 @@ export class NpmPackageManager extends PackageManager<NpmPackageManagerOptions> 
 }
 
 const PnpmPackagerManagerDefaults = {
-  version: '^9.11.0',
+  version: '^9.12.0',
 };
 interface PnpmPackageManagerOptions {
   workspace?: boolean;

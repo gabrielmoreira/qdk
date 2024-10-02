@@ -8,8 +8,8 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   eslintPluginPrettierRecommended,
+  { ignores: ['dist/**', 'build/**'] },
   { files: ['eslint.config.mjs', 'src/**/*.ts', 'test/**/*.ts'] },
-  { ignores: ['dist/**/*'] },
   { languageOptions: { globals: globals.nodeBuiltin } },
   {
     languageOptions: {
