@@ -1,53 +1,45 @@
 {
   "name": "qdk",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "QDK (Quick Development Kit) is a tooling solution for generating configuration files via TypeScript, inspired by Projen.",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.cts",
+  "homepage": "https://github.com/gabrielmoreira/qdk#readme",
+  "bugs": {
+    "url": "https://github.com/gabrielmoreira/qdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabrielmoreira/qdk.git"
+  },
+  "license": "MIT",
+  "author": "Gabriel Moreira <gabrielmoreira@gmail.com>",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "exports": {
-    "require": {
-      "types": "./dist/index.d.cts",
-      "default": "./dist/index.cjs"
-    },
-    "import": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
-    }
-  },
   "scripts": {
-    "build": "pkgroll",
-    "clean": "rm -rf ./build",
-    "clean:build": "npm run clean && npm run build",
+    "clean": "rimraf .nyc_output coverage dist",
+    "prebuild": "nr clean",
+    "build": "tsc",
     "eslint": "eslint",
     "eslint:fix": "eslint --fix",
     "format": "prettier . --write",
-    "test": "tsx test/qdk.spec.ts",
-    "prepack": "npm run build && clean-pkg-json"
+    "prepack": "nr build",
+    "publish": "clean-publish",
+    "prerelease": "bumpp",
+    "release": "nr publish",
+    "test": "vitest",
+    "sample:monorepo": "tsx test/samples/monorepo.qdk.ts"
   },
-  "author": "Gabriel Moreira <gabrielmoreira@gmail.com>",
-  "license": "MIT",
-  "devDependencies": {
-    "@eslint/js": "^9.11.1",
-    "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20.16.10",
-    "@types/normalize-package-data": "^2.4.4",
-    "clean-pkg-json": "^1.2.0",
-    "eslint": "^9.11.1",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "globals": "^15.10.0",
-    "normalize-package-data": "^7.0.0",
-    "pkgroll": "^2.5.0",
-    "prettier": "^3.3.3",
-    "tsx": "^4.19.1",
-    "type-fest": "^4.26.1",
-    "typescript": "^5.6.2",
-    "typescript-eslint": "^8.8.0"
+  "simple-git-hooks": {
+    "pre-commit": "nr lint-staged"
   },
   "dependencies": {
     "@types/lodash-es": "^4.17.12",
@@ -55,16 +47,35 @@
     "hookable": "^5.5.3",
     "immer": "^10.1.1",
     "lodash-es": "^4.17.21",
+    "magicast": "^0.3.5",
+    "nr": "^0.1.0",
+    "sort-package-json": "^2.10.1",
     "tree-console": "^1.2.1",
     "vinyl": "^3.0.0",
     "yaml": "^2.5.1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gabrielmoreira/qdk.git"
-  },
-  "bugs": {
-    "url": "https://github.com/gabrielmoreira/qdk/issues"
-  },
-  "homepage": "https://github.com/gabrielmoreira/qdk#readme"
+  "devDependencies": {
+    "@antfu/ni": "^0.23.0",
+    "@eslint/js": "^9.11.1",
+    "@rollup/plugin-typescript": "^12.1.0",
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^20.16.10",
+    "@types/normalize-package-data": "^2.4.4",
+    "bumpp": "^9.6.1",
+    "clean-publish": "^5.0.0",
+    "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.10.0",
+    "memfs": "^4.12.0",
+    "normalize-package-data": "^7.0.0",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "simple-git-hooks": "^2.11.1",
+    "tsx": "^4.19.1",
+    "type-fest": "^4.26.1",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.8.0",
+    "vitest": "^2.1.2"
+  }
 }
