@@ -1,7 +1,7 @@
-import globals from 'globals';
 import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -9,13 +9,13 @@ export default tseslint.config(
   ...tseslint.configs.stylisticTypeChecked,
   eslintPluginPrettierRecommended,
   { ignores: ['dist/**', 'build/**'] },
-  { files: ['eslint.config.mjs', 'src/**/*.ts', 'test/**/*.ts'] },
+  // { files: ['eslint.config.mjs', 'src/**/*.ts', 'test/**/*.ts'] },
   { languageOptions: { globals: globals.nodeBuiltin } },
   {
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['eslint.config.mjs'],
+          allowDefaultProject: ['*.config.mjs'],
         },
         tsconfigRootDir: import.meta.dirname,
       },

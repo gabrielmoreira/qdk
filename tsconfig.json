@@ -1,7 +1,9 @@
 {
   "extends": ["@tsconfig/node20"],
-  "include": ["src/**/*", "test/**/*"],
+  "include": ["src/**/*", "test/**/*", "*.ts"],
   "compilerOptions": {
-    "resolveJsonModule": true
+    "outDir": "build/ts",
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   }
 }

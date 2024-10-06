@@ -1,0 +1,12 @@
+{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.spec.{ts,tsx,js,jsx}"],
+  "compilerOptions": {
+    "outDir": "dist/lib",
+    "declarationDir": "dist/lib",
+    "declaration": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  }
+}

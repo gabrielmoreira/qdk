@@ -1,6 +1,6 @@
 {
   "name": "qdk",
-  "version": "1.0.3",
+  "version": "0.1.0",
   "description": "QDK (Quick Development Kit) is a tooling solution for generating configuration files via TypeScript, inspired by Projen.",
   "homepage": "https://github.com/gabrielmoreira/qdk#readme",
   "bugs": {
@@ -13,44 +13,53 @@
   "license": "MIT",
   "author": "Gabriel Moreira <gabrielmoreira@gmail.com>",
   "type": "module",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/lib/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "import": "./dist/lib/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/lib/index.d.ts"
     }
   },
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "clean": "rimraf .nyc_output coverage dist",
     "prebuild": "nr clean",
-    "build": "tsc",
+    "build": "nr typescript:prod:build",
+    "clean": "rimraf .nyc_output coverage dist",
     "eslint": "eslint",
     "eslint:fix": "eslint --fix",
     "format": "prettier . --write",
     "prepack": "nr build",
+    "prepare": "simple-git-hooks",
     "publish": "clean-publish",
     "prerelease": "bumpp",
     "release": "nr publish",
+    "sample:monorepo": "tsx test/samples/monorepo.qdk.ts",
     "test": "vitest",
-    "sample:monorepo": "tsx test/samples/monorepo.qdk.ts"
+    "typescript:prod:build": "tsc -p tsconfig.production.json && tsc -p tsconfig.production.json --moduleResolution node --module commonjs --outdir ./dist/cjs",
+    "typescript:dev:build": "tsc -p tsconfig.json",
+    "typescript:check": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
   },
   "simple-git-hooks": {
-    "pre-commit": "nr lint-staged"
+    "pre-commit": "npx nr eslint"
   },
   "dependencies": {
+    "@types/debug": "^4.1.12",
     "@types/lodash-es": "^4.17.12",
     "@types/vinyl": "^2.0.12",
+    "debug": "^4.3.7",
     "hookable": "^5.5.3",
     "immer": "^10.1.1",
     "lodash-es": "^4.17.21",
     "magicast": "^0.3.5",
+    "normalize-package-data": "^7.0.0",
     "nr": "^0.1.0",
     "sort-package-json": "^2.10.1",
     "tree-console": "^1.2.1",
+    "type-fest": "^4.26.1",
     "vinyl": "^3.0.0",
     "yaml": "^2.5.1"
   },
@@ -68,12 +77,11 @@
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.10.0",
     "memfs": "^4.12.0",
-    "normalize-package-data": "^7.0.0",
     "prettier": "^3.3.3",
+    "prettier-plugin-organize-imports": "^4.1.0",
     "rimraf": "^6.0.1",
     "simple-git-hooks": "^2.11.1",
     "tsx": "^4.19.1",
-    "type-fest": "^4.26.1",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.8.0",
     "vitest": "^2.1.2"

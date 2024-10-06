@@ -1,4 +1,4 @@
-
+export const gitignoreDefault = `
 ### Node ###
 # Logs
 logs
@@ -132,7 +132,4 @@ dist
 
 # SvelteKit build / generate output
 .svelte-kit
-
-# Qdk
-explainTypes.txt
-build/
+`.split('\n');

@@ -23,20 +23,22 @@ Start by creating a new empty folder for your project.
 
 ```ts
 import {
-  ESLint,
+  EsLint,
   NpmPackageManager,
   PackageJson,
   SimpleProject,
-  TextFile,
   TsConfigBases,
   Typescript,
+  SampleFiles,
 } from 'qdk';
 
-// Create a new empty project in the current directory
+const rootPath = import.meta.dirname;
+
+// Create a new empty project
 const root = new SimpleProject(null, {
   name: 'qdk-sample',
   outdir: '.',
-  cwd: import.meta.dirname,
+  cwd: rootPath,
 });
 
 // Use npm package manager (set this project as the workspace root)
@@ -44,8 +46,9 @@ new NpmPackageManager(root, { workspace: true });
 
 // Customize package.json and add custom dependencies
 new PackageJson(root)
-  .addDevDeps('qdk', 'tsx')
-  .setScript('qdk', 'tsx qdk.ts')
+  .addDevDeps('qdk', 'tsx', 'vitest')
+  .setScript('qdk', 'tsx qdk.config.ts')
+  .setScript('test', 'vitest')
   .update(pkg => {
     pkg.type = 'module';
   });
@@ -56,47 +59,75 @@ new Typescript(root, {
     extends: [TsConfigBases.Node20],
     config: {
       include: [
-        'qdk.ts',
+        'qdk.config.ts',
         'eslint.config.mjs',
         ...(root.sourceSets.main?.pattern ?? []),
         ...(root.sourceSets.tests?.pattern ?? []),
       ],
       compilerOptions: {
         strictNullChecks: true,
+        resolveJsonModule: true,
       },
     },
   },
 });
 
 // Enable ESLint (+ prettier)
-new ESLint(root);
+new EsLint(root, {
+  extraTemplateParams: {
+    files: false,
+  },
+});
 
-//
-// custom patch example:
-//
-root.findFileOf('eslint.config.mjs', TextFile)!.update(data => {
-  return data.replace(
-    `["eslint.config.mjs", "*.ts", "*.js"]`,
-    "['eslint.config.mjs']",
-  );
+// Sample files
+new SampleFiles(root, {
+  files: {
+    // src/index.ts
+    'src/index.ts': `import { name } from './config.json';
+
+export const sayHello = () => 'Hello ' + name`,
+    // src/config.ts
+    'src/config.json': {
+      type: 'json',
+      options: {},
+      data: { name: 'Alice ' + new Date().toISOString() },
+    },
+    // Test file
+    'test/index.spec.ts': `
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { describe, expect, it } from 'vitest';
+import { sayHello } from '../src/index.js';
+
+describe('index', () => {
+it('say hello', () => {
+  // When
+  const result = sayHello();
+  // Then
+  expect(result).toMatch(/^Hello Alice .+$/g);
+});
+});
+`,
+  },
 });
 
 // Synthetize the root project
 await root.synth();
 
 // Run the setup with the following commands:
-//   npm init -y; npm pkg set type="module"; npm install --save-dev qdk; npx tsx qdk.ts
-// 
+//   npm init -y; npm pkg set type="module" scripts.qdk="tsx qdk.config.ts"; npm install --save-dev qdk tsx
+//
 // To syncronize the project in the future, use:
 //   npm run qdk
+//
 ```
 
 ### Step 3: Initialize npm and run qdk:
 Run the following commands to initialize npm and set up your project:
 
 ```sh
-npm init -y; npm pkg set type="module"; npm install --save-dev qdk;
-npx tsx qdk.ts
+npm init -y; npm pkg set type="module" scripts.qdk="tsx qdk.config.ts"; npm install --save-dev qdk tsx
+npm run qdk
 ```
 
 ## License
