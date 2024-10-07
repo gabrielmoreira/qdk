@@ -1,6 +1,6 @@
 {
   "name": "qdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "QDK (Quick Development Kit) is a tooling solution for generating configuration files via TypeScript, inspired by Projen.",
   "homepage": "https://github.com/gabrielmoreira/qdk#readme",
   "bugs": {
@@ -35,6 +35,7 @@
     "prepack": "nr build",
     "prepare": "simple-git-hooks",
     "publish": "clean-publish",
+    "next-version": "bumpp --no-commit --no-tag",
     "prerelease": "bumpp",
     "release": "nr publish",
     "sample:monorepo": "tsx test/samples/monorepo.qdk.ts",
