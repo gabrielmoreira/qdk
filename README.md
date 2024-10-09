@@ -19,7 +19,7 @@ Follow these steps to create a sample project with QDK:
 
 Start by creating a new empty folder for your project.
 
-### Step 2: Create a new file `qdk.ts` with the following content:
+### Step 2: Create a new file `qdk.config.ts` with the following content:
 
 ```ts
 import {
