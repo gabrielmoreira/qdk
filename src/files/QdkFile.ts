@@ -9,6 +9,7 @@ import {
   produce,
 } from 'immer';
 import { dirname, join } from 'node:path';
+import * as prettier from 'prettier';
 import {
   createFile,
   existsSync,
@@ -32,6 +33,8 @@ export interface QdkFileOptions {
   sample?: boolean;
   writeOnSynth?: boolean;
   freeze?: boolean;
+  formatOnCheck?: boolean | prettier.Options;
+  formatOnWrite?: boolean | prettier.Options;
 }
 export type QdkFileInitialOptions = Partial<QdkFileOptions> &
   Pick<QdkFileOptions, 'basename'>;
@@ -163,6 +166,33 @@ export class QdkFile<
     this.changed = !this.raw || !buffer.equals(this.raw);
     if (this.changed) {
       if (options.checkOnly) {
+        const formatOnCheck = this.options.formatOnCheck ?? true;
+        if (formatOnCheck && this.raw && buffer) {
+          const prettierOptions: prettier.Options =
+            typeof this.options.formatOnCheck === 'object'
+              ? {
+                  ...this.options.formatOnCheck,
+                  filepath: this.file.path,
+                }
+              : {
+                  filepath: this.file.path,
+                };
+          try {
+            const oldCode = await prettier.format(
+              this.raw?.toString(),
+              prettierOptions,
+            );
+            const newCode = await prettier.format(
+              buffer.toString(),
+              prettierOptions,
+            );
+            if (oldCode === newCode) {
+              return;
+            }
+          } catch (e) {
+            this.debug('Ignoring format error', e);
+          }
+        }
         options.errorReporter.report(
           this,
           'file-changed',
@@ -186,12 +216,37 @@ export class QdkFile<
             await mkdir(fileDirname, { recursive: true });
           }
           this.debug('Writing file', this.relativePath);
+          if (this.options.formatOnWrite ?? true) {
+            try {
+              await this.tryFormat();
+            } catch (e) {
+              this.debug('Ignoring format error', e);
+            }
+          }
           await writeFile(this.file.path, this.raw);
         },
       );
     } else {
       // console.log('didnt change', this);
       this.debug('Nothing changed');
+    }
+  }
+
+  protected async tryFormat() {
+    if (!this.raw) return;
+    const fileInfo = await prettier.getFileInfo(this.file.path);
+    if (fileInfo.inferredParser) {
+      const prettierOptions: prettier.Options =
+        typeof this.options.formatOnCheck === 'object'
+          ? {
+              ...this.options.formatOnCheck,
+              filepath: this.file.path,
+            }
+          : {
+              filepath: this.file.path,
+            };
+      const code = await prettier.format(this.raw.toString(), prettierOptions);
+      this.raw = Buffer.from(code);
     }
   }
 

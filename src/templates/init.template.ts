@@ -23,6 +23,7 @@ new PackageJson(root, {
   type: 'module',
   scripts: {
     qdk: 'qdk synth',
+    'qdk:check': 'qdk synth --check',
     test: 'vitest',
   },
 }).addDevDeps('qdk', 'tsx', 'vitest');
