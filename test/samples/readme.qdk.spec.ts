@@ -1,11 +1,23 @@
-import { afterEach, describe, expect, it, vi, vitest } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi, vitest } from 'vitest';
+import { DefaultOptions } from '../../src/index.js';
 import {
   printFsTree,
-  resetFs,
+  reset,
+  SampleApp,
   toSnapshot,
   writeFiles,
 } from '../test-helpers.js';
-import { synthReadmeSample } from './readme.qdk.js';
+
+beforeAll(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-10-06T20:57:10.606Z'));
+});
+
+const synthReadmeSample = async () => {
+  const { default: MyApp } =
+    await vi.importActual<SampleApp>('./readme.qdk.js');
+  return new MyApp({ cwd: '/' }).synth();
+};
 
 vitest.mock('fs', async () => {
   return await vi.importActual('memfs');
@@ -22,9 +34,14 @@ vitest.mock('../../src/system/execution.ts', () => {
     exec: vi.fn().mockResolvedValue('1.0.0-mock'),
   };
 });
+const defaultOptions = DefaultOptions.toSnapshot();
+afterEach(() => {
+  reset({
+    defaultOptions,
+  });
+});
 
 describe('qdk/readme sample', () => {
-  afterEach(() => resetFs());
   it('builds a readme sample project', async () => {
     // When
     await synthReadmeSample();

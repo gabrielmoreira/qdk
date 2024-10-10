@@ -5,25 +5,23 @@ import { Hookable } from 'hookable';
 import { TreeNode } from 'tree-console';
 import {
   assertRequired,
+  BaseProject,
+  BaseProjectOptions,
+  CanSynthesize,
   Component,
-  Project,
-  ProjectOptions,
   QdkFile,
   QdkFileOptions,
   relativeToCwd,
   Scope,
+  SynthOptions,
   Type,
 } from '../index.js';
 import { exec, execSync } from '../system/execution.js';
 import { createLogger, Logger } from '../system/logger.js';
 
-export interface SynthOptions {
-  removeDeletedFiles?: boolean;
-}
+export type QdkNodeType = 'component' | 'project' | 'file' | 'node' | 'app';
 
-export type QdkNodeType = 'component' | 'project' | 'file' | 'node';
-
-export abstract class QdkNode extends Hookable implements Scope {
+export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
   nodeName: string;
   parent?: Scope;
   tags = new Set<string>();
@@ -38,7 +36,7 @@ export abstract class QdkNode extends Hookable implements Scope {
       ? this.constructor.name + '(' + nodeName + ')'
       : this.constructor.name;
     this.parent = parent;
-    if (this instanceof Project) {
+    if (this instanceof BaseProject) {
       this.logger = createLogger('project', this.nodeName);
       parent?.project?.addSubproject(this);
     } else if (this instanceof Component) {
@@ -66,8 +64,8 @@ export abstract class QdkNode extends Hookable implements Scope {
     return this.parent.root;
   }
 
-  get project(): Project<ProjectOptions> {
-    if (this instanceof Project) return this;
+  get project(): BaseProject<BaseProjectOptions> {
+    if (this instanceof BaseProject) return this;
     return assertRequired(this.parent?.project, 'A parent project is required');
   }
 
@@ -173,7 +171,11 @@ export abstract class QdkNode extends Hookable implements Scope {
     await this.synthetize(options);
     await this.postSynthetize(options);
     if (this.nodeType === 'project') {
-      this.log('Project configuration files successfully generated!');
+      if (options.checkOnly) {
+        this.log('Project configuration files checked!');
+      } else {
+        this.log('Project configuration files successfully generated!');
+      }
     }
   }
 

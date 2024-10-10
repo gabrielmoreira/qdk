@@ -174,7 +174,7 @@ dist
   ]
 }",
   "/.qdk/tree.txt": "·
-└── SimpleProject(qdk-sample)
+└── Project(qdk-sample)
     ├── Gitignore
     │   └── TextFile(.gitignore)
     ├── JsonFile(.qdk/meta.json)
@@ -188,10 +188,10 @@ dist
     │   ├── Prettier
     │   │   └── JsonFile(.prettierrc)
     │   └── TemplateFile(eslint.config.js)
-    ├── SampleFiles(SampleFiles)
-    ├── TextFile(src/index.ts)
-    ├── JsonFile(src/config.json)
-    └── TextFile(test/index.spec.ts)",
+    └── SampleFiles(SampleFiles)
+        ├── TextFile(src/index.ts)
+        ├── JsonFile(src/config.json)
+        └── TextFile(test/index.spec.ts)",
   "/eslint.config.js": "import globals from "globals";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
@@ -208,15 +208,14 @@ eslintPluginPrettierRecommended,
 )",
   "/package.json": "{
   "name": "qdk-sample",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.1.0",
   "type": "module",
   "workspaces": [],
   "scripts": {
     "eslint": "eslint",
     "eslint:fix": "eslint --fix",
     "format": "prettier . --write",
-    "qdk": "tsx qdk.config.ts",
+    "qdk": "tsx qdk.config.ts synth",
     "test": "vitest",
     "typescript": "tsc",
     "typescript:check": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
@@ -236,30 +235,31 @@ eslintPluginPrettierRecommended,
     "vitest": "1.0.0-mock"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "qdk-sample@0.0.1"
+  "_id": "qdk-sample@0.1.0"
 }",
   "/src/config.json": "{
-  "name": "Alice 2024-10-06T20:57:10.580Z"
+  "name": "Alice 2024-10-06T20:57:10.606Z"
 }",
   "/src/index.ts": "import { name } from './config.json';
 
 export const sayHello = () => 'Hello ' + name",
   "/test/index.spec.ts": "
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { describe, expect, it } from 'vitest';
 import { sayHello } from '../src/index.js';
 
 describe('index', () => {
-  it('say hello', () => {
-    // When
-    const result = sayHello();
-    // Then
-    expect(result).toMatch(/^Hello Alice .+$/g);
-  });
+it('say hello', () => {
+// When
+const result = sayHello();
+// Then
+expect(result).toMatch(/^Hello Alice .+$/g);
+});
 });
 ",
   "/tsconfig.json": "{
+  "extends": [
+    "@tsconfig/node20"
+  ],
   "include": [
     "qdk.config.ts",
     "eslint.config.mjs",
@@ -269,10 +269,7 @@ describe('index', () => {
   "compilerOptions": {
     "strictNullChecks": true,
     "resolveJsonModule": true
-  },
-  "extends": [
-    "@tsconfig/node20"
-  ]
+  }
 }",
 }
 `;
@@ -456,7 +453,7 @@ dist
   ]
 }",
   "/.qdk/tree.txt": "·
-└── SimpleProject(qdk-sample)
+└── Project(qdk-sample)
     ├── Gitignore
     │   └── TextFile(.gitignore)
     ├── JsonFile(.qdk/meta.json)
@@ -470,10 +467,10 @@ dist
     │   ├── Prettier
     │   │   └── JsonFile(.prettierrc)
     │   └── TemplateFile(eslint.config.js)
-    ├── SampleFiles(SampleFiles)
-    ├── TextFile(src/index.ts)
-    ├── JsonFile(src/config.json)
-    └── TextFile(test/index.spec.ts)",
+    └── SampleFiles(SampleFiles)
+        ├── TextFile(src/index.ts)
+        ├── JsonFile(src/config.json)
+        └── TextFile(test/index.spec.ts)",
   "/build/readme/.qdk/meta.json": "{"files":[".qdk/meta.json","./orphan.txt"]}",
   "/build/readme/orphan.txt": "some file data",
   "/eslint.config.js": "import globals from "globals";
@@ -492,15 +489,14 @@ eslintPluginPrettierRecommended,
 )",
   "/package.json": "{
   "name": "qdk-sample",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.1.0",
   "type": "module",
   "workspaces": [],
   "scripts": {
     "eslint": "eslint",
     "eslint:fix": "eslint --fix",
     "format": "prettier . --write",
-    "qdk": "tsx qdk.config.ts",
+    "qdk": "tsx qdk.config.ts synth",
     "test": "vitest",
     "typescript": "tsc",
     "typescript:check": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
@@ -520,7 +516,7 @@ eslintPluginPrettierRecommended,
     "vitest": "1.0.0-mock"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "qdk-sample@0.0.1"
+  "_id": "qdk-sample@0.1.0"
 }",
   "/src/config.json": "{
   "name": "Alice 2024-10-06T20:57:10.606Z"
@@ -529,21 +525,22 @@ eslintPluginPrettierRecommended,
 
 export const sayHello = () => 'Hello ' + name",
   "/test/index.spec.ts": "
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { describe, expect, it } from 'vitest';
 import { sayHello } from '../src/index.js';
 
 describe('index', () => {
-  it('say hello', () => {
-    // When
-    const result = sayHello();
-    // Then
-    expect(result).toMatch(/^Hello Alice .+$/g);
-  });
+it('say hello', () => {
+// When
+const result = sayHello();
+// Then
+expect(result).toMatch(/^Hello Alice .+$/g);
+});
 });
 ",
   "/tsconfig.json": "{
+  "extends": [
+    "@tsconfig/node20"
+  ],
   "include": [
     "qdk.config.ts",
     "eslint.config.mjs",
@@ -553,10 +550,7 @@ describe('index', () => {
   "compilerOptions": {
     "strictNullChecks": true,
     "resolveJsonModule": true
-  },
-  "extends": [
-    "@tsconfig/node20"
-  ]
+  }
 }",
 }
 `;

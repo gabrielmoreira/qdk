@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import {
   assertRequired,
   Component,
@@ -8,9 +7,10 @@ import {
 } from '../index.js';
 
 export abstract class PackageManager<T = unknown> extends Component<T> {
+  private _versionCache: Record<string, string> = {};
   abstract run(cmd: string): ReturnType<typeof this.exec>;
   abstract install(opts?: { frozen?: boolean }): ReturnType<typeof this.exec>;
-  static of(node: QdkNode): PackageManager | undefined {
+  static of(this: void, node: QdkNode): PackageManager | undefined {
     return node instanceof PackageManager ? node : undefined;
   }
   static for(scope: Scope): PackageManager | undefined {
@@ -21,8 +21,12 @@ export abstract class PackageManager<T = unknown> extends Component<T> {
   }
   latestVersion(dependencyName: string) {
     this.debug('Resolving npm latest version for', dependencyName);
-    return this.execSync(`npm view ${dependencyName} version`, {
+    if (this._versionCache[dependencyName])
+      return this._versionCache[dependencyName];
+    const version = this.execSync(`npm view ${dependencyName} version`, {
       cwd: processCwd(),
     });
+    this._versionCache[dependencyName] = version;
+    return version;
   }
 }

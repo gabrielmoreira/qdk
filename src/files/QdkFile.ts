@@ -20,6 +20,7 @@ import {
   readFileSync,
   relativeToCwd,
   Scope,
+  SynthOptions,
   writeFile,
 } from '../index.js';
 enablePatches();
@@ -45,7 +46,7 @@ export class QdkFile<
 > extends QdkNode {
   protected file: FsFile;
   protected codec: FileCodec<T>;
-  protected data: T;
+  data: T;
   private patches: Patch[][] = [];
   private revertPatches: Patch[][] = [];
   loadedData?: T;
@@ -105,8 +106,8 @@ export class QdkFile<
     }
     if (this.options.writeOnSynth ?? true) {
       this.addHooks({
-        synth: async () => {
-          await this.write();
+        synth: async (options: SynthOptions) => {
+          await this.write(options);
         },
       });
     }
@@ -129,9 +130,14 @@ export class QdkFile<
   }
 
   readSync(
-    opts: { updateData?: boolean; silentWhenMissing?: boolean } = {
+    opts: {
+      updateData?: boolean;
+      silentWhenMissing?: boolean;
+      rawOnly?: boolean;
+    } = {
       silentWhenMissing: false,
       updateData: false,
+      rawOnly: false,
     },
   ) {
     if (opts.silentWhenMissing && !existsSync(this.file.path)) {
@@ -140,17 +146,31 @@ export class QdkFile<
     }
     this.debug('Reading (sync) file', this.relativePath);
     this.raw = readFileSync(this.file.path);
-    this.loadedData = this.codec.deserializer(this.raw);
-    if (opts.updateData) {
-      this.debug('Using loaded data');
-      this.data = this.loadedData;
+    if (!opts.rawOnly) {
+      this.loadedData = this.codec.deserializer(this.raw);
+      if (opts.updateData) {
+        this.debug('Using loaded data');
+        this.data = this.loadedData;
+      }
     }
   }
 
-  async write() {
+  async write(options: SynthOptions = {}) {
+    if (options.checkOnly && !this.raw) {
+      this.readSync({ updateData: false, rawOnly: true });
+    }
     const buffer = this.codec.serializer(this.data);
     this.changed = !this.raw || !buffer.equals(this.raw);
     if (this.changed) {
+      if (options.checkOnly) {
+        options.errorReporter.report(
+          this,
+          'file-changed',
+          'File does not match!',
+          { filename: this.file.path },
+        );
+        return;
+      }
       await this.useHook(
         'write',
         [this.file, this.data, buffer],

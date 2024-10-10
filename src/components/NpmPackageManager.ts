@@ -1,5 +1,5 @@
 import { relative } from 'node:path';
-import { PackageJson, PackageManager, Project } from '../index.js';
+import { BaseProject, PackageJson, PackageManager } from '../index.js';
 
 export const NpmPackagerManagerDefaults = {};
 interface NpmPackageManagerOptions {
@@ -15,7 +15,10 @@ export class NpmPackageManager extends PackageManager<NpmPackageManagerOptions> 
       ...options,
     };
   }
-  constructor(scope: Project, options: NpmPackageManagerInitialOptions = {}) {
+  constructor(
+    scope: BaseProject,
+    options: NpmPackageManagerInitialOptions = {},
+  ) {
     const opts = NpmPackageManager.defaults(options);
     super(scope, opts);
     if (this.options.workspace) {

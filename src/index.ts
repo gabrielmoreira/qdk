@@ -1,4 +1,6 @@
 // organize-imports-ignore
+export * from './options.js';
+
 export * from './utils/getErrorCode.js';
 export * from './utils/assertRequired.js';
 export * from './utils/parseDependency.js';
@@ -23,8 +25,10 @@ export * from './core/Component.js';
 export * from './templates/eslint.template.js';
 export * from './templates/gitignore.template.js';
 
+export * from './projects/BaseProject.js';
+import { QdkNode, QdkNodeType } from './core/QdkNode.js';
+import { Scope } from './core/Scope.js';
 export * from './projects/Project.js';
-export * from './projects/SimpleProject.js';
 
 export * from './components/PackageManager.js';
 export * from './components/PackageJson.js';
@@ -41,3 +45,38 @@ export type AnyString = string & Record<never, never>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Type<T> = new (...args: any[]) => T;
+
+export class QdkApp extends QdkNode {
+  // eslint-disable-next-line @typescript-eslint/class-literal-property-style
+  get nodeType(): QdkNodeType {
+    return 'app';
+  }
+  constructor() {
+    super(undefined);
+  }
+}
+
+export interface ErrorReporter {
+  report: (
+    scope: Scope,
+    type: string,
+    msg: string,
+    additionalData?: unknown,
+  ) => void;
+}
+
+export type SynthOptions = {
+  removeDeletedFiles?: boolean;
+} & (
+  | {
+      checkOnly: true;
+      errorReporter: ErrorReporter;
+    }
+  | {
+      checkOnly?: false;
+      errorReporter?: ErrorReporter;
+    }
+);
+export interface CanSynthesize {
+  synth(options?: SynthOptions): Promise<void>;
+}

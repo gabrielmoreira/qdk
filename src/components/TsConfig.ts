@@ -2,6 +2,7 @@ import type { TsConfigJson } from 'type-fest';
 import {
   AnyString,
   Component,
+  DefaultOptions,
   JsonFile,
   PackageJson,
   parseDependency,
@@ -43,76 +44,129 @@ export const TsConfigDefaults = {
 };
 type TsConfigBase = (typeof TsConfigBases)[keyof typeof TsConfigBases];
 
-export interface TsConfigOptions {
-  extends?: (TsConfigBase | AnyString)[];
-  config: TsConfigJson;
-  devDependencies: string[];
+export interface TsConfigExtra {
+  tsconfigFilename: string;
+  autoInstallDevDependencies?: boolean;
 }
+export interface TsConfigOptions extends TsConfigJson, TsConfigExtra {}
 export type TsConfigInitialOptions = Omit<
   Partial<TsConfigOptions>,
-  'devDependencies'
->;
+  'extends'
+> & {
+  extends?: (TsConfigBase | AnyString) | (TsConfigBase | AnyString)[];
+};
 
 export class TsConfig extends Component<TsConfigOptions> {
-  json: JsonFile<TsConfigJson>;
+  protected json: JsonFile<TsConfigJson>;
   static defaults(
     options: TsConfigInitialOptions,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     scope: Scope,
   ): TsConfigOptions {
-    const config: TsConfigJson = options.config ?? {};
-
-    const configExtends =
-      typeof config.extends === 'string'
-        ? [config.extends]
-        : (config.extends ?? []);
-    const optionsExtends = options.extends ?? [];
-
-    // add options.extends to the config.extends
-    config.extends = [...new Set([...configExtends, ...optionsExtends])];
-
-    // set default config extends if no extends or no config provided
-    if (!config.extends?.length && !options.config) {
-      config.extends = TsConfigDefaults.extends;
-    }
-
-    // parse extends dependencies
-    const devDependenciesMap: Record<string, string | undefined> = {};
-    if (config.extends?.length) {
-      config.extends = config.extends?.map(dependency => {
-        const { name, version } = parseDependency(dependency);
-        devDependenciesMap[name] = version ?? undefined;
-        return name;
-      });
-    }
-    const devDependencies = Object.entries(devDependenciesMap).map(
-      ([name, version]) => (version ? `${name}@${version}` : name),
-    );
-
+    const defaultOptions = DefaultOptions.getWithDefaults(TsConfig, {
+      tsconfigFilename: 'tsconfig.json',
+      extends: options.extends ?? TsConfigDefaults.extends,
+      autoInstallDevDependencies: true,
+    });
     return {
+      ...defaultOptions,
       ...options,
-      devDependencies,
-      config,
     };
   }
   constructor(scope: Scope, options: TsConfigInitialOptions = {}) {
     const opts = TsConfig.defaults(options, scope);
     super(scope, opts);
+    const { tsconfigFilename, autoInstallDevDependencies } = this.options;
+    this.options.extends = this.normalizeConfigExtends(
+      this.options.extends,
+      autoInstallDevDependencies,
+    ).configExtends;
     this.json = new JsonFile<TsConfigJson>(
       this,
-      { basename: 'tsconfig.json' },
-      opts.config,
+      { basename: tsconfigFilename },
+      this.splitConfig().tsconfig,
     );
-    if (this.options.extends?.length && this.options.config?.extends?.length) {
-      this.debug(
-        "Merged [...options.extends, ...config.extends]. ⚠️ Check if it's the desired behavior ⚠️",
-      );
-    }
+    this.hook('synth:before', () => {
+      this.normalizeConfigExtends();
+    });
+  }
 
+  update(mutate: (data: TsConfigJson) => TsConfigJson | void) {
+    this.json.update(data => {
+      const result = this.normalizeConfigExtends(
+        data.extends,
+        this.options.autoInstallDevDependencies,
+      );
+      if (result.changed) {
+        data.extends = result.configExtends;
+      }
+      mutate(data);
+    });
+  }
+
+  protected splitConfig(): { tsconfig: TsConfigJson; options: TsConfigExtra } {
+    const {
+      tsconfigFilename,
+      autoInstallDevDependencies,
+      // Capture the remaining properties as 'tsconfig', representing valid TypeScript configuration options
+      // while excluding the destructured properties above.
+      ...tsconfig
+      // This line destructures 'this.options' and asserts it conforms to the 'TsConfigExtra' type.
+      // This ensures type safety, allowing us to verify that expected properties are defined,
+      // and enabling the assert to confirm that 'tsconfig' has no remaining keys from 'TsConfigExtra'.
+      // This pattern helps prevent runtime errors by enforcing correct structure and types at compile-time.
+    }: TsConfigExtra = this.options;
+    const options: TsConfigExtra = {
+      tsconfigFilename,
+      autoInstallDevDependencies,
+    };
+
+    // Ensure that after destructuring, 'tsconfig' is inferred as an empty object ({}) in TypeScript's
+    // type system. The 'EnsureKeysAreNotPresent' type guarantees that no properties from 'TsConfigExtra'
+    // remain in 'tsconfig', preventing accidental usage of unwanted options.
+    // If new properties are added to 'TsConfigExtra', TypeScript will raise an error if not handled here,
+    // ensuring updates are accurately reflected in this code.
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const assertTsConfigHasNoConfigExtraKey: EnsureKeysAreNotPresent<
+      typeof tsconfig,
+      keyof TsConfigExtra
+    > = tsconfig;
+    return { tsconfig: tsconfig as TsConfigJson, options };
+  }
+
+  protected normalizeConfigExtends(
+    configExtends?: TsConfigJson['extends'],
+    addDevDeps = true,
+  ) {
+    if (!configExtends) return { configExtends, changed: false };
+    const packages =
+      typeof configExtends === 'string'
+        ? [configExtends]
+        : (configExtends ?? []);
+
+    const devDependenciesMap: Record<string, string | undefined> = {};
+    let changed = false;
+    const normalizedExtends = packages.map(dependency => {
+      const { name, version } = parseDependency(dependency);
+      devDependenciesMap[name] = version ?? undefined;
+      if (name !== dependency) changed = true;
+      return name;
+    });
     // add dependencies to the package json
-    if (opts.devDependencies.length) {
-      const packageJson = PackageJson.required(this);
-      packageJson.addDevDeps(...opts.devDependencies);
+    if (addDevDeps) {
+      const devDependencies = Object.entries(devDependenciesMap).map(
+        ([name, version]) => (version ? `${name}@${version}` : name),
+      );
+      if (devDependencies.length) {
+        const packageJson = PackageJson.required(this);
+        packageJson.addDevDeps(...devDependencies);
+      }
     }
+    return { configExtends: normalizedExtends, changed };
   }
 }
+
+type EnsureKeysAreNotPresent<A, B> = {
+  [K in keyof A]: K extends B ? never : A[K];
+};

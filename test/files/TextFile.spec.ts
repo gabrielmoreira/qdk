@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi, vitest } from 'vitest';
-import { SimpleProject, TextFile } from '../../src/index.js';
+import { Project, TextFile } from '../../src/index.js';
 import {
   readStringFile,
-  resetFs,
+  reset,
   writeFiles,
   writeStringFile,
 } from '../test-helpers.js';
@@ -24,11 +24,11 @@ vitest.mock('../../src/system/execution.ts', () => {
 });
 
 describe('TextFile', () => {
-  afterEach(resetFs);
+  afterEach(() => reset());
 
   it('writes to filesystem', async () => {
     // Given
-    const project = new SimpleProject(null, {
+    const project = new Project(null, {
       name: 'testing',
     });
     const textData = 'some data';
@@ -48,7 +48,7 @@ describe('TextFile', () => {
     // Given
     const storedData = 'initial data';
     await writeFiles({ 'test2.txt': storedData });
-    const project = new SimpleProject(null, {
+    const project = new Project(null, {
       name: 'testing',
     });
     // When
@@ -66,7 +66,7 @@ describe('TextFile', () => {
     // Given
     const storedData = 'initial data';
     await writeStringFile('test2.txt', storedData);
-    const project = new SimpleProject(null, {
+    const project = new Project(null, {
       name: 'testing',
     });
     // When

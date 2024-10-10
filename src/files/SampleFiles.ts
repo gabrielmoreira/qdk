@@ -49,19 +49,19 @@ export class SampleFiles extends QdkNode {
       switch (file.type) {
         case 'json':
           return new JsonFile(
-            scope,
+            this,
             { ...file.options, basename: name, sample: true },
             file.data,
           );
         case 'yaml':
           return new YamlFile(
-            scope,
+            this,
             { ...file.options, basename: name, sample: true },
             file.data,
           );
         case 'text':
           return new TextFile(
-            scope,
+            this,
             { ...file.options, basename: name, sample: true },
             file.data,
           );

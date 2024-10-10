@@ -5,44 +5,55 @@ import type { PackageJson as PackageJsonType } from 'type-fest';
 import {
   assertRequired,
   Component,
+  DefaultOptions,
+  HasOptions,
   JsonFile,
   PackageManager,
   parseDependency,
-  Project,
   QdkNode,
   Scope,
 } from '../index.js';
 
 export { PackageJsonType };
-export interface PackageJsonOptions {
-  name: string;
-  version: string;
-  description: string;
-}
+
+export type PackageJsonOptions = PackageJsonType.NodeJsStandard &
+  PackageJsonType.PackageJsonStandard &
+  PackageJsonType.NonStandardEntryPoints &
+  PackageJsonType.TypeScriptConfiguration &
+  PackageJsonType.YarnConfiguration &
+  PackageJsonType.JSPMConfiguration & {
+    name: string;
+  };
 
 export type PackageJsonInitialOptions = Partial<PackageJsonOptions>;
-export const PackageJsonDefaults = {
-  version: '0.0.1',
-  description: '',
-};
-export class PackageJson extends Component<PackageJsonOptions> {
+
+export class PackageJson
+  extends Component<PackageJsonOptions>
+  implements HasOptions<PackageJsonOptions>
+{
   static defaults(
     options: PackageJsonInitialOptions,
-    scope: Project,
+    scope: Scope,
   ): PackageJsonOptions {
+    const defaultOptions = DefaultOptions.getWithDefaults(PackageJson, {
+      name: scope.project.options.name,
+      version: scope.project.options.version ?? '0.1.0',
+      description: scope.project.options.description,
+    });
     return {
-      name: scope.options.name,
-      version: scope.options.version ?? PackageJsonDefaults.version,
-      description: scope.options.description ?? PackageJsonDefaults.description,
+      ...{
+        name: scope.project.options.name,
+        version: scope.project.options.version,
+        description: scope.project.options.description,
+      },
+      ...defaultOptions,
       ...options,
     };
   }
-  static of(node: QdkNode): PackageJson | undefined {
+  static of(this: void, node: QdkNode): PackageJson | undefined {
     return node instanceof PackageJson ? node : undefined;
   }
-  static for(scope: Scope): PackageJson | undefined {
-    // TODO remove following eslint disable
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+  static for(this: void, scope: Scope): PackageJson | undefined {
     return scope.project.findComponent(PackageJson.of);
   }
   static required(scope: Scope): PackageJson {
@@ -52,16 +63,13 @@ export class PackageJson extends Component<PackageJsonOptions> {
     );
   }
   private file: JsonFile<PackageJsonType>;
-  constructor(scope: Project, options: PackageJsonInitialOptions = {}) {
+
+  constructor(scope: Scope, options: PackageJsonInitialOptions = {}) {
     super(scope, PackageJson.defaults(options, scope));
     this.file = new JsonFile<PackageJsonType>(
       this,
       { basename: 'package.json', readOnInit: true },
-      {
-        name: this.options.name,
-        version: this.options.version,
-        description: this.options.description,
-      },
+      structuredClone(this.options) as PackageJsonType,
     );
     this.hook('synth:before', () => {
       this.file.update(data => {

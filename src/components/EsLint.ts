@@ -28,6 +28,7 @@ interface EsLintOptions<
   configTemplate: SourceFileTemplate<T>;
   templateParams: T;
   extraTemplateParams?: T;
+  lintAfterSynth?: boolean;
 }
 type EsLintInitialOptions = Partial<EsLintOptions>;
 
@@ -51,6 +52,7 @@ export class EsLint extends Component<EsLintOptions> {
         allowDefaultProject: EsLintDefaults.allowDefaultProject,
         ...options.extraTemplateParams,
       },
+      lintAfterSynth: options.lintAfterSynth ?? false,
     };
   }
   constructor(scope: Scope, options: EsLintInitialOptions = {}) {
@@ -66,7 +68,9 @@ export class EsLint extends Component<EsLintOptions> {
       .setScript('eslint:fix', 'eslint --fix');
 
     this.hook('synth:after', async () => {
-      await PackageManager.for(this)?.run('run eslint:fix');
+      if (this.options.lintAfterSynth) {
+        await PackageManager.for(this)?.run('run eslint:fix');
+      }
     });
     const { prettier } = this.options;
     const enablePrettier = prettier && prettier !== 'disabled';

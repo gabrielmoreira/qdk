@@ -1,11 +1,18 @@
 import { afterEach, describe, expect, it, vi, vitest } from 'vitest';
+import { DefaultOptions, PackageJson } from '../../src/index.js';
 import {
   printFsTree,
-  resetFs,
+  reset,
+  SampleApp,
   toSnapshot,
   writeFiles,
 } from '../test-helpers.js';
-import { synthMonorepo } from './monorepo.qdk.js';
+
+const synthMonorepo = async () => {
+  const { default: MyApp } =
+    await vi.importActual<SampleApp>('./monorepo.qdk.js');
+  return new MyApp({ cwd: '/' }).synth();
+};
 
 vitest.mock('fs', async () => {
   return await vi.importActual('memfs');
@@ -24,7 +31,12 @@ vitest.mock('../../src/system/execution.ts', () => {
 });
 
 describe('qdk/monorepo sample', () => {
-  afterEach(() => resetFs());
+  const defaultOptions = DefaultOptions.toSnapshot();
+  afterEach(() => {
+    reset({
+      defaultOptions,
+    });
+  });
   it('builds a monorepo sample project', async () => {
     // When
     await synthMonorepo();
@@ -36,6 +48,7 @@ describe('qdk/monorepo sample', () => {
   });
 
   it('builds a monorepo sample project and delete orphan files', async () => {
+    DefaultOptions.extends(PackageJson, { version: '0.2.0' });
     // Given some preexistent files
     await writeFiles({
       '/build/monorepo/.qdk/meta.json': JSON.stringify({

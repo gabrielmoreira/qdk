@@ -1,7 +1,8 @@
 import {
+  BaseProject,
   Component,
+  DefaultOptions,
   PackageJson,
-  Project,
   TsConfig,
   TsConfigInitialOptions,
 } from '../index.js';
@@ -20,19 +21,22 @@ export interface TypescriptOptions {
 }
 export type TypescriptInitialOptions = Partial<TypescriptOptions>;
 
-export class Typescript extends Component {
+export class Typescript extends Component<TypescriptOptions> {
   tsconfig: TsConfig;
   static defaults(
     options: TypescriptInitialOptions,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    scope: Project,
+    _scope: BaseProject,
   ): TypescriptOptions {
+    const defaultOptions = DefaultOptions.getWithDefaults(Typescript, {
+      version: TypescriptDefaults.version,
+    });
     return {
-      version: options.version ?? TypescriptDefaults.version,
+      ...defaultOptions,
       ...options,
     };
   }
-  constructor(scope: Project, options: TypescriptInitialOptions = {}) {
+  constructor(scope: BaseProject, options: TypescriptInitialOptions = {}) {
     const opts = Typescript.defaults(options, scope);
     super(scope, opts, opts.version);
     this.tsconfig = new TsConfig(this, opts.tsconfig);

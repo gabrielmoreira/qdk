@@ -1,8 +1,9 @@
 import {
+  BaseProject,
+  DefaultOptions,
   PackageJson,
   PackageManager,
   PnpmWorkspace,
-  Project,
 } from '../index.js';
 
 const PnpmPackagerManagerDefaults = {
@@ -19,11 +20,16 @@ export class PnpmPackageManager extends PackageManager<PnpmPackageManagerOptions
     options: PnpmPackageManagerInitialOptions,
   ): PnpmPackageManagerOptions {
     return {
-      version: options.version ?? PnpmPackagerManagerDefaults.version,
+      ...DefaultOptions.getWithDefaults(PnpmPackageManager, {
+        version: PnpmPackagerManagerDefaults.version,
+      }),
       ...options,
     };
   }
-  constructor(scope: Project, options: PnpmPackageManagerInitialOptions = {}) {
+  constructor(
+    scope: BaseProject,
+    options: PnpmPackageManagerInitialOptions = {},
+  ) {
     const opts = PnpmPackageManager.defaults(options);
     super(scope, opts, opts.version);
     if (this.options.workspace) {

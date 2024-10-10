@@ -1,6 +1,6 @@
 {
   "name": "qdk",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "QDK (Quick Development Kit) is a tooling solution for generating configuration files via TypeScript, inspired by Projen.",
   "homepage": "https://github.com/gabrielmoreira/qdk#readme",
   "bugs": {
@@ -13,6 +13,7 @@
   "license": "MIT",
   "author": "Gabriel Moreira <gabrielmoreira@gmail.com>",
   "type": "module",
+  "bin": "./dist/lib/cli.js",
   "main": "./dist/cjs/index.js",
   "types": "./dist/lib/index.d.ts",
   "exports": {
@@ -35,7 +36,7 @@
     "prepack": "nr build",
     "prepare": "simple-git-hooks",
     "publish": "clean-publish",
-    "next-version": "bumpp --no-commit --no-tag",
+    "next-version": "bumpp --no-commit --no-tag --no-push",
     "prerelease": "bumpp",
     "release": "nr publish",
     "sample:monorepo": "tsx test/samples/monorepo.qdk.ts",
@@ -51,7 +52,9 @@
     "@types/debug": "^4.1.12",
     "@types/lodash-es": "^4.17.12",
     "@types/vinyl": "^2.0.12",
+    "clipanion": "^4.0.0-rc.4",
     "debug": "^4.3.7",
+    "find-up-simple": "^1.0.0",
     "hookable": "^5.5.3",
     "immer": "^10.1.1",
     "lodash-es": "^4.17.21",
@@ -60,6 +63,7 @@
     "nr": "^0.1.0",
     "sort-package-json": "^2.10.1",
     "tree-console": "^1.2.1",
+    "typanion": "^3.14.0",
     "type-fest": "^4.26.1",
     "vinyl": "^3.0.0",
     "yaml": "^2.5.1"

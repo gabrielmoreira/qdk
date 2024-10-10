@@ -177,7 +177,7 @@ dist
   ]
 }",
   "/build/monorepo/.qdk/tree.txt": "·
-└── SimpleProject(monorepo)
+└── Project(monorepo)
     ├── Gitignore
     │   └── TextFile(.gitignore)
     ├── JsonFile(.qdk/meta.json)
@@ -189,7 +189,7 @@ dist
     ├── Typescript(^5.6.2)
     │   └── TsConfig
     │       └── JsonFile(tsconfig.json)
-    ├── SimpleProject(simple)
+    ├── Project(simple)
     │   ├── JsonFile(.qdk/meta.json)
     │   ├── PnpmPackageManager(^9.12.0)
     │   ├── PackageJson
@@ -209,8 +209,7 @@ dist
     └── TextFile(src/index.ts)",
   "/build/monorepo/package.json": "{
   "name": "monorepo",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.1.0",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -233,7 +232,7 @@ dist
     "simple": "workspace:*"
   },
   "devDependencies": {
-    "@tsconfig/node20": "1.0.0-mock",
+    "@tsconfig/node20": "^1.0.0",
     "pkgroll": "1.0.0-mock",
     "typescript": "^5.6.2"
   },
@@ -241,7 +240,7 @@ dist
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "monorepo@0.0.1"
+  "_id": "monorepo@0.1.0"
 }",
   "/build/monorepo/pnpm-workspace.yaml": "packages:
   - services/simple
@@ -265,7 +264,7 @@ dist
   ]
 }",
   "/build/monorepo/services/simple/.qdk/tree.txt": "·
-└── SimpleProject(simple)
+└── Project(simple)
     ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
     ├── PackageJson
@@ -298,8 +297,7 @@ eslintPluginPrettierRecommended,
 )",
   "/build/monorepo/services/simple/package.json": "{
   "name": "simple",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.1.0",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -337,16 +335,16 @@ eslintPluginPrettierRecommended,
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "simple@0.0.1"
+  "_id": "simple@0.1.0"
 }",
   "/build/monorepo/services/simple/src/index.ts": "export const B = 'B';",
   "/build/monorepo/services/simple/tsconfig.json": "{
+  "extends": [
+    "@tsconfig/node20"
+  ],
   "include": [
     "src/**/*",
     "tests/**/*"
-  ],
-  "extends": [
-    "@tsconfig/node20"
   ]
 }",
   "/build/monorepo/src/index.ts": "export type A = 'a';
@@ -354,12 +352,12 @@ export const a = 'a' satisfies A;
 import { B } from 'simple';
 console.log(B)",
   "/build/monorepo/tsconfig.json": "{
+  "extends": [
+    "@tsconfig/node20"
+  ],
   "include": [
     "src/**/*",
     "tests/**/*"
-  ],
-  "extends": [
-    "@tsconfig/node20"
   ]
 }",
 }
@@ -543,7 +541,7 @@ dist
   ]
 }",
   "/build/monorepo/.qdk/tree.txt": "·
-└── SimpleProject(monorepo)
+└── Project(monorepo)
     ├── Gitignore
     │   └── TextFile(.gitignore)
     ├── JsonFile(.qdk/meta.json)
@@ -555,7 +553,7 @@ dist
     ├── Typescript(^5.6.2)
     │   └── TsConfig
     │       └── JsonFile(tsconfig.json)
-    ├── SimpleProject(simple)
+    ├── Project(simple)
     │   ├── JsonFile(.qdk/meta.json)
     │   ├── PnpmPackageManager(^9.12.0)
     │   ├── PackageJson
@@ -576,8 +574,7 @@ dist
   "/build/monorepo/orphan.txt": "some file data",
   "/build/monorepo/package.json": "{
   "name": "monorepo",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.2.0",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -600,7 +597,7 @@ dist
     "simple": "workspace:*"
   },
   "devDependencies": {
-    "@tsconfig/node20": "1.0.0-mock",
+    "@tsconfig/node20": "^1.0.0",
     "pkgroll": "1.0.0-mock",
     "typescript": "^5.6.2"
   },
@@ -608,7 +605,7 @@ dist
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "monorepo@0.0.1"
+  "_id": "monorepo@0.2.0"
 }",
   "/build/monorepo/pnpm-workspace.yaml": "packages:
   - services/simple
@@ -632,7 +629,7 @@ dist
   ]
 }",
   "/build/monorepo/services/simple/.qdk/tree.txt": "·
-└── SimpleProject(simple)
+└── Project(simple)
     ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
     ├── PackageJson
@@ -665,8 +662,7 @@ eslintPluginPrettierRecommended,
 )",
   "/build/monorepo/services/simple/package.json": "{
   "name": "simple",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.2.0",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -704,16 +700,16 @@ eslintPluginPrettierRecommended,
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "simple@0.0.1"
+  "_id": "simple@0.2.0"
 }",
   "/build/monorepo/services/simple/src/index.ts": "export const B = 'B';",
   "/build/monorepo/services/simple/tsconfig.json": "{
+  "extends": [
+    "@tsconfig/node20"
+  ],
   "include": [
     "src/**/*",
     "tests/**/*"
-  ],
-  "extends": [
-    "@tsconfig/node20"
   ]
 }",
   "/build/monorepo/src/index.ts": "export type A = 'a';
@@ -721,12 +717,12 @@ export const a = 'a' satisfies A;
 import { B } from 'simple';
 console.log(B)",
   "/build/monorepo/tsconfig.json": "{
+  "extends": [
+    "@tsconfig/node20"
+  ],
   "include": [
     "src/**/*",
     "tests/**/*"
-  ],
-  "extends": [
-    "@tsconfig/node20"
   ]
 }",
 }
