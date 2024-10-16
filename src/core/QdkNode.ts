@@ -6,11 +6,10 @@ import { TreeNode } from 'tree-console';
 import {
   assertRequired,
   BaseProject,
-  BaseProjectOptions,
-  CanSynthesize,
+  BaseProjectOptionsType,
   Component,
   QdkFile,
-  QdkFileOptions,
+  QdkFileOptionsType,
   relativeToCwd,
   Scope,
   SynthOptions,
@@ -20,6 +19,14 @@ import { exec, execSync } from '../system/execution.js';
 import { createLogger, Logger } from '../system/logger.js';
 
 export type QdkNodeType = 'component' | 'project' | 'file' | 'node' | 'app';
+
+export interface HasOptions<T> {
+  options: T;
+}
+
+export interface CanSynthesize {
+  synth(options?: SynthOptions): Promise<void>;
+}
 
 export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
   nodeName: string;
@@ -64,7 +71,7 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
     return this.parent.root;
   }
 
-  get project(): BaseProject<BaseProjectOptions> {
+  get project(): BaseProject<BaseProjectOptionsType> {
     if (this instanceof BaseProject) return this;
     return assertRequired(this.parent?.project, 'A parent project is required');
   }
@@ -103,6 +110,14 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
     return undefined;
   }
 
+  ensureComponentIsNotDefined<T extends QdkNode>(
+    predicate: (node: QdkNode) => T | undefined,
+    message = 'This component already exist for this project',
+  ) {
+    const component = this.findComponent(predicate);
+    if (component) throw new Error(message);
+  }
+
   requiredComponent<T extends QdkNode>(predicate: (node: QdkNode) => T): T {
     return assertRequired(this.findComponent(predicate));
   }
@@ -116,7 +131,7 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
     ) as X | undefined;
   }
 
-  findFile<T, O extends QdkFileOptions>(
+  findFile<T, O extends QdkFileOptionsType>(
     path: string,
   ): QdkFile<T, O> | undefined {
     return this.project.findComponent(node =>
@@ -143,6 +158,10 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
   }
 
   protected async preSynthetize(options: SynthOptions) {
+    const showProjectLogs = this.nodeType === 'project';
+    if (showProjectLogs) {
+      this.log('Synthesizing project files...');
+    }
     await this.callHook('synth:before', options);
     for (const child of this.children) {
       await child.preSynthetize(options);
@@ -164,22 +183,23 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
   }
 
   async synth(options: SynthOptions = {}) {
-    if (this.nodeType === 'project') {
-      this.log('Synthetizing project configuration files...');
+    const showLogs = this.nodeType === 'project' || this.nodeType === 'app';
+    if (showLogs) {
+      this.log('Synthesizing files...');
     }
     await this.preSynthetize(options);
     await this.synthetize(options);
     await this.postSynthetize(options);
-    if (this.nodeType === 'project') {
+    if (showLogs) {
       if (options.checkOnly) {
-        this.log('Project configuration files checked!');
+        this.log('All synthesized files have been checked!');
       } else {
-        this.log('Project configuration files successfully generated!');
+        this.log('Files synthesized successfully!');
       }
     }
   }
 
-  protected async exec(cmd: string, opts: { cwd?: string } = {}) {
+  protected async execCmd(cmd: string, opts: { cwd?: string } = {}) {
     await this.callHook('exec:before', cmd, opts);
     try {
       const cwd = opts.cwd ?? this.project.options.path;
@@ -192,7 +212,7 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
     }
   }
 
-  execSync(cmd: string, opts: { cwd?: string } = {}): string {
+  execSyncCmd(cmd: string, opts: { cwd?: string } = {}): string {
     return this.useSyncHook(
       'execSync',
       [cmd, opts],

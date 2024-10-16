@@ -1,88 +1,140 @@
-export const basic = `
+export const basic =
+  `
 import {
+  Component,
   EsLint,
   NpmPackageManager,
   PackageJson,
+  PackageManager,
   Project,
+  QdkApp,
+  SampleFiles,
+  Scope,
   TsConfigBases,
   Typescript,
-  SampleFiles,
 } from 'qdk';
 
-// Create a new empty project
-const root = Project.create({
-  name: 'qdk-sample',
-  // cwd: import.meta.dirname,
-});
+export default class MyApp extends QdkApp {
+  constructor({ cwd }: { cwd: string }) {
+    super();
+    // Create a new empty project
 
-// Use npm package manager (set this project as the workspace root)
-new NpmPackageManager(root, { workspace: true });
+    const myProject = this.add(
+      Project.create({
+        name: 'qdk-sample',
+        description: 'Sample QDK Project',
+        version: '0.1.0',
+        cwd,
+        // outdir: 'some-other-folder', // by default outdir is '.' (same as cwd)
+      }),
+    );
 
-// Customize package.json and add custom dependencies
-new PackageJson(root, {
-  type: 'module',
-  scripts: {
-    qdk: 'qdk synth',
-    'qdk:check': 'qdk synth --check',
-    test: 'vitest',
-  },
-}).addDevDeps('qdk', 'tsx', 'vitest');
+    // Use npm package manager
+    new NpmPackageManager(myProject);
 
-// Typescript TSConfig
-new Typescript(root, {
-  tsconfig: {
-    extends: [TsConfigBases.Node20],
-    include: [
-      'qdk.config.ts',
-      'eslint.config.mjs',
-      ...(root.sourceSets.main?.pattern ?? []),
-      ...(root.sourceSets.tests?.pattern ?? []),
-    ],
-    compilerOptions: {
-      strictNullChecks: true,
-      resolveJsonModule: true,
-    },
-  },
-});
+    // Customize package.json and add custom dependencies
+    new PackageJson(myProject, {
+      license: 'MIT',
+      module: \`\${myProject.buildDir}/src/index.js\`,
+    }) // by default the package type is 'module'
+      .addDevDeps('vitest')
+      .setScript('test', 'vitest');
 
-// Enable ESLint (+ prettier)
-new EsLint(root);
+    // Typescript TSConfig
+    new Typescript(myProject, {
+      tsconfig: {
+        extends: [TsConfigBases.Node20],
+        include: [
+          'qdk.config.ts',
+          'eslint.config.mjs',
+          ...(myProject.sourceSets.main?.pattern ?? []),
+          ...(myProject.sourceSets.tests?.pattern ?? []),
+          ...(myProject.sourceSets.qdk?.pattern ?? []),
+        ],
+        compilerOptions: {
+          outDir: myProject.buildDir,
+          strictNullChecks: true,
+          resolveJsonModule: true,
+        },
+      },
+    });
 
-// Sample files
-new SampleFiles(root, {
-  files: {
-    // src/index.ts
-    'src/index.ts': \`import { name } from './config.json';
+    // Enable ESLint (+ prettier)
+    new EsLint(myProject, {
+      templateParams: {
+        rules: {
+          '@typescript-eslint/no-unsafe-call': 'off',
+        },
+      },
+    });
 
-export const sayHello = () => 'Hello ' + name\`,
-    // src/config.ts
-    'src/config.json': {
-      type: 'json',
-      options: {},
-      data: { name: 'Alice ' + new Date().toISOString() },
-    },
-    // Test file
-    'test/index.spec.ts': \`
+    // To automatically run linting after synthesizing the project,
+    // use the following hook. This ensures ESLint fixes any issues:
+    this.hook('synth:after', async () => {
+      await PackageManager
+        // Find the package manager configured for this project
+        .required(myProject)
+        // Run: npx eslint --fix to automatically correct linting issues
+        .exec('eslint --fix');
+    });
+
+    // You can extract your features into components
+    // to enable reuse across different projects.
+    new MySampleFiles(myProject);
+  }
+}
+
+export class MySampleFiles extends Component {
+  constructor(scope: Scope) {
+    super(scope, undefined);
+
+    // Sample files
+    new SampleFiles(this, {
+      files: {
+        // src/index.ts
+        'src/index.ts': \`import { name } from './config.json';
+    
+    export const sayHello = () => 'Hello ' + name\`,
+        // src/config.ts
+        'src/config.json': {
+          type: 'json',
+          options: {},
+          data: { name: 'Alice ' + new Date().toISOString() },
+        },
+        // Test file
+        'test/index.spec.ts': \`
 import { describe, expect, it } from 'vitest';
 import { sayHello } from '../src/index.js';
 
 describe('index', () => {
 it('say hello', () => {
-  // When
-  const result = sayHello();
-  // Then
-  expect(result).toMatch(/^Hello Alice .+$/g);
+// When
+const result = sayHello();
+// Then
+expect(result).toMatch(/^Hello Alice .+$/g);
 });
 });
 \`,
-  },
-});
-
-export default root;
+      },
+    });
+  }
+}
 
 /*
-1) To syncronize the project in the future, use:
-  npm run qdk
-*/
+ * To setup QDK, run the following commands:
+ * \`\`\`sh
+ * npx qdk init
+ * \`\`\`
+ *
+ * After that you can run:
+ * \`\`\`sh
+ * npx qdk synth
+ * \`\`\`
+ */
 
-`.trim();
+`.trim() + '\n';
+
+export const experimental = `
+  
+
+`;

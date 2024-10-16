@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi, vitest } from 'vitest';
-import { DefaultOptions } from '../../src/index.js';
+import * as templates from '../../src/templates/init.template.js';
 import {
   printFsTree,
   reset,
@@ -14,6 +14,14 @@ beforeAll(() => {
 });
 
 const synthReadmeSample = async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+  const fs = (await vi.importActual('node:fs')) as any;
+  const content = templates.basic.replace(
+    `} from 'qdk';`,
+    `} from '../../src/index.js';`,
+  );
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  fs.writeFileSync(import.meta.dirname + '/readme.qdk.ts', content);
   const { default: MyApp } =
     await vi.importActual<SampleApp>('./readme.qdk.js');
   return new MyApp({ cwd: '/' }).synth();
@@ -28,17 +36,26 @@ vitest.mock('fs/promises', async () => {
 });
 
 vitest.mock('../../src/system/execution.ts', () => {
+  //const actual = await vi.importActual('../../src/system/execution.ts');
   return {
     processCwd: vi.fn().mockReturnValue('/'),
-    execSync: vi.fn().mockReturnValue('1.0.0-mock'),
-    exec: vi.fn().mockResolvedValue('1.0.0-mock'),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    execSync: vi.fn().mockImplementation((...args) => {
+      // if (args[0].startsWith('npm view')) {
+      //   console.log(args[0]);
+      //   return actual.execSync(...args);
+      // }
+      return '9.9.9-mock-latest';
+    }),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    exec: vi.fn().mockImplementation(_data => {
+      return '9.9.9-mock-latest';
+    }),
   };
 });
-const defaultOptions = DefaultOptions.toSnapshot();
+
 afterEach(() => {
-  reset({
-    defaultOptions,
-  });
+  reset();
 });
 
 describe('qdk/readme sample', () => {

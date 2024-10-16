@@ -2,25 +2,53 @@
 import { get, merge, set } from 'lodash-es';
 import type { Jsonifiable } from 'type-fest';
 import {
+  createOptionsManager,
   FileCodec,
+  OptionsMerger,
   QdkFile,
-  QdkFileInitialOptions,
+  QdkFileInitialOptionsType,
   QdkFileOptions,
+  QdkFileOptionsType,
   QdkNode,
   Scope,
 } from '../index.js';
 
 export { Jsonifiable };
 
-export type JsonFileOptions = QdkFileOptions & {};
-export type JsonFileInitialOptions = QdkFileInitialOptions & {};
+export type JsonFileOptionsType = QdkFileOptionsType & {};
+export type JsonFileInitialOptionsType = QdkFileInitialOptionsType & {};
+const JsonFileDefaults = {} satisfies Partial<JsonFileOptionsType>;
 
-const createJsonCodec = <T = Jsonifiable>(): FileCodec<T> => ({
+const optionsMerger: OptionsMerger<
+  JsonFileOptionsType,
+  JsonFileInitialOptionsType,
+  typeof JsonFileDefaults
+> = (initialOptions, defaults, context) => {
+  const fileOptions = QdkFileOptions.getOptions(
+    {
+      ...defaults,
+      ...initialOptions,
+    },
+    context,
+  );
+  return {
+    ...defaults,
+    ...fileOptions,
+  };
+};
+
+export const JsonFileOptions = createOptionsManager(
+  Symbol.for('JsonFileOptions'),
+  JsonFileDefaults,
+  optionsMerger,
+);
+
+export const createJsonCodec = <T = Jsonifiable>(): FileCodec<T> => ({
   serializer: (data: T) => Buffer.from(JSON.stringify(data, null, 2)),
   deserializer: buffer => JSON.parse(buffer.toString('utf8')) as T,
 });
 
-export class JsonFile<T = Jsonifiable> extends QdkFile<T, JsonFileOptions> {
+export class JsonFile<T = Jsonifiable> extends QdkFile<T, JsonFileOptionsType> {
   static ofJson(node: QdkNode, path: string): JsonFile | undefined {
     return node instanceof JsonFile
       ? (QdkFile.of(node, path) as JsonFile | undefined)
@@ -34,8 +62,17 @@ export class JsonFile<T = Jsonifiable> extends QdkFile<T, JsonFileOptions> {
   static forPath(scope: Scope, path: string): JsonFile | undefined {
     return scope.project.findComponent(JsonFile.ofPath(path));
   }
-  constructor(scope: Scope, options: JsonFileInitialOptions, initialData: T) {
-    super(scope, options, createJsonCodec(), initialData);
+  constructor(
+    scope: Scope,
+    options: JsonFileInitialOptionsType,
+    initialData: T,
+  ) {
+    super(
+      scope,
+      JsonFileOptions.getOptions(options, { scope }),
+      createJsonCodec(),
+      initialData,
+    );
   }
 
   mergeField(property: string, newValue: T, defaultValue: any = {}) {

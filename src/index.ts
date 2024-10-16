@@ -1,5 +1,5 @@
 // organize-imports-ignore
-export * from './options.js';
+export * from './options-manager.js';
 
 export * from './utils/getErrorCode.js';
 export * from './utils/assertRequired.js';
@@ -26,35 +26,26 @@ export * from './templates/eslint.template.js';
 export * from './templates/gitignore.template.js';
 
 export * from './projects/BaseProject.js';
-import { QdkNode, QdkNodeType } from './core/QdkNode.js';
-import { Scope } from './core/Scope.js';
 export * from './projects/Project.js';
+import { Scope } from './core/Scope.js';
 
 export * from './components/PackageManager.js';
 export * from './components/PackageJson.js';
-export * from './components/NpmPackageManager.js';
-export * from './components/PnpmPackageManager.js';
 export * from './components/EsLint.js';
 export * from './components/Gitignore.js';
+export * from './components/NpmPackageManager.js';
+export * from './components/PnpmPackageManager.js';
 export * from './components/PnpmWorkspace.js';
 export * from './components/Prettier.js';
 export * from './components/TsConfig.js';
 export * from './components/Typescript.js';
 
+export * from './core/QdkApp.js';
+
 export type AnyString = string & Record<never, never>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Type<T> = new (...args: any[]) => T;
-
-export class QdkApp extends QdkNode {
-  // eslint-disable-next-line @typescript-eslint/class-literal-property-style
-  get nodeType(): QdkNodeType {
-    return 'app';
-  }
-  constructor() {
-    super(undefined);
-  }
-}
 
 export interface ErrorReporter {
   report: (
@@ -77,6 +68,3 @@ export type SynthOptions = {
       errorReporter?: ErrorReporter;
     }
 );
-export interface CanSynthesize {
-  synth(options?: SynthOptions): Promise<void>;
-}

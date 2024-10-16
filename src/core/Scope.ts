@@ -1,6 +1,6 @@
 import {
   BaseProject,
-  BaseProjectOptions,
+  BaseProjectOptionsType,
   Component,
   QdkNode,
   QdkNodeType,
@@ -10,7 +10,7 @@ export interface Scope {
   parent?: Scope;
   get component(): Component | undefined;
   get root(): Scope;
-  get project(): BaseProject<BaseProjectOptions>;
+  get project(): BaseProject<BaseProjectOptionsType>;
   get tags(): Set<string>;
   get nodeType(): QdkNodeType;
   get nodeName(): string;

@@ -1,16 +1,45 @@
-import { Component, Scope, TextFile } from '../index.js';
+import {
+  Component,
+  createOptionsManager,
+  gitignoreDefault,
+  OptionsMerger,
+  Scope,
+  TextFile,
+} from '../index.js';
 
-export interface GitignoreOptions {
+export interface GitignoreOptionsType {
   pattern?: string[];
 }
-export class Gitignore extends Component<GitignoreOptions> {
+
+export type GitignoreInitialOptionsType = Partial<GitignoreOptionsType>;
+
+const GitignoreDefaults: Partial<GitignoreOptionsType> = {
+  pattern: gitignoreDefault,
+};
+
+const optionsMerger: OptionsMerger<
+  GitignoreOptionsType,
+  GitignoreInitialOptionsType
+> = (initialOptions, defaults) => ({
+  ...defaults,
+  ...initialOptions,
+});
+
+export const GitignoreOptions = createOptionsManager(
+  Symbol.for('GitignoreOptions'),
+  GitignoreDefaults,
+  optionsMerger,
+);
+
+export class Gitignore extends Component<GitignoreOptionsType> {
   private ignored: string[] = [];
-  constructor(scope: Scope, options: GitignoreOptions) {
-    super(scope, options);
-    const file = new TextFile(this, { basename: '.gitignore' }, '');
+  readonly file: TextFile;
+  constructor(scope: Scope, options: GitignoreInitialOptionsType) {
+    super(scope, GitignoreOptions.getOptions(options, { scope }));
+    this.file = new TextFile(this, { basename: '.gitignore' }, '');
     if (this.options.pattern?.length) this.add(...this.options.pattern);
     this.hook('synth:before', () => {
-      file.update(() => this.ignored.join('\n'));
+      this.file.update(() => this.ignored.join('\n'));
     });
   }
   add(...pattern: string[]): this {

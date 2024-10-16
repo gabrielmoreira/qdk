@@ -1,26 +1,48 @@
 import { relative } from 'node:path';
-import { BaseProject, PackageJson, PackageManager } from '../index.js';
+import {
+  createOptionsManager,
+  OptionsMerger,
+  PackageJson,
+  PackageManager,
+  Scope,
+} from '../index.js';
 
-export const NpmPackagerManagerDefaults = {};
-interface NpmPackageManagerOptions {
+interface NpmPackageManagerOptionsType {
   workspace?: boolean;
 }
-type NpmPackageManagerInitialOptions = Partial<NpmPackageManagerOptions>;
+type NpmPackageManagerInitialOptionsType =
+  Partial<NpmPackageManagerOptionsType>;
 
-export class NpmPackageManager extends PackageManager<NpmPackageManagerOptions> {
-  static defaults(
-    options: NpmPackageManagerInitialOptions,
-  ): NpmPackageManagerOptions {
-    return {
-      ...options,
-    };
-  }
-  constructor(
-    scope: BaseProject,
-    options: NpmPackageManagerInitialOptions = {},
-  ) {
-    const opts = NpmPackageManager.defaults(options);
-    super(scope, opts);
+export const NpmPackagerManagerDefaults: Partial<NpmPackageManagerOptionsType> =
+  {};
+
+const optionsMerger: OptionsMerger<
+  NpmPackageManagerOptionsType,
+  NpmPackageManagerInitialOptionsType,
+  typeof NpmPackagerManagerDefaults
+> = (initialOptions, defaults) => {
+  return {
+    ...defaults,
+    ...initialOptions,
+  };
+};
+
+export const NpmPackageManagerOptions = createOptionsManager(
+  Symbol.for('NpmPackageManagerOptions'),
+  NpmPackagerManagerDefaults,
+  optionsMerger,
+);
+
+export class NpmPackageManager extends PackageManager<NpmPackageManagerOptionsType> {
+  cmdPrefix = `npm`;
+  execCmdPrefix = `npx`;
+  constructor(scope: Scope, options: NpmPackageManagerInitialOptionsType = {}) {
+    // fail if this component already exists
+    scope.project.ensureComponentIsNotDefined(PackageManager.of);
+    super(
+      scope.project,
+      NpmPackageManagerOptions.getOptions(options, { scope }),
+    );
     if (this.options.workspace) {
       this.hook('synth:before', () => {
         PackageJson.required(this).update(data => {
@@ -31,9 +53,7 @@ export class NpmPackageManager extends PackageManager<NpmPackageManagerOptions> 
       });
     }
   }
-  async run(cmd: string) {
-    return await this.exec(`npm ${cmd}`);
-  }
+
   async install(opts: { frozen?: boolean } = {}) {
     this.debug('Install dependencies. Options =', opts);
     return await this.run(opts.frozen ? 'ci' : 'install');

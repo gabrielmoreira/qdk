@@ -1,71 +1,140 @@
 import {
+  assertRequired,
   Component,
+  createOptionsManager,
   EsLintSourceFileDefaultTemplate,
   EsLintSourceFileDefaultTemplateParams,
+  OptionsMerger,
   PackageJson,
+  PackageJsonOptions,
   PackageManager,
   Prettier,
-  PrettierOptions,
+  PrettierOptionsType,
   Scope,
   SourceFileTemplate,
   TemplateFile,
   TemplateParams,
 } from '../index.js';
 
-export const EsLintDefaults = {
-  version: '^9.0.0',
-  prettier: 'auto' as const,
-  template: EsLintSourceFileDefaultTemplate,
-  allowDefaultProject: ['*.config.{mjs,js}'],
-  configFilename: 'eslint.config.js',
-};
-interface EsLintOptions<
+export interface EsLintOptionsType<
   T extends TemplateParams = EsLintSourceFileDefaultTemplateParams,
 > {
   version: string;
-  prettier?: PrettierOptions | 'manual' | 'auto' | 'disabled';
+  prettier?: PrettierOptionsType | 'manual' | 'auto' | 'disabled';
   configFilename: string;
   configTemplate: SourceFileTemplate<T>;
-  templateParams: T;
-  extraTemplateParams?: T;
+  defaultTemplateParams: T;
+  templateParams?: T;
   lintAfterSynth?: boolean;
+  defaultScripts: Record<string, string | undefined>;
 }
-type EsLintInitialOptions = Partial<EsLintOptions>;
 
-export class EsLint extends Component<EsLintOptions> {
-  static defaults(options: EsLintInitialOptions, scope: Scope): EsLintOptions {
-    const eslintConfigFilename = options.configFilename ?? 'eslint.config.js';
-    return {
-      ...options,
-      version: options.version ?? EsLintDefaults.version,
-      prettier: options.prettier ?? EsLintDefaults.prettier,
-      configFilename: options.configFilename ?? EsLintDefaults.configFilename,
-      configTemplate: options.configTemplate ?? EsLintSourceFileDefaultTemplate,
-      templateParams: options.templateParams ?? {
+export type EsLintInitialOptionsType = Partial<EsLintOptionsType>;
+
+const EsLintDefaults: Partial<EsLintOptionsType> = {
+  configFilename: 'eslint.config.js',
+  version: '^9.0.0',
+  prettier: 'auto',
+  configTemplate: EsLintSourceFileDefaultTemplate,
+  defaultTemplateParams: {
+    allowDefaultProject: ['*.config.{mjs,js}'],
+    files: [],
+    rules: {},
+  },
+  defaultScripts: {
+    eslint: 'eslint',
+    'eslint:fix': 'eslint --fix',
+  },
+};
+
+PackageJsonOptions.setDefaultVersions({
+  eslint: '^9.0.0',
+  globals: '^15.11.0',
+  'typescript-eslint': '^8.9.0',
+  '@eslint/js': '^9.12.0',
+  'eslint-plugin-prettier': '^5.2.1',
+  'eslint-config-prettier': '^9.1.0',
+});
+
+const optionsMerger: OptionsMerger<
+  EsLintOptionsType,
+  EsLintInitialOptionsType
+> = (initialOptions, defaults, context): EsLintOptionsType => {
+  const { scope } = context;
+  const baseOptions = {
+    ...defaults,
+    ...initialOptions,
+  };
+  const eslintConfigFilename = assertRequired(
+    baseOptions.configFilename,
+    'configFilename is required',
+  );
+  const mergedOptions: Partial<
+    EsLintOptionsType<EsLintSourceFileDefaultTemplateParams>
+  > = {
+    ...baseOptions,
+    defaultTemplateParams: initialOptions.defaultTemplateParams ?? {
+      ...defaults.defaultTemplateParams,
+      eslintConfigFilename,
+      files: [
         eslintConfigFilename,
-        files: [
-          eslintConfigFilename,
-          ...(scope.project.sourceSets?.main?.pattern ?? []),
-          ...(scope.project.sourceSets?.tests?.pattern ?? []),
-        ],
-        ignores: [scope.project.buildDir + '/**/*'],
-        allowDefaultProject: EsLintDefaults.allowDefaultProject,
-        ...options.extraTemplateParams,
-      },
-      lintAfterSynth: options.lintAfterSynth ?? false,
-    };
-  }
-  constructor(scope: Scope, options: EsLintInitialOptions = {}) {
-    super(scope, EsLint.defaults(options, scope));
-    PackageJson.required(this)
-      .addDevDeps(
-        'eslint@' + this.options.version,
-        'typescript-eslint',
-        '@eslint/js',
-        'globals',
-      )
-      .setScript('eslint', 'eslint')
-      .setScript('eslint:fix', 'eslint --fix');
+        ...(scope.project.sourceSets?.main?.pattern ?? []),
+        ...(scope.project.sourceSets?.tests?.pattern ?? []),
+      ],
+      ignores: [scope.project.buildDir + '/**/*'],
+      allowDefaultProject: assertRequired(
+        baseOptions?.defaultTemplateParams?.allowDefaultProject,
+        'templateParams.allowDefaultProject is required',
+      ),
+      ...defaults?.templateParams,
+      ...initialOptions.templateParams,
+    },
+    lintAfterSynth: initialOptions.lintAfterSynth ?? false,
+  };
+
+  return {
+    ...mergedOptions,
+    defaultScripts: {
+      ...mergedOptions.defaultScripts,
+    },
+    version: assertRequired(mergedOptions.version, 'version is required'),
+    configFilename: assertRequired(
+      mergedOptions.configFilename,
+      'configFilename is required',
+    ),
+    configTemplate: assertRequired(
+      mergedOptions.configTemplate,
+      'configTemplate is required',
+    ),
+    defaultTemplateParams: assertRequired(
+      mergedOptions.defaultTemplateParams,
+      'templateParams is required',
+    ),
+  };
+};
+
+export const EsLintOptions = createOptionsManager(
+  Symbol.for('EsLintOptions'),
+  EsLintDefaults,
+  optionsMerger,
+);
+
+export class EsLint extends Component<EsLintOptionsType> {
+  readonly file: TemplateFile<EsLintOptionsType['defaultTemplateParams']>;
+  constructor(scope: Scope, options: EsLintInitialOptionsType = {}) {
+    super(
+      scope,
+      EsLintOptions.getOptions(options, {
+        scope,
+      }),
+    );
+    const pkg = PackageJson.required(this).addDevDeps(
+      'eslint@' + this.options.version,
+      'typescript-eslint',
+      '@eslint/js',
+      'globals',
+    );
+    pkg.addScripts(this.options.defaultScripts);
 
     this.hook('synth:after', async () => {
       if (this.options.lintAfterSynth) {
@@ -86,7 +155,7 @@ export class EsLint extends Component<EsLintOptions> {
       }
     }
     const { configFilename, configTemplate } = this.options;
-    new TemplateFile(
+    this.file = new TemplateFile(
       this,
       {
         basename: configFilename,
@@ -95,39 +164,8 @@ export class EsLint extends Component<EsLintOptions> {
       },
       {
         template: configTemplate,
-        params: this.options.templateParams,
+        params: this.options.defaultTemplateParams,
       },
     );
-    /*
-    new SourceCodeFile(
-      this,
-      { base: eslintConfigFilename },
-      `
-import globals from "globals";
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
-${enablePrettier ? `import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";` : ''}
-
-export default tseslint.config(
-  eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked,
-  ${enablePrettier ? `eslintPluginPrettierRecommended,` : ''}
-  {files: ${JSON.stringify(sources)}},
-  {ignores: ${JSON.stringify(ignores)}},
-  {languageOptions: { globals: globals.nodeBuiltin }},
-   {
-    languageOptions: {
-      parserOptions: {
-        projectService: {
-          allowDefaultProject: ${JSON.stringify(allowDefaultProject)}
-        },
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },
-);`,
-    );
-    */
   }
 }

@@ -1,50 +1,73 @@
 import {
-  BaseProject,
   Component,
-  DefaultOptions,
+  createOptionsManager,
+  OptionsMerger,
   PackageJson,
+  PackageJsonOptions,
+  Scope,
   TsConfig,
-  TsConfigInitialOptions,
+  TsConfigInitialOptionsType,
 } from '../index.js';
 
-export const TypescriptDefaults = {
+export interface TypescriptOptionsType {
+  version: string;
+  tsconfig?: TsConfigInitialOptionsType;
+  defaultScripts: Record<string, string | undefined>;
+}
+export type TypescriptInitialOptions = Partial<TypescriptOptionsType>;
+
+const TypescriptDefaults = {
   version: '^5.6.2',
-  scripts: {
+  tsconfig: {},
+  defaultScripts: {
     typescript: 'tsc',
-    'typescript:check':
+    'typescript:check': 'tsc -p tsconfig.json --noEmit',
+    'typescript:explain':
       'tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt',
   },
-};
-export interface TypescriptOptions {
-  version: string;
-  tsconfig?: TsConfigInitialOptions;
-}
-export type TypescriptInitialOptions = Partial<TypescriptOptions>;
+} satisfies TypescriptOptionsType;
 
-export class Typescript extends Component<TypescriptOptions> {
-  tsconfig: TsConfig;
-  static defaults(
-    options: TypescriptInitialOptions,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _scope: BaseProject,
-  ): TypescriptOptions {
-    const defaultOptions = DefaultOptions.getWithDefaults(Typescript, {
-      version: TypescriptDefaults.version,
+PackageJsonOptions.setDefaultVersions({
+  typescript: '^5.6.2',
+});
+
+const optionsMerger: OptionsMerger<
+  TypescriptOptionsType,
+  TypescriptInitialOptions,
+  typeof TypescriptDefaults
+> = (initialOptions, defaults) => {
+  return {
+    ...defaults,
+    ...initialOptions,
+    tsconfig: {
+      ...defaults.tsconfig,
+      ...initialOptions.tsconfig,
+    },
+    defaultScripts: {
+      ...defaults.defaultScripts,
+      ...initialOptions.defaultScripts,
+    },
+  };
+};
+
+export const TypescriptOptions = createOptionsManager(
+  Symbol.for('TypescriptOptions'),
+  TypescriptDefaults,
+  optionsMerger,
+);
+
+export class Typescript extends Component<TypescriptOptionsType> {
+  readonly tsconfig: TsConfig;
+
+  constructor(scope: Scope, options: TypescriptInitialOptions = {}) {
+    const opts = TypescriptOptions.getOptions(options, {
+      scope,
     });
-    return {
-      ...defaultOptions,
-      ...options,
-    };
-  }
-  constructor(scope: BaseProject, options: TypescriptInitialOptions = {}) {
-    const opts = Typescript.defaults(options, scope);
-    super(scope, opts, opts.version);
+    super(scope.project, opts, opts.version);
     this.tsconfig = new TsConfig(this, opts.tsconfig);
     const pkg = PackageJson.required(this).addDevDeps(
       `typescript@${opts.version}`,
     );
-    Object.entries(TypescriptDefaults.scripts).forEach(([key, value]) => {
-      pkg.setScript(key, value);
-    });
+    pkg.addScripts(opts.defaultScripts);
   }
 }

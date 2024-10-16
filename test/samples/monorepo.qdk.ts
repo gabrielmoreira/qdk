@@ -1,8 +1,6 @@
 import { merge } from 'lodash-es';
 import { builders } from 'magicast';
-import tree from 'tree-console';
 import {
-  BaseProject,
   Component,
   EsLint,
   JsonFile,
@@ -18,18 +16,24 @@ import {
 } from '../../src/index.js';
 // } from 'qdk';
 
-export default class MyApp implements QdkApp {
+export default class MyApp extends QdkApp {
   monorepo: Project;
-  project: Project;
-
+  subproject: Project;
   constructor({ cwd }: { cwd: string }) {
+    super();
     // Create a new empty project
-    const monorepo = new Project(null, {
-      name: 'monorepo',
-      outdir: 'build/monorepo',
-      cwd,
+    const monorepo = (this.monorepo = this.add(
+      Project.create({
+        name: 'monorepo',
+        outdir: 'build/monorepo',
+        cwd,
+      }),
+    ));
+
+    this.hook('after:synth', async () => {
+      await PackageManager.required(this.project).run('run build');
+      await PackageManager.required(this.monorepo).run('run build');
     });
-    this.monorepo = monorepo;
 
     new PnpmPackageManager(monorepo, { workspace: true });
     // new NpmPackageManager(monorepo, {workspace: true });
@@ -41,25 +45,25 @@ export default class MyApp implements QdkApp {
       },
     });
 
-    const project = new Project(monorepo, {
+    const subproject = new Project(monorepo, {
       name: 'simple',
       outdir: 'services/simple',
       gitignore: false,
     });
-    this.project = project;
-    new PnpmPackageManager(project);
-    // new NpmPackageManager(project);
-    new PackageJson(project);
-    new Typescript(project, {
+    this.subproject = subproject;
+    new PnpmPackageManager(subproject);
+    // new NpmPackageManager(subproject);
+    new PackageJson(subproject);
+    new Typescript(subproject, {
       tsconfig: {
         extends: ['@tsconfig/node20'],
         include: ['src/**/*', 'tests/**/*'],
       },
     });
 
-    new EsLint(project);
+    new EsLint(subproject);
     new TextFile(
-      project,
+      subproject,
       {
         basename: 'README.md',
         sample: true,
@@ -68,15 +72,15 @@ export default class MyApp implements QdkApp {
     );
 
     console.log(
-      project.findFileOf('package.json', JsonFile),
-      project.findFileOf('package.json', JsonFile) ===
-        JsonFile.forPath(project, 'package.json'),
+      subproject.findFileOf('package.json', JsonFile),
+      subproject.findFileOf('package.json', JsonFile) ===
+        JsonFile.forPath(subproject, 'package.json'),
     );
     // console.log(project.findFile("package.json"))
-    console.log(project.findFileOf('README.md', TextFile)?.change('Hello'));
-    console.log(project.findFileOf('README.md', TextFile)?.change('123'));
+    console.log(subproject.findFileOf('README.md', TextFile)?.change('Hello'));
+    console.log(subproject.findFileOf('README.md', TextFile)?.change('123'));
     console.log(
-      project
+      subproject
         .findFileOf('eslint.config.mjs', SourceCodeFile)
         ?.update(source => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -91,7 +95,7 @@ export default class MyApp implements QdkApp {
     PackageJson.required(monorepo).addDeps('simple@workspace:*');
 
     new Pkgroll(monorepo, {});
-    new Pkgroll(project, {});
+    new Pkgroll(subproject, {});
 
     new TextFile(
       monorepo,
@@ -105,7 +109,7 @@ import { B } from 'simple';
 console.log(B)`,
     );
     new TextFile(
-      project,
+      subproject,
       {
         basename: 'src/index.ts',
         sample: true,
@@ -119,13 +123,6 @@ console.log(B)`,
     //   },
     //   `export const B = 'B';`
     // );
-  }
-
-  async synth(): Promise<undefined | void | BaseProject | BaseProject[]> {
-    await this.monorepo.synth();
-    await PackageManager.required(this.project).run('run build');
-    await PackageManager.required(this.monorepo).run('run build');
-    console.log(tree.getStringTree([this.monorepo.toTreeNode()]));
   }
 }
 

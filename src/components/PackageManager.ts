@@ -8,8 +8,11 @@ import {
 
 export abstract class PackageManager<T = unknown> extends Component<T> {
   private _versionCache: Record<string, string> = {};
-  abstract run(cmd: string): ReturnType<typeof this.exec>;
-  abstract install(opts?: { frozen?: boolean }): ReturnType<typeof this.exec>;
+  abstract cmdPrefix: string;
+  abstract execCmdPrefix: string;
+  abstract install(opts?: {
+    frozen?: boolean;
+  }): ReturnType<typeof this.execCmd>;
   static of(this: void, node: QdkNode): PackageManager | undefined {
     return node instanceof PackageManager ? node : undefined;
   }
@@ -19,11 +22,17 @@ export abstract class PackageManager<T = unknown> extends Component<T> {
   static required(scope: Scope): PackageManager {
     return assertRequired(scope.project.findComponent(PackageManager.of));
   }
+  async run(cmd: string) {
+    return await this.execCmd(`${this.cmdPrefix} ${cmd}`);
+  }
+  async exec(cmd: string) {
+    return await this.execCmd(`${this.execCmdPrefix} ${cmd}`);
+  }
   latestVersion(dependencyName: string) {
     this.debug('Resolving npm latest version for', dependencyName);
     if (this._versionCache[dependencyName])
       return this._versionCache[dependencyName];
-    const version = this.execSync(`npm view ${dependencyName} version`, {
+    const version = this.execSyncCmd(`npm view ${dependencyName} version`, {
       cwd: processCwd(),
     });
     this._versionCache[dependencyName] = version;

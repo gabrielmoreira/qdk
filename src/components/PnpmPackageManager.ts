@@ -1,36 +1,49 @@
 import {
   BaseProject,
-  DefaultOptions,
+  createOptionsManager,
+  OptionsMerger,
   PackageJson,
   PackageManager,
   PnpmWorkspace,
 } from '../index.js';
 
-const PnpmPackagerManagerDefaults = {
-  version: '^9.12.0',
-};
-interface PnpmPackageManagerOptions {
-  workspace?: boolean;
+export interface PnpmPackageManagerOptionsType {
+  workspace: boolean;
   version: string;
 }
-type PnpmPackageManagerInitialOptions = Partial<PnpmPackageManagerOptions>;
+export type PnpmPackageManagerInitialOptions =
+  Partial<PnpmPackageManagerOptionsType>;
 
-export class PnpmPackageManager extends PackageManager<PnpmPackageManagerOptions> {
-  static defaults(
-    options: PnpmPackageManagerInitialOptions,
-  ): PnpmPackageManagerOptions {
-    return {
-      ...DefaultOptions.getWithDefaults(PnpmPackageManager, {
-        version: PnpmPackagerManagerDefaults.version,
-      }),
-      ...options,
-    };
-  }
+const PnpmPackageManagerDefaults = {
+  workspace: false,
+  version: '^9.12.0',
+} satisfies PnpmPackageManagerOptionsType;
+
+const optionsMerger: OptionsMerger<
+  PnpmPackageManagerOptionsType,
+  PnpmPackageManagerInitialOptions,
+  typeof PnpmPackageManagerDefaults
+> = (initialOptions, defaults) => {
+  return {
+    ...defaults,
+    ...initialOptions,
+  };
+};
+
+export const PnpmPackageManagerOptions = createOptionsManager(
+  Symbol.for('PnpmPackageManagerOptions'),
+  PnpmPackageManagerDefaults,
+  optionsMerger,
+);
+
+export class PnpmPackageManager extends PackageManager<PnpmPackageManagerOptionsType> {
+  cmdPrefix = `npx pnpm@${this.options.version}`;
+  execCmdPrefix = `npx pnpm@${this.options.version} dlx`;
   constructor(
     scope: BaseProject,
     options: PnpmPackageManagerInitialOptions = {},
   ) {
-    const opts = PnpmPackageManager.defaults(options);
+    const opts = PnpmPackageManagerOptions.getOptions(options, { scope });
     super(scope, opts, opts.version);
     if (this.options.workspace) {
       new PnpmWorkspace(this);
@@ -38,9 +51,6 @@ export class PnpmPackageManager extends PackageManager<PnpmPackageManagerOptions
     this.hook('synth:before', () => {
       PackageJson.required(this).setEngine('pnpm', this.options.version);
     });
-  }
-  async run(cmd: string) {
-    return await this.exec(`npx pnpm@${this.options.version} ${cmd}`);
   }
   async install(opts: { frozen?: boolean } = {}) {
     this.debug('Install dependencies. Options =', opts);

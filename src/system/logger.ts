@@ -13,7 +13,7 @@ export type LoggerNamespace =
 
 export function createLogger(ns: LoggerNamespace, tag?: string) {
   const logger = debug(`qdk:${ns}`);
-  const prefix = tag ? ` ${tag}` : '';
+  const prefix = tag ? ` ${tag}:` : '';
   return {
     log(...message: unknown[]) {
       console.log(prefix, ...message);

@@ -2,9 +2,11 @@ import type { TsConfigJson } from 'type-fest';
 import {
   AnyString,
   Component,
-  DefaultOptions,
+  createOptionsManager,
   JsonFile,
+  OptionsMerger,
   PackageJson,
+  PackageJsonOptions,
   parseDependency,
   Scope,
 } from '../index.js';
@@ -39,49 +41,61 @@ export const TsConfigBases = {
   Taro: '@tsconfig/taro',
   ViteReact: '@tsconfig/vite-react',
 };
-export const TsConfigDefaults = {
-  extends: [TsConfigBases.Node20],
-};
+
 type TsConfigBase = (typeof TsConfigBases)[keyof typeof TsConfigBases];
 
-export interface TsConfigExtra {
+export interface TsConfigExtraOptionsType {
   tsconfigFilename: string;
   autoInstallDevDependencies?: boolean;
 }
-export interface TsConfigOptions extends TsConfigJson, TsConfigExtra {}
-export type TsConfigInitialOptions = Omit<
-  Partial<TsConfigOptions>,
+export interface TsConfigOptionsType
+  extends TsConfigJson,
+    TsConfigExtraOptionsType {}
+
+export type TsConfigInitialOptionsType = Omit<
+  Partial<TsConfigOptionsType>,
   'extends'
 > & {
   extends?: (TsConfigBase | AnyString) | (TsConfigBase | AnyString)[];
 };
 
-export class TsConfig extends Component<TsConfigOptions> {
-  protected json: JsonFile<TsConfigJson>;
-  static defaults(
-    options: TsConfigInitialOptions,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    scope: Scope,
-  ): TsConfigOptions {
-    const defaultOptions = DefaultOptions.getWithDefaults(TsConfig, {
-      tsconfigFilename: 'tsconfig.json',
-      extends: options.extends ?? TsConfigDefaults.extends,
-      autoInstallDevDependencies: true,
-    });
-    return {
-      ...defaultOptions,
-      ...options,
-    };
-  }
-  constructor(scope: Scope, options: TsConfigInitialOptions = {}) {
-    const opts = TsConfig.defaults(options, scope);
-    super(scope, opts);
+const TsConfigDefaults = {
+  tsconfigFilename: 'tsconfig.json',
+  autoInstallDevDependencies: true,
+  extends: [TsConfigBases.Node20],
+} satisfies TsConfigOptionsType;
+
+PackageJsonOptions.setDefaultVersions({
+  '@tsconfig/node20': '^20.1.4',
+});
+
+const optionsMerger: OptionsMerger<
+  TsConfigOptionsType,
+  TsConfigInitialOptionsType,
+  typeof TsConfigDefaults
+> = (initialOptions, defaults) => {
+  return {
+    ...defaults,
+    ...initialOptions,
+  };
+};
+
+export const TsConfigOptions = createOptionsManager(
+  Symbol.for('TsConfigOptions'),
+  TsConfigDefaults,
+  optionsMerger,
+);
+export class TsConfig extends Component<TsConfigOptionsType> {
+  readonly file: JsonFile<TsConfigJson>;
+
+  constructor(scope: Scope, options: TsConfigInitialOptionsType = {}) {
+    super(scope, TsConfigOptions.getOptions(options, { scope }));
     const { tsconfigFilename, autoInstallDevDependencies } = this.options;
     this.options.extends = this.normalizeConfigExtends(
       this.options.extends,
       autoInstallDevDependencies,
     ).configExtends;
-    this.json = new JsonFile<TsConfigJson>(
+    this.file = new JsonFile<TsConfigJson>(
       this,
       { basename: tsconfigFilename },
       this.splitConfig().tsconfig,
@@ -92,7 +106,7 @@ export class TsConfig extends Component<TsConfigOptions> {
   }
 
   update(mutate: (data: TsConfigJson) => TsConfigJson | void) {
-    this.json.update(data => {
+    this.file.update(data => {
       const result = this.normalizeConfigExtends(
         data.extends,
         this.options.autoInstallDevDependencies,
@@ -104,7 +118,10 @@ export class TsConfig extends Component<TsConfigOptions> {
     });
   }
 
-  protected splitConfig(): { tsconfig: TsConfigJson; options: TsConfigExtra } {
+  protected splitConfig(): {
+    tsconfig: TsConfigJson;
+    options: TsConfigExtraOptionsType;
+  } {
     const {
       tsconfigFilename,
       autoInstallDevDependencies,
@@ -115,8 +132,8 @@ export class TsConfig extends Component<TsConfigOptions> {
       // This ensures type safety, allowing us to verify that expected properties are defined,
       // and enabling the assert to confirm that 'tsconfig' has no remaining keys from 'TsConfigExtra'.
       // This pattern helps prevent runtime errors by enforcing correct structure and types at compile-time.
-    }: TsConfigExtra = this.options;
-    const options: TsConfigExtra = {
+    }: TsConfigExtraOptionsType = this.options;
+    const options: TsConfigExtraOptionsType = {
       tsconfigFilename,
       autoInstallDevDependencies,
     };
@@ -130,7 +147,7 @@ export class TsConfig extends Component<TsConfigOptions> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const assertTsConfigHasNoConfigExtraKey: EnsureKeysAreNotPresent<
       typeof tsconfig,
-      keyof TsConfigExtra
+      keyof TsConfigExtraOptionsType
     > = tsconfig;
     return { tsconfig: tsconfig as TsConfigJson, options };
   }

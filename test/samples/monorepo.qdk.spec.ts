@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi, vitest } from 'vitest';
-import { DefaultOptions, PackageJson } from '../../src/index.js';
+import { PackageJsonOptions } from '../../src/index.js';
 import {
   printFsTree,
   reset,
@@ -25,17 +25,15 @@ vitest.mock('fs/promises', async () => {
 vitest.mock('../../src/system/execution.ts', () => {
   return {
     processCwd: vi.fn().mockReturnValue('/'),
-    execSync: vi.fn().mockReturnValue('1.0.0-mock'),
-    exec: vi.fn().mockResolvedValue('1.0.0-mock'),
+    execSync: vi.fn().mockReturnValue('9.9.9-mock-latest'),
+    exec: vi.fn().mockResolvedValue('9.9.9-mock-latest'),
   };
 });
 
 describe('qdk/monorepo sample', () => {
-  const defaultOptions = DefaultOptions.toSnapshot();
   afterEach(() => {
-    reset({
-      defaultOptions,
-    });
+    reset();
+    PackageJsonOptions.restoreDefaults();
   });
   it('builds a monorepo sample project', async () => {
     // When
@@ -47,8 +45,10 @@ describe('qdk/monorepo sample', () => {
     expect(filesystemContent).toMatchSnapshot();
   });
 
-  it('builds a monorepo sample project and delete orphan files', async () => {
-    DefaultOptions.extends(PackageJson, { version: '0.2.0' });
+  it('builds a monorepo sample project and delete orphan files', async s => {
+    PackageJsonOptions.replaceDefaults({
+      version: '0.2.0-' + s.task.name.replace(/[^a-zA-Z0-9]/g, ''),
+    });
     // Given some preexistent files
     await writeFiles({
       '/build/monorepo/.qdk/meta.json': JSON.stringify({

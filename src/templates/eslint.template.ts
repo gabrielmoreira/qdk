@@ -1,7 +1,12 @@
 import type Globals from 'globals';
-import { PackageJson, SourceFileTemplate, TemplateParams } from '../index.js';
+import {
+  Jsonifiable,
+  PackageJson,
+  SourceFileTemplate,
+  TemplateParams,
+} from '../index.js';
 
-export const SourceFileTemplateDefaultLocations = [
+export const SourceFileTemplateDefaultTags = [
   'file_start',
   'imports_start',
   'imports',
@@ -15,6 +20,13 @@ export const SourceFileTemplateDefaultLocations = [
   'file_end',
 ];
 
+type Severity = 0 | 1 | 2;
+type SeverityString = 'error' | 'off' | 'warn';
+type RuleLevel = Severity | SeverityString;
+type RuleLevelAndOptions = [RuleLevel, ...Jsonifiable[]];
+type RuleEntry = RuleLevel | RuleLevelAndOptions;
+type RulesRecord = Partial<Record<string, RuleEntry>>;
+
 export type EsLintSourceFileDefaultTemplateParams = TemplateParams & {
   'import globals'?: boolean;
   'import eslintPluginPrettierRecommended'?: boolean;
@@ -25,14 +37,15 @@ export type EsLintSourceFileDefaultTemplateParams = TemplateParams & {
   ignores?: string[] | boolean;
   globalType?: keyof typeof Globals | boolean;
   allowDefaultProject?: string[] | boolean;
+  rules?: RulesRecord | false;
 };
 export const EsLintSourceFileDefaultTemplate: SourceFileTemplate<EsLintSourceFileDefaultTemplateParams> =
   {
-    locations: [...SourceFileTemplateDefaultLocations],
-    lines: [
+    tags: [...SourceFileTemplateDefaultTags],
+    blocks: [
       {
-        location: 'imports',
-        requires: 'import globals',
+        tag: 'imports',
+        condition: 'import globals',
         template: `import globals from "globals";`,
         hooks: scope => ({
           'synth:before': () => {
@@ -41,8 +54,8 @@ export const EsLintSourceFileDefaultTemplate: SourceFileTemplate<EsLintSourceFil
         }),
       },
       {
-        location: 'imports',
-        requires: 'import eslint',
+        tag: 'imports',
+        condition: 'import eslint',
         template: `import eslint from "@eslint/js";`,
         hooks: scope => ({
           'synth:before': () => {
@@ -51,8 +64,8 @@ export const EsLintSourceFileDefaultTemplate: SourceFileTemplate<EsLintSourceFil
         }),
       },
       {
-        location: 'imports',
-        requires: 'import tseslint',
+        tag: 'imports',
+        condition: 'import tseslint',
         template: `import tseslint from "typescript-eslint";`,
         hooks: scope => ({
           'synth:before': () => {
@@ -61,8 +74,8 @@ export const EsLintSourceFileDefaultTemplate: SourceFileTemplate<EsLintSourceFil
         }),
       },
       {
-        location: 'imports',
-        requires: 'import eslintPluginPrettierRecommended',
+        tag: 'imports',
+        condition: 'import eslintPluginPrettierRecommended',
         template: `import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"`,
         hooks: scope => ({
           'synth:before': () => {
@@ -73,61 +86,66 @@ export const EsLintSourceFileDefaultTemplate: SourceFileTemplate<EsLintSourceFil
         }),
       },
       {
-        location: 'exports_start',
-        requires: 'export default tseslint.config',
+        tag: 'exports_start',
+        condition: 'export default tseslint.config',
         template: `export default tseslint.config(`,
       },
       {
-        location: 'exports',
-        requires: 'eslint.configs.recommended',
+        tag: 'exports',
+        condition: 'eslint.configs.recommended',
         template: 'eslint.configs.recommended,',
       },
       {
-        location: 'exports',
-        requires: 'tseslint.configs.recommendedTypeChecked',
+        tag: 'exports',
+        condition: 'tseslint.configs.recommendedTypeChecked',
         template: '...tseslint.configs.recommendedTypeChecked,',
       },
       {
-        location: 'exports',
-        requires: 'tseslint.configs.stylisticTypeChecked',
+        tag: 'exports',
+        condition: 'tseslint.configs.stylisticTypeChecked',
         template: '...tseslint.configs.stylisticTypeChecked,',
       },
       {
-        location: 'exports',
-        requires: 'eslintPluginPrettierRecommended',
+        tag: 'exports',
+        condition: 'eslintPluginPrettierRecommended',
         template: 'eslintPluginPrettierRecommended,',
       },
       {
-        location: 'exports',
-        requires: 'files',
+        tag: 'exports',
+        condition: 'files',
         template: ({ files }) => `{files: ${JSON.stringify(files)}},`,
       },
       {
-        location: 'exports',
-        requires: 'ignores',
+        tag: 'exports',
+        condition: 'ignores',
         template: ({ ignores }) => `{ignores: ${JSON.stringify(ignores)}},`,
       },
       {
-        location: 'exports',
-        requires: 'languageOptions.globals',
+        tag: 'exports',
+        condition: 'languageOptions.globals',
         template: ({ globalType = 'nodeBuiltin' }) =>
           `{ languageOptions: { globals: globals.${globalType} } },`,
       },
       {
-        location: 'exports',
-        requires:
+        tag: 'exports',
+        condition:
           'languageOptions.parserOptions.projectService.allowDefaultProject',
         template: ({ allowDefaultProject = [] }) =>
           `{ languageOptions: { parserOptions: { projectService: { allowDefaultProject: ${JSON.stringify(allowDefaultProject)}} } } },`,
       },
       {
-        location: 'exports',
-        requires: 'languageOptions.parserOptions.tsconfigRootDir',
+        tag: 'exports',
+        condition: 'rules',
+        template: ({ rules }) => `{ rules: ${JSON.stringify(rules)}},`,
+      },
+      {
+        tag: 'exports',
+        condition: 'languageOptions.parserOptions.tsconfigRootDir',
         template: () =>
           `{ languageOptions: { parserOptions: { tsconfigRootDir: import.meta.dirname } } },`,
       },
       {
-        location: 'exports_end',
+        tag: 'exports_end',
         template: `)`,
       },
     ],

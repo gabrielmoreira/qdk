@@ -1,20 +1,20 @@
 import {
   JsonFile,
-  JsonFileInitialOptions,
+  JsonFileInitialOptionsType,
   Jsonifiable,
-  QdkFileInitialOptions,
+  QdkFileInitialOptionsType,
   QdkNode,
   Scope,
   TextFile,
-  TextFileInitialOptions,
+  TextFileInitialOptionsType,
   YamlFile,
-  YamlFileInitialOptions,
+  YamlFileInitialOptionsType,
   Yamlifiable,
 } from '../index.js';
 
 export interface SampleFile<
   T extends string,
-  O extends QdkFileInitialOptions,
+  O extends QdkFileInitialOptionsType,
   D,
 > {
   type: T;
@@ -23,9 +23,9 @@ export interface SampleFile<
 }
 
 export type SampleFileType =
-  | SampleFile<'json', JsonFileInitialOptions, Jsonifiable>
-  | SampleFile<'yaml', YamlFileInitialOptions, Yamlifiable>
-  | SampleFile<'text', TextFileInitialOptions, string>;
+  | SampleFile<'json', JsonFileInitialOptionsType, Jsonifiable>
+  | SampleFile<'yaml', YamlFileInitialOptionsType, Yamlifiable>
+  | SampleFile<'text', TextFileInitialOptionsType, string>;
 
 export interface SampleFilesOptions {
   files: Record<string, string | SampleFileType>;

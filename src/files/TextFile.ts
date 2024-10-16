@@ -1,21 +1,49 @@
 import {
+  createOptionsManager,
   FileCodec,
+  OptionsMerger,
   QdkFile,
-  QdkFileInitialOptions,
+  QdkFileInitialOptionsType,
   QdkFileOptions,
+  QdkFileOptionsType,
   QdkNode,
   Scope,
 } from '../index.js';
+
+export type TextFileOptionsType = QdkFileOptionsType & {};
+export type TextFileInitialOptionsType = QdkFileInitialOptionsType & {};
+const TextFileDefaults = {} satisfies Partial<TextFileOptionsType>;
+
+const optionsMerger: OptionsMerger<
+  TextFileOptionsType,
+  TextFileInitialOptionsType,
+  typeof TextFileDefaults
+> = (initialOptions, defaults, context) => {
+  const fileOptions = QdkFileOptions.getOptions(
+    {
+      ...defaults,
+      ...initialOptions,
+    },
+    context,
+  );
+  return {
+    ...defaults,
+    ...fileOptions,
+  };
+};
+
+export const TextFileOptions = createOptionsManager(
+  Symbol.for('TextFileOptions'),
+  TextFileDefaults,
+  optionsMerger,
+);
 
 const createTextCodec = (): FileCodec<string> => ({
   serializer: (data: string) => Buffer.from(data),
   deserializer: buffer => buffer.toString('utf8'),
 });
 
-export type TextFileOptions = QdkFileOptions & {};
-export type TextFileInitialOptions = QdkFileInitialOptions & {};
-
-export class TextFile extends QdkFile<string, TextFileOptions> {
+export class TextFile extends QdkFile<string, TextFileOptionsType> {
   static ofText(node: QdkNode, path: string): TextFile | undefined {
     return node instanceof TextFile
       ? (QdkFile.of(node, path) as TextFile | undefined)
@@ -31,10 +59,15 @@ export class TextFile extends QdkFile<string, TextFileOptions> {
   }
   constructor(
     scope: Scope,
-    options: TextFileInitialOptions,
+    options: TextFileInitialOptionsType,
     initialData: string,
   ) {
-    super(scope, options, createTextCodec(), initialData);
+    super(
+      scope,
+      TextFileOptions.getOptions(options, { scope }),
+      createTextCodec(),
+      initialData,
+    );
   }
 
   change(newValue: string) {

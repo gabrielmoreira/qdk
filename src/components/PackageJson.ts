@@ -5,9 +5,10 @@ import type { PackageJson as PackageJsonType } from 'type-fest';
 import {
   assertRequired,
   Component,
-  DefaultOptions,
+  createOptionsManager,
   HasOptions,
   JsonFile,
+  OptionsMerger,
   PackageManager,
   parseDependency,
   QdkNode,
@@ -16,40 +17,106 @@ import {
 
 export { PackageJsonType };
 
-export type PackageJsonOptions = PackageJsonType.NodeJsStandard &
+type PackageJsonOptionsTypeWithoutRoot = PackageJsonType.NodeJsStandard &
   PackageJsonType.PackageJsonStandard &
   PackageJsonType.NonStandardEntryPoints &
   PackageJsonType.TypeScriptConfiguration &
   PackageJsonType.YarnConfiguration &
   PackageJsonType.JSPMConfiguration & {
     name: string;
+    defaultVersions: Record<string, string>;
+    defaultScripts: Record<string, string>;
   };
 
-export type PackageJsonInitialOptions = Partial<PackageJsonOptions>;
+type PackageJsonOptionsType = PackageJsonOptionsTypeWithoutRoot & {
+  rootOptions?: Pick<
+    Partial<PackageJsonOptionsTypeWithoutRoot>,
+    'defaultScripts'
+  > & {
+    devDeps?: Record<string, string | boolean | undefined>;
+  };
+};
+
+export type PackageJsonInitialOptions = Partial<PackageJsonOptionsType>;
+
+const PackageJsonDefaults: Partial<PackageJsonOptionsType> = {
+  version: '0.1.0',
+  type: 'module',
+  defaultVersions: {},
+  defaultScripts: {},
+  rootOptions: {
+    devDeps: { qdk: true },
+    defaultScripts: {
+      qdk: 'qdk synth',
+      'qdk:check': 'qdk synth --check',
+    },
+  },
+};
+
+const optionsMerger: OptionsMerger<
+  PackageJsonOptionsType,
+  PackageJsonInitialOptions,
+  typeof PackageJsonDefaults
+> = (initialOptions, defaults, context) => {
+  const { scope } = context;
+  const rootDefaults =
+    context.scope.project === context.scope.root.project
+      ? {
+          ...defaults?.rootOptions,
+          ...initialOptions?.rootOptions,
+          defaultScripts: {
+            ...defaults?.rootOptions?.defaultScripts,
+            ...initialOptions?.rootOptions?.defaultScripts,
+          },
+        }
+      : { defaultScripts: {} };
+  const options: PackageJsonOptionsType = {
+    ...defaults,
+    ...initialOptions,
+    rootOptions: rootDefaults,
+    defaultVersions: {
+      ...defaults.defaultVersions,
+      ...initialOptions.defaultVersions,
+    },
+    defaultScripts: {
+      ...defaults.defaultScripts,
+      ...initialOptions.defaultScripts,
+    },
+    name: initialOptions?.name ?? scope.project.options.name,
+    version:
+      initialOptions?.version ??
+      scope.project.options.version ??
+      defaults?.version,
+    description:
+      initialOptions?.description ?? scope.project.options.description,
+  };
+  return options;
+};
+
+export const PackageJsonOptions = createOptionsManager(
+  Symbol.for('PackageJsonOptions'),
+  PackageJsonDefaults,
+  optionsMerger,
+  {
+    setDefaultVersions: (deps: Record<string, string>) => {
+      PackageJsonOptions.updateDefaults(data => {
+        const defaultVersions = (data.defaultVersions ??= {});
+        Object.assign(defaultVersions, deps);
+      });
+    },
+    setDefaultVersion: (name: string, version: string) => {
+      PackageJsonOptions.updateDefaults(data => {
+        const defaultVersions = (data.defaultVersions ??= {});
+        defaultVersions[name] = version;
+      });
+    },
+  },
+);
 
 export class PackageJson
-  extends Component<PackageJsonOptions>
-  implements HasOptions<PackageJsonOptions>
+  extends Component<PackageJsonOptionsType>
+  implements HasOptions<PackageJsonOptionsType>
 {
-  static defaults(
-    options: PackageJsonInitialOptions,
-    scope: Scope,
-  ): PackageJsonOptions {
-    const defaultOptions = DefaultOptions.getWithDefaults(PackageJson, {
-      name: scope.project.options.name,
-      version: scope.project.options.version ?? '0.1.0',
-      description: scope.project.options.description,
-    });
-    return {
-      ...{
-        name: scope.project.options.name,
-        version: scope.project.options.version,
-        description: scope.project.options.description,
-      },
-      ...defaultOptions,
-      ...options,
-    };
-  }
   static of(this: void, node: QdkNode): PackageJson | undefined {
     return node instanceof PackageJson ? node : undefined;
   }
@@ -62,15 +129,35 @@ export class PackageJson
       'PackageJson not found in the scope ' + scope.nodeType,
     );
   }
-  private file: JsonFile<PackageJsonType>;
+  readonly file: JsonFile<PackageJsonType>;
 
   constructor(scope: Scope, options: PackageJsonInitialOptions = {}) {
-    super(scope, PackageJson.defaults(options, scope));
+    // fail if this component already exists
+    scope.project.ensureComponentIsNotDefined(PackageJson.of);
+    super(scope, PackageJsonOptions.getOptions(options, { scope }));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { defaultScripts, defaultVersions, rootOptions, ...pkgData } =
+      this.options;
     this.file = new JsonFile<PackageJsonType>(
       this,
       { basename: 'package.json', readOnInit: true },
-      structuredClone(this.options) as PackageJsonType,
+      structuredClone(pkgData) as PackageJsonType,
     );
+    this.addScripts(defaultScripts);
+    if (this.project === scope.root.project && rootOptions) {
+      if (rootOptions.defaultScripts) {
+        this.addScripts(rootOptions?.defaultScripts);
+      }
+      if (rootOptions.devDeps) {
+        Object.entries(rootOptions.devDeps).forEach(([key, value]) => {
+          if (value === true) {
+            this.addDevDeps(key);
+          } else if (typeof value === 'string') {
+            this.addDevDeps(key + '@' + value);
+          }
+        });
+      }
+    }
     this.hook('synth:before', () => {
       this.file.update(data => {
         const clonedData = JSON.parse(JSON.stringify(data)) as PackageJsonType;
@@ -84,6 +171,10 @@ export class PackageJson
       // }
     });
   }
+
+  private getDefaultVersion(name: string) {
+    return this.options.defaultVersions?.[name];
+  }
   private buildDepsObject(
     defaults: Partial<Record<string, string>> | undefined,
     ...dependencies: string[]
@@ -94,6 +185,7 @@ export class PackageJson
         deps[name] =
           version ??
           defaults?.[name] ??
+          this.getDefaultVersion(name) ??
           PackageManager.required(this).latestVersion(name);
         return deps;
       },
@@ -130,11 +222,23 @@ export class PackageJson
     this.file.mergeField('engine', { [name]: version });
     return this;
   }
-  setScript(name: string, script: string): this {
-    this.file.mergeField('scripts', { [name]: script });
-    return this;
+  setScript(name: string, script: string | undefined): this {
+    return this.addScripts({ [name]: script });
   }
-  update(mutate: (data: PackageJsonType) => PackageJsonType | void) {
+  addScripts(scripts: Record<string, string | undefined>): this {
+    return this.update(data => {
+      const dataScripts = (data.scripts ??= {});
+      Object.entries(scripts).forEach(([key, value]) => {
+        if (value === undefined) {
+          delete dataScripts[key];
+        } else {
+          dataScripts[key] = value;
+        }
+      });
+    });
+  }
+  update(mutate: (data: PackageJsonType) => PackageJsonType | void): this {
     this.file.update(mutate);
+    return this;
   }
 }

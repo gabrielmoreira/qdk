@@ -1,16 +1,55 @@
 import { relative } from 'path';
-import { Component, YamlFile, Yamlifiable } from '../index.js';
+import {
+  Component,
+  createOptionsManager,
+  OptionsMerger,
+  YamlFile,
+  Yamlifiable,
+} from '../index.js';
 
-export class PnpmWorkspace extends Component {
+export interface PnpmWorkspaceOptionsType {
+  configFilename: string;
+  packages: string[];
+  catalog: Record<string, string> | undefined;
+  catalogs: Record<string, Record<string, string> | undefined> | undefined;
+}
+export type PnpmWorkspaceInitialOptions = Partial<
+  Omit<PnpmWorkspaceOptionsType, 'configFilename'>
+>;
+
+const PnpmWorkspaceDefaults = {
+  configFilename: 'pnpm-workspace.yaml',
+  packages: [],
+  catalog: undefined,
+  catalogs: undefined,
+} satisfies PnpmWorkspaceOptionsType;
+
+const optionsMerger: OptionsMerger<
+  PnpmWorkspaceOptionsType,
+  PnpmWorkspaceInitialOptions,
+  typeof PnpmWorkspaceDefaults
+> = (initialOptions, defaults) => {
+  return {
+    ...defaults,
+    ...initialOptions,
+  };
+};
+
+export const PnpmWorkspaceOptions = createOptionsManager(
+  Symbol.for('PnpmWorkspaceOptions'),
+  PnpmWorkspaceDefaults,
+  optionsMerger,
+);
+
+export class PnpmWorkspace extends Component<PnpmWorkspaceOptionsType> {
   yaml: YamlFile;
-  constructor(scope: Component) {
-    super(scope, undefined);
+  constructor(scope: Component, options: PnpmWorkspaceInitialOptions = {}) {
+    super(scope, PnpmWorkspaceOptions.getOptions(options, { scope }));
+    const { configFilename, ...initialData } = this.options;
     this.yaml = new YamlFile<Yamlifiable>(
       this,
-      { basename: 'pnpm-workspace.yaml' },
-      {
-        packages: [],
-      },
+      { basename: configFilename },
+      initialData,
     );
     this.hook('synth:before', () => {
       this.yaml.merge({

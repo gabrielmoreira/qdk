@@ -3,7 +3,6 @@ import fsPrint from 'memfs/lib/print';
 import { dirname, join } from 'node:path';
 import { vi } from 'vitest';
 import { QdkApp } from '../src/index.js';
-import { DefaultOptions } from '../src/options.js';
 import { createLogger } from '../src/system/logger.js';
 
 const logger = createLogger('testing', 'test-helpers');
@@ -63,20 +62,17 @@ export function reset({
   timers,
   mocks,
   modules,
-  defaultOptions,
 }: {
   filesystem?: boolean | Parameters<typeof resetFilesystem>[0];
   timers?: boolean;
   mocks?: boolean;
   modules?: boolean;
-  defaultOptions?: ReturnType<typeof DefaultOptions.toSnapshot>;
 } = {}) {
   if (timers) vi.useRealTimers();
   if (modules) vi.resetModules();
   if (mocks) vi.resetAllMocks();
   if (filesystem)
     resetFilesystem(typeof filesystem === 'boolean' ? {} : filesystem);
-  if (defaultOptions) DefaultOptions.fromSnapshot(defaultOptions);
 }
 
 export interface SampleApp {

@@ -3,16 +3,46 @@ import { get, merge, set } from 'lodash-es';
 import type { Jsonifiable } from 'type-fest';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import {
+  createOptionsManager,
   FileCodec,
+  OptionsMerger,
   QdkFile,
-  QdkFileInitialOptions,
+  QdkFileInitialOptionsType,
   QdkFileOptions,
+  QdkFileOptionsType,
+  QdkNode,
   Scope,
 } from '../index.js';
 
-export type YamlFileOptions = QdkFileOptions & {};
-export type YamlFileInitialOptions = QdkFileInitialOptions & {};
+export type YamlFileOptionsType = QdkFileOptionsType & {};
+export type YamlFileInitialOptionsType = QdkFileInitialOptionsType & {};
 export type Yamlifiable = Jsonifiable;
+
+const YamlFileDefaults = {} satisfies Partial<YamlFileOptionsType>;
+
+const optionsMerger: OptionsMerger<
+  YamlFileOptionsType,
+  YamlFileInitialOptionsType,
+  typeof YamlFileDefaults
+> = (initialOptions, defaults, context) => {
+  const fileOptions = QdkFileOptions.getOptions(
+    {
+      ...defaults,
+      ...initialOptions,
+    },
+    context,
+  );
+  return {
+    ...defaults,
+    ...fileOptions,
+  };
+};
+
+export const YamlFileOptions = createOptionsManager(
+  Symbol.for('YamlFileOptions'),
+  YamlFileDefaults,
+  optionsMerger,
+);
 
 const createYamlCodec = <T = Yamlifiable>(): FileCodec<T> => ({
   serializer: (data: T) => Buffer.from(stringifyYaml(data, null, 2)),
@@ -21,10 +51,33 @@ const createYamlCodec = <T = Yamlifiable>(): FileCodec<T> => ({
 
 export class YamlFile<T extends Yamlifiable = Yamlifiable> extends QdkFile<
   T,
-  YamlFileOptions
+  YamlFileOptionsType
 > {
-  constructor(scope: Scope, options: YamlFileInitialOptions, initialData: T) {
-    super(scope, options, createYamlCodec(), initialData);
+  static ofYaml(node: QdkNode, path: string): YamlFile | undefined {
+    return node instanceof YamlFile
+      ? (QdkFile.of(node, path) as YamlFile | undefined)
+      : undefined;
+  }
+  static ofPath(path: string) {
+    return (node: QdkNode): YamlFile | undefined => {
+      return YamlFile.ofYaml(node, path);
+    };
+  }
+  static forPath(scope: Scope, path: string): YamlFile | undefined {
+    return scope.project.findComponent(YamlFile.ofPath(path));
+  }
+
+  constructor(
+    scope: Scope,
+    options: YamlFileInitialOptionsType,
+    initialData: T,
+  ) {
+    super(
+      scope,
+      YamlFileOptions.getOptions(options, { scope }),
+      createYamlCodec(),
+      initialData,
+    );
   }
 
   mergeField(property: string, newValue: T, defaultValue: any = {}) {

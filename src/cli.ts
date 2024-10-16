@@ -14,6 +14,13 @@ const cli = new Cli({
   binaryName: `npx qdk`,
 });
 
+const log = (...msg: unknown[]) => {
+  console.log('QDK:', ...msg);
+};
+
+type TemplateKey = keyof typeof templates;
+const templateKeys: TemplateKey[] = Object.keys(templates) as TemplateKey[];
+
 cli.register(
   class InitCommand extends Command {
     static paths = [['init']];
@@ -28,7 +35,7 @@ cli.register(
     cwd = Option.String('--cwd', { hidden: true });
     template = Option.String('--template', {
       description: 'Available qdk.config.ts templates: [basic]',
-      validator: t.isOneOf([t.isLiteral('basic')]),
+      validator: t.isOneOf(templateKeys.map(it => t.isLiteral(it))),
     });
     async execute() {
       const opts = { cwd: this.cwd ?? process.cwd() };
@@ -41,7 +48,10 @@ cli.register(
           join(opts.cwd, 'qdk.config.ts'),
           templates[this.template ?? 'basic'],
         );
+        log('The qdk.config.ts file has been created successfully.');
+        log('Please adjust your qdk.config.ts file as needed.');
       }
+      log('Run [npx qdk synth] to synthesize your project.');
     }
   },
 );
@@ -62,15 +72,18 @@ cli.register(
       const opts = { cwd: this.cwd };
       const qdkProject = await loadQdk(opts);
       if (!qdkProject) {
-        console.error('qdk.config.ts should export a qdk Project');
+        console.error(
+          '[qdk.config.ts] The exported configuration is not valid for QDK',
+        );
         process.exit(1);
       }
       let hasError = false;
       await qdkProject.synth({
         checkOnly: this.checkOnly,
         errorReporter: {
-          report(scope, type, msg) {
+          report(scope, type, msg, extra) {
             console.error(scope.nodeName, type, msg);
+            if (extra) console.dir(extra, { depth: 100 });
             hasError = true;
           },
         },
@@ -91,28 +104,49 @@ cli
     console.error(e);
   });
 
-async function loadQdk(opts: { cwd?: string }) {
+interface LoadOpts {
+  cwd?: string;
+}
+async function loadQdk(opts: LoadOpts): Promise<CanSynthesize | undefined> {
   if (!(await hasQdk(opts))) {
     await installQdk(opts);
   }
   const qdkConfig = await findQdkConfig(opts);
   if (!qdkConfig) {
     console.error('qdk.config.ts not found!');
-    console.log('Run the following command to create a new qdk config file:');
-    console.log('npx qdk init');
+    log('Run the following command to create a new qdk config file:');
+    log('npx qdk init');
     process.exit(1);
   }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-  const qdkProject = (await import(qdkConfig))?.default;
-  if (
-    typeof qdkProject === 'object' &&
-    qdkProject &&
-    'synth' in qdkProject &&
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    typeof qdkProject.synth === 'function'
-  ) {
-    return qdkProject as CanSynthesize;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const qdkProjectType = await import(qdkConfig);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  let qdkProject = tryGetQdkAppInstance(qdkProjectType?.default, opts);
+  if (qdkProject) return qdkProject;
+
+  qdkProject = tryGetQdkAppInstance(qdkProjectType, opts);
+  if (qdkProject) return qdkProject;
+}
+
+function tryGetQdkAppInstance(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  objectType: any,
+  opts: LoadOpts,
+): CanSynthesize | undefined {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const obj = new objectType(opts);
+    if ('synth' in obj) {
+      return obj as CanSynthesize;
+    } else {
+      // console.log('The exported configuration is not valid for QDK');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    // console.log(e);
+    // ignore
   }
+  return undefined;
 }
 
 async function hasQdk({ cwd }: { cwd?: string }) {
@@ -127,8 +161,8 @@ async function hasQdk({ cwd }: { cwd?: string }) {
 
 async function installQdk({ cwd }: { cwd?: string }) {
   try {
-    const result = await exec('npm install qdk', { cwd });
-    console.log('qdk installed', result);
+    await exec('npm install qdk', { cwd });
+    log('qdk installed!');
     return true;
   } catch (e) {
     console.error(e);

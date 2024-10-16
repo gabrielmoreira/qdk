@@ -6,23 +6,64 @@ import {
 } from 'magicast';
 import { basename } from 'path';
 import {
+  createOptionsManager,
   FileCodec,
+  OptionsMerger,
   QdkFile,
-  QdkFileInitialOptions,
+  QdkFileInitialOptionsType,
   QdkFileOptions,
+  QdkFileOptionsType,
   QdkNode,
   Scope,
 } from '../index.js';
 
-export type SourceCodeFileOptions = QdkFileOptions & {
+export type SourceCodeFileOptionsType = QdkFileOptionsType & {
   generateOptions: GenerateOptions;
   parserOptions: ParserOptions;
 };
-export type SourceCodeFileInitialOptions = Exclude<
-  Partial<SourceCodeFileOptions>,
-  keyof QdkFileOptions
+export type SourceCodeFileInitialOptionsType = Exclude<
+  Partial<SourceCodeFileOptionsType>,
+  keyof QdkFileOptionsType
 > &
-  QdkFileInitialOptions;
+  QdkFileInitialOptionsType;
+
+const SourceCodeFileDefaults = {
+  generateOptions: {},
+  parserOptions: {},
+} satisfies Partial<SourceCodeFileOptionsType>;
+
+const optionsMerger: OptionsMerger<
+  SourceCodeFileOptionsType,
+  SourceCodeFileInitialOptionsType,
+  typeof SourceCodeFileDefaults
+> = (initialOptions, defaults, context) => {
+  const fileOptions = QdkFileOptions.getOptions(
+    {
+      ...defaults,
+      ...initialOptions,
+    },
+    context,
+  );
+  return {
+    ...defaults,
+    ...fileOptions,
+    generateOptions: {
+      ...defaults.generateOptions,
+      ...initialOptions.generateOptions,
+    },
+    parserOptions: {
+      ...defaults.parserOptions,
+      ...initialOptions.parserOptions,
+    },
+    freeze: false,
+  };
+};
+
+export const SourceCodeFileOptions = createOptionsManager(
+  Symbol.for('SourceCodeFileOptions'),
+  SourceCodeFileDefaults,
+  optionsMerger,
+);
 
 // Magicast do not re-export the ParserOptions type.
 export type ParserOptions = Exclude<
@@ -53,7 +94,13 @@ export function createSourceCodeParserCodec({
     },
   };
 }
-export class SourceCodeFile extends QdkFile<SourceCode, SourceCodeFileOptions> {
+/**
+ * @deprecated This code is experimental
+ */
+export class SourceCodeFile extends QdkFile<
+  SourceCode,
+  SourceCodeFileOptionsType
+> {
   static ofText(node: QdkNode, path: string): SourceCodeFile | undefined {
     return node instanceof SourceCodeFile
       ? (QdkFile.of(node, path) as SourceCodeFile | undefined)
@@ -67,30 +114,17 @@ export class SourceCodeFile extends QdkFile<SourceCode, SourceCodeFileOptions> {
   static forPath(scope: Scope, path: string): SourceCodeFile | undefined {
     return scope.project.findComponent(SourceCodeFile.ofPath(path));
   }
-  static defaults(
-    options: SourceCodeFileInitialOptions,
-    scope: Scope,
-  ): SourceCodeFileOptions {
-    const opts = QdkFile.defaults(options, scope);
-    return {
-      ...opts,
-      generateOptions: options.generateOptions ?? {},
-      parserOptions: options.parserOptions ?? {},
-      freeze: false,
-    };
-  }
   constructor(
     scope: Scope,
-    options: SourceCodeFileInitialOptions,
+    options: SourceCodeFileInitialOptionsType,
     initialData: string,
   ) {
-    const opts = SourceCodeFile.defaults(options, scope);
+    const opts = SourceCodeFileOptions.getOptions(options, { scope });
     const codec = createSourceCodeParserCodec({
       sourceFileName: basename(opts.basename),
       generateOptions: opts.generateOptions,
       parserOptions: opts.parserOptions,
     });
-    opts.freeze = false;
     super(scope, opts, codec, codec.deserializer(Buffer.from(initialData)));
   }
   update(mutate: (data: ProxifiedModule<object>) => void): void {

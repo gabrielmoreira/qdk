@@ -12,9 +12,13 @@ import { dirname, join } from 'node:path';
 import * as prettier from 'prettier';
 import {
   createFile,
+  createOptionsManager,
   existsSync,
   FsFile,
   mkdir,
+  OptionsMerger,
+  Prettier,
+  PrettierOptions,
   QdkNode,
   QdkNodeType,
   readFile,
@@ -26,7 +30,7 @@ import {
 } from '../index.js';
 enablePatches();
 
-export interface QdkFileOptions {
+export interface QdkFileOptionsType {
   cwd: string;
   basename: string;
   readOnInit?: boolean;
@@ -36,16 +40,45 @@ export interface QdkFileOptions {
   formatOnCheck?: boolean | prettier.Options;
   formatOnWrite?: boolean | prettier.Options;
 }
-export type QdkFileInitialOptions = Partial<QdkFileOptions> &
-  Pick<QdkFileOptions, 'basename'>;
+export type QdkFileInitialOptionsType = Partial<QdkFileOptionsType> &
+  Pick<QdkFileOptionsType, 'basename'>;
+
+const QdkFileDefaults = {
+  sample: false,
+  freeze: true,
+  readOnInit: true,
+  writeOnSynth: true,
+  formatOnCheck: true,
+  formatOnWrite: true,
+} satisfies Omit<QdkFileOptionsType, 'cwd' | 'basename'>;
+
+const optionsMerger: OptionsMerger<
+  QdkFileOptionsType,
+  QdkFileInitialOptionsType,
+  typeof QdkFileDefaults
+> = (initialOptions, defaults, { scope }) => {
+  return {
+    ...defaults,
+    ...initialOptions,
+    cwd:
+      initialOptions.cwd ??
+      join(scope.project.options.cwd, scope.project.options.outdir),
+  };
+};
+
+export const QdkFileOptions = createOptionsManager(
+  Symbol.for('QdkFileOptions'),
+  QdkFileDefaults,
+  optionsMerger,
+);
 
 export interface FileCodec<T = any> {
   serializer: (data: T) => Buffer;
   deserializer: (buffer: Buffer) => T;
 }
-export class QdkFile<
+export abstract class QdkFile<
   T = any,
-  O extends QdkFileOptions = QdkFileOptions,
+  O extends QdkFileOptionsType = QdkFileOptionsType,
 > extends QdkNode {
   protected file: FsFile;
   protected codec: FileCodec<T>;
@@ -64,7 +97,7 @@ export class QdkFile<
     return relativeToCwd(this.file.path, this.project.options.path);
   }
 
-  static of<T, O extends QdkFileOptions = QdkFileOptions>(
+  static of<T, O extends QdkFileOptionsType = QdkFileOptionsType>(
     node: QdkNode,
     basename?: string,
   ): QdkFile<T, O> | undefined {
@@ -72,42 +105,25 @@ export class QdkFile<
     if (basename && (node as QdkFile).options.basename !== basename) return;
     return node;
   }
-  static defaults(
-    options: QdkFileInitialOptions,
-    scope: Scope,
-  ): QdkFileOptions {
-    return {
-      ...options,
-      cwd:
-        options.cwd ??
-        join(scope.project.options.cwd, scope.project.options.outdir),
-    };
-  }
-  constructor(
-    scope: Scope,
-    options: QdkFileInitialOptions,
-    codec: FileCodec<T>,
-    initialData: T,
-  ) {
-    const opts = QdkFile.defaults(options, scope);
-    super(scope, opts.basename);
-    this.options = opts as O;
+  constructor(scope: Scope, options: O, codec: FileCodec<T>, initialData: T) {
+    super(scope, options.basename);
+    this.options = options;
     this.codec = codec;
-    if (opts.freeze ?? true) {
+    if (options.freeze) {
       this.data = freeze(initialData, true);
     } else {
       this.data = initialData;
     }
     this.file = createFile({
-      path: join(opts.cwd, opts.basename),
+      path: join(options.cwd, options.basename),
     });
-    if (this.options.readOnInit ?? true) {
+    if (this.options.readOnInit) {
       this.readSync({
         silentWhenMissing: true,
-        updateData: this.options.sample ?? false,
+        updateData: this.options.sample,
       });
     }
-    if (this.options.writeOnSynth ?? true) {
+    if (this.options.writeOnSynth) {
       this.addHooks({
         synth: async (options: SynthOptions) => {
           await this.write(options);
@@ -165,28 +181,34 @@ export class QdkFile<
     const buffer = this.codec.serializer(this.data);
     this.changed = !this.raw || !buffer.equals(this.raw);
     if (this.changed) {
+      this.debug('File has changed');
       if (options.checkOnly) {
-        const formatOnCheck = this.options.formatOnCheck ?? true;
+        this.debug('Check only mode');
+        const formatOnCheck = this.options.formatOnCheck;
+        const data: Record<string, string | undefined> = {
+          oldCode: undefined,
+          newCode: undefined,
+        };
         if (formatOnCheck && this.raw && buffer) {
-          const prettierOptions: prettier.Options =
-            typeof this.options.formatOnCheck === 'object'
-              ? {
-                  ...this.options.formatOnCheck,
-                  filepath: this.file.path,
-                }
-              : {
-                  filepath: this.file.path,
-                };
+          this.debug('Preparing to format old and new code');
+          const prettierOptions = this.getPrettierOptions();
+          this.debug('Prettier format options', prettierOptions);
           try {
-            const oldCode = await prettier.format(
-              this.raw?.toString(),
+            data.oldCode = await prettier.format(
+              this.raw.toString(),
               prettierOptions,
             );
-            const newCode = await prettier.format(
+            data.newCode = await prettier.format(
               buffer.toString(),
               prettierOptions,
             );
-            if (oldCode === newCode) {
+            this.debug(
+              'Compare both old and new code\n\nOLD:\n' +
+                data.oldCode +
+                '\n\nNEW:\n' +
+                data.newCode,
+            );
+            if (data.oldCode === data.newCode) {
               return;
             }
           } catch (e) {
@@ -197,7 +219,7 @@ export class QdkFile<
           this,
           'file-changed',
           'File does not match!',
-          { filename: this.file.path },
+          { filename: this.file.path, data },
         );
         return;
       }
@@ -216,7 +238,7 @@ export class QdkFile<
             await mkdir(fileDirname, { recursive: true });
           }
           this.debug('Writing file', this.relativePath);
-          if (this.options.formatOnWrite ?? true) {
+          if (this.options.formatOnWrite) {
             try {
               await this.tryFormat();
             } catch (e) {
@@ -232,19 +254,33 @@ export class QdkFile<
     }
   }
 
+  private getPrettierOptions(): prettier.Options {
+    const defaultPrettierOptions = PrettierOptions.getOptions(
+      {
+        config: {
+          ...(Prettier.for(this)?.options?.config ?? {}),
+        },
+        //plugins: ['prettier-plugin-organize-imports'],
+      },
+      { scope: this },
+    );
+    return typeof this.options.formatOnCheck === 'object'
+      ? {
+          ...(defaultPrettierOptions?.config ?? {}),
+          ...this.options.formatOnCheck,
+          filepath: this.file.path,
+        }
+      : {
+          ...(defaultPrettierOptions?.config ?? {}),
+          filepath: this.file.path,
+        };
+  }
+
   protected async tryFormat() {
     if (!this.raw) return;
     const fileInfo = await prettier.getFileInfo(this.file.path);
     if (fileInfo.inferredParser) {
-      const prettierOptions: prettier.Options =
-        typeof this.options.formatOnCheck === 'object'
-          ? {
-              ...this.options.formatOnCheck,
-              filepath: this.file.path,
-            }
-          : {
-              filepath: this.file.path,
-            };
+      const prettierOptions = this.getPrettierOptions();
       const code = await prettier.format(this.raw.toString(), prettierOptions);
       this.raw = Buffer.from(code);
     }

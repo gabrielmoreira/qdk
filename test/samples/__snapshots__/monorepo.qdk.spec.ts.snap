@@ -175,7 +175,8 @@ dist
     "./pnpm-workspace.yaml",
     "./tsconfig.json"
   ]
-}",
+}
+",
   "/build/monorepo/.qdk/tree.txt": "·
 └── Project(monorepo)
     ├── Gitignore
@@ -210,6 +211,7 @@ dist
   "/build/monorepo/package.json": "{
   "name": "monorepo",
   "version": "0.1.0",
+  "type": "module",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -225,15 +227,19 @@ dist
   "types": "./dist/index.d.cts",
   "scripts": {
     "build": "pkgroll",
+    "qdk": "qdk synth",
+    "qdk:check": "qdk synth --check",
     "typescript": "tsc",
-    "typescript:check": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
   },
   "dependencies": {
     "simple": "workspace:*"
   },
   "devDependencies": {
     "@tsconfig/node20": "^1.0.0",
-    "pkgroll": "1.0.0-mock",
+    "pkgroll": "9.9.9-mock-latest",
+    "qdk": "9.9.9-mock-latest",
     "typescript": "^5.6.2"
   },
   "engine": {
@@ -241,16 +247,18 @@ dist
   },
   "readme": "ERROR: No README data found!",
   "_id": "monorepo@0.1.0"
-}",
+}
+",
   "/build/monorepo/pnpm-workspace.yaml": "packages:
   - services/simple
 ",
   "/build/monorepo/services/simple/.prettierrc": "{
   "arrowParens": "avoid",
   "singleQuote": true,
-  "plugins": [],
-  "overrides": []
-}",
+  "overrides": [],
+  "plugins": ["prettier-plugin-organize-imports"]
+}
+",
   "/build/monorepo/services/simple/.qdk/meta.json": "{
   "project": "simple",
   "custom": {},
@@ -262,7 +270,8 @@ dist
     "./package.json",
     "./tsconfig.json"
   ]
-}",
+}
+",
   "/build/monorepo/services/simple/.qdk/tree.txt": "·
 └── Project(simple)
     ├── JsonFile(.qdk/meta.json)
@@ -279,25 +288,39 @@ dist
     ├── TextFile(README.md)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/build/monorepo/services/simple/README.md": "123",
-  "/build/monorepo/services/simple/eslint.config.js": "import globals from "globals";
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
+  "/build/monorepo/services/simple/README.md": "123
+",
+  "/build/monorepo/services/simple/eslint.config.js": "import globals from 'globals';
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 export default tseslint.config(
-eslint.configs.recommended,
-...tseslint.configs.recommendedTypeChecked,
-...tseslint.configs.stylisticTypeChecked,
-eslintPluginPrettierRecommended,
-{files: ["eslint.config.js","src/**/*.ts","test/**/*.ts"]},
-{ignores: ["dist/**/*"]},
-{ languageOptions: { globals: globals.nodeBuiltin } },
-{ languageOptions: { parserOptions: { projectService: { allowDefaultProject: ["*.config.{mjs,js}"]} } } },
-{ languageOptions: { parserOptions: { tsconfigRootDir: import.meta.dirname } } },
-)",
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  eslintPluginPrettierRecommended,
+  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { ignores: ['dist/**/*'] },
+  { languageOptions: { globals: globals.nodeBuiltin } },
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: { allowDefaultProject: ['*.config.{mjs,js}'] },
+      },
+    },
+  },
+  { rules: {} },
+  {
+    languageOptions: {
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
+    },
+  },
+);
+",
   "/build/monorepo/services/simple/package.json": "{
   "name": "simple",
   "version": "0.1.0",
+  "type": "module",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -317,49 +340,46 @@ eslintPluginPrettierRecommended,
     "eslint:fix": "eslint --fix",
     "format": "prettier . --write",
     "typescript": "tsc",
-    "typescript:check": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
   },
   "devDependencies": {
-    "@eslint/js": "1.0.0-mock",
-    "@tsconfig/node20": "1.0.0-mock",
+    "@eslint/js": "^9.12.0",
+    "@tsconfig/node20": "^20.1.4",
     "eslint": "^9.0.0",
-    "eslint-config-prettier": "1.0.0-mock",
-    "eslint-plugin-prettier": "1.0.0-mock",
-    "globals": "1.0.0-mock",
-    "pkgroll": "1.0.0-mock",
-    "prettier": "1.0.0-mock",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.11.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^4.1.0",
     "typescript": "^5.6.2",
-    "typescript-eslint": "1.0.0-mock"
+    "typescript-eslint": "^8.9.0"
   },
   "engine": {
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
   "_id": "simple@0.1.0"
-}",
-  "/build/monorepo/services/simple/src/index.ts": "export const B = 'B';",
+}
+",
+  "/build/monorepo/services/simple/src/index.ts": "export const B = 'B';
+",
   "/build/monorepo/services/simple/tsconfig.json": "{
-  "extends": [
-    "@tsconfig/node20"
-  ],
-  "include": [
-    "src/**/*",
-    "tests/**/*"
-  ]
-}",
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
   "/build/monorepo/src/index.ts": "export type A = 'a';
 export const a = 'a' satisfies A;
 import { B } from 'simple';
-console.log(B)",
+console.log(B);
+",
   "/build/monorepo/tsconfig.json": "{
-  "extends": [
-    "@tsconfig/node20"
-  ],
-  "include": [
-    "src/**/*",
-    "tests/**/*"
-  ]
-}",
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
 }
 `;
 
@@ -539,7 +559,8 @@ dist
     "./pnpm-workspace.yaml",
     "./tsconfig.json"
   ]
-}",
+}
+",
   "/build/monorepo/.qdk/tree.txt": "·
 └── Project(monorepo)
     ├── Gitignore
@@ -574,7 +595,7 @@ dist
   "/build/monorepo/orphan.txt": "some file data",
   "/build/monorepo/package.json": "{
   "name": "monorepo",
-  "version": "0.2.0",
+  "version": "0.2.0-buildsamonoreposampleprojectanddeleteorphanfiles",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -591,31 +612,34 @@ dist
   "scripts": {
     "build": "pkgroll",
     "typescript": "tsc",
-    "typescript:check": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
   },
   "dependencies": {
     "simple": "workspace:*"
   },
   "devDependencies": {
     "@tsconfig/node20": "^1.0.0",
-    "pkgroll": "1.0.0-mock",
+    "pkgroll": "9.9.9-mock-latest",
     "typescript": "^5.6.2"
   },
   "engine": {
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "monorepo@0.2.0"
-}",
+  "_id": "monorepo@0.2.0-buildsamonoreposampleprojectanddeleteorphanfiles"
+}
+",
   "/build/monorepo/pnpm-workspace.yaml": "packages:
   - services/simple
 ",
   "/build/monorepo/services/simple/.prettierrc": "{
   "arrowParens": "avoid",
   "singleQuote": true,
-  "plugins": [],
-  "overrides": []
-}",
+  "overrides": [],
+  "plugins": ["prettier-plugin-organize-imports"]
+}
+",
   "/build/monorepo/services/simple/.qdk/meta.json": "{
   "project": "simple",
   "custom": {},
@@ -627,7 +651,8 @@ dist
     "./package.json",
     "./tsconfig.json"
   ]
-}",
+}
+",
   "/build/monorepo/services/simple/.qdk/tree.txt": "·
 └── Project(simple)
     ├── JsonFile(.qdk/meta.json)
@@ -644,25 +669,38 @@ dist
     ├── TextFile(README.md)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/build/monorepo/services/simple/README.md": "123",
-  "/build/monorepo/services/simple/eslint.config.js": "import globals from "globals";
-import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
+  "/build/monorepo/services/simple/README.md": "123
+",
+  "/build/monorepo/services/simple/eslint.config.js": "import globals from 'globals';
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 export default tseslint.config(
-eslint.configs.recommended,
-...tseslint.configs.recommendedTypeChecked,
-...tseslint.configs.stylisticTypeChecked,
-eslintPluginPrettierRecommended,
-{files: ["eslint.config.js","src/**/*.ts","test/**/*.ts"]},
-{ignores: ["dist/**/*"]},
-{ languageOptions: { globals: globals.nodeBuiltin } },
-{ languageOptions: { parserOptions: { projectService: { allowDefaultProject: ["*.config.{mjs,js}"]} } } },
-{ languageOptions: { parserOptions: { tsconfigRootDir: import.meta.dirname } } },
-)",
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  eslintPluginPrettierRecommended,
+  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { ignores: ['dist/**/*'] },
+  { languageOptions: { globals: globals.nodeBuiltin } },
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: { allowDefaultProject: ['*.config.{mjs,js}'] },
+      },
+    },
+  },
+  { rules: {} },
+  {
+    languageOptions: {
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
+    },
+  },
+);
+",
   "/build/monorepo/services/simple/package.json": "{
   "name": "simple",
-  "version": "0.2.0",
+  "version": "0.2.0-buildsamonoreposampleprojectanddeleteorphanfiles",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -682,48 +720,45 @@ eslintPluginPrettierRecommended,
     "eslint:fix": "eslint --fix",
     "format": "prettier . --write",
     "typescript": "tsc",
-    "typescript:check": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
   },
   "devDependencies": {
-    "@eslint/js": "1.0.0-mock",
-    "@tsconfig/node20": "1.0.0-mock",
+    "@eslint/js": "^9.12.0",
+    "@tsconfig/node20": "^20.1.4",
     "eslint": "^9.0.0",
-    "eslint-config-prettier": "1.0.0-mock",
-    "eslint-plugin-prettier": "1.0.0-mock",
-    "globals": "1.0.0-mock",
-    "pkgroll": "1.0.0-mock",
-    "prettier": "1.0.0-mock",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.11.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^4.1.0",
     "typescript": "^5.6.2",
-    "typescript-eslint": "1.0.0-mock"
+    "typescript-eslint": "^8.9.0"
   },
   "engine": {
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "simple@0.2.0"
-}",
-  "/build/monorepo/services/simple/src/index.ts": "export const B = 'B';",
+  "_id": "simple@0.2.0-buildsamonoreposampleprojectanddeleteorphanfiles"
+}
+",
+  "/build/monorepo/services/simple/src/index.ts": "export const B = 'B';
+",
   "/build/monorepo/services/simple/tsconfig.json": "{
-  "extends": [
-    "@tsconfig/node20"
-  ],
-  "include": [
-    "src/**/*",
-    "tests/**/*"
-  ]
-}",
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
   "/build/monorepo/src/index.ts": "export type A = 'a';
 export const a = 'a' satisfies A;
 import { B } from 'simple';
-console.log(B)",
+console.log(B);
+",
   "/build/monorepo/tsconfig.json": "{
-  "extends": [
-    "@tsconfig/node20"
-  ],
-  "include": [
-    "src/**/*",
-    "tests/**/*"
-  ]
-}",
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
 }
 `;

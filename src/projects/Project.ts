@@ -1,33 +1,56 @@
 import {
   BaseProject,
-  BaseProjectInitialOptions,
+  BaseProjectInitialOptionsType,
   BaseProjectOptions,
-  DefaultOptions,
+  BaseProjectOptionsType,
+  createOptionsManager,
+  OptionsMerger,
+  PartialOptionsContext,
   Scope,
 } from '../index.js';
 
-export type ProjectOptions = BaseProjectOptions & {};
+export type ProjectOptionsType = BaseProjectOptionsType & {};
 
-export type ProjectInitialOptions = Pick<ProjectOptions, 'name'> &
-  BaseProjectInitialOptions;
+export type ProjectInitialOptionsType = Pick<ProjectOptionsType, 'name'> &
+  BaseProjectInitialOptionsType;
+
+const ProjectDefaults = {} satisfies Partial<ProjectOptionsType>;
+
+const optionsMerger: OptionsMerger<
+  ProjectOptionsType,
+  ProjectInitialOptionsType,
+  typeof ProjectDefaults,
+  PartialOptionsContext
+> = (initialOptions, defaults, context) => {
+  const projectOptions = BaseProjectOptions.getOptions(
+    {
+      ...defaults,
+      ...initialOptions,
+    },
+    context,
+  );
+  return {
+    ...defaults,
+    ...projectOptions,
+  };
+};
+
+export const ProjectOptions = createOptionsManager(
+  Symbol.for('ProjectOptions'),
+  ProjectDefaults,
+  optionsMerger,
+);
 
 export class Project<
-  T extends ProjectOptions = ProjectOptions,
+  T extends ProjectOptionsType = ProjectOptionsType,
 > extends BaseProject<T> {
-  static defaults<T extends ProjectOptions>(
-    options: ProjectInitialOptions,
-    scope?: Scope,
-  ): T {
-    const opts = BaseProject.defaults(options, scope);
-    return {
-      ...DefaultOptions.get(Project),
-      ...opts,
-    } as T;
-  }
-  static create(options: ProjectInitialOptions) {
+  static create(options: ProjectInitialOptionsType) {
     return new Project(null, options);
   }
-  constructor(scope: Scope | undefined | null, options: ProjectInitialOptions) {
-    super(scope, Project.defaults(options, scope ?? undefined));
+  constructor(
+    scope: Scope | undefined | null,
+    options: ProjectInitialOptionsType,
+  ) {
+    super(scope, ProjectOptions.getOptions(options, { scope }) as T);
   }
 }

@@ -1,46 +1,56 @@
 import {
+  Component,
   EsLint,
   NpmPackageManager,
   PackageJson,
+  PackageManager,
   Project,
   QdkApp,
   SampleFiles,
+  Scope,
   TsConfigBases,
   Typescript,
 } from '../../src/index.js';
-// } from 'qdk';
 
-export default class MyApp implements QdkApp {
-  root: Project;
-
+export default class MyApp extends QdkApp {
   constructor({ cwd }: { cwd: string }) {
+    super();
     // Create a new empty project
-    this.root = new Project(null, {
-      name: 'qdk-sample',
-      outdir: '.',
-      cwd,
-    });
 
-    // Use npm package manager (set this project as the workspace root)
-    new NpmPackageManager(this.root, { workspace: true });
+    const myProject = this.add(
+      Project.create({
+        name: 'qdk-sample',
+        description: 'Sample QDK Project',
+        version: '0.1.0',
+        cwd,
+        // outdir: 'some-other-folder', // by default outdir is '.' (same as cwd)
+      }),
+    );
+
+    // Use npm package manager
+    new NpmPackageManager(myProject);
 
     // Customize package.json and add custom dependencies
-    new PackageJson(this.root, { type: 'module' })
-      .addDevDeps('qdk', 'tsx', 'vitest')
-      .setScript('qdk', 'tsx qdk.config.ts synth')
+    new PackageJson(myProject, {
+      license: 'MIT',
+      module: `${myProject.buildDir}/src/index.js`,
+    }) // by default the package type is 'module'
+      .addDevDeps('vitest')
       .setScript('test', 'vitest');
 
     // Typescript TSConfig
-    new Typescript(this.root, {
+    new Typescript(myProject, {
       tsconfig: {
         extends: [TsConfigBases.Node20],
         include: [
           'qdk.config.ts',
           'eslint.config.mjs',
-          ...(this.root.sourceSets.main?.pattern ?? []),
-          ...(this.root.sourceSets.tests?.pattern ?? []),
+          ...(myProject.sourceSets.main?.pattern ?? []),
+          ...(myProject.sourceSets.tests?.pattern ?? []),
+          ...(myProject.sourceSets.qdk?.pattern ?? []),
         ],
         compilerOptions: {
+          outDir: myProject.buildDir,
           strictNullChecks: true,
           resolveJsonModule: true,
         },
@@ -48,19 +58,41 @@ export default class MyApp implements QdkApp {
     });
 
     // Enable ESLint (+ prettier)
-    new EsLint(this.root, {
-      extraTemplateParams: {
-        files: false,
+    new EsLint(myProject, {
+      templateParams: {
+        rules: {
+          '@typescript-eslint/no-unsafe-call': 'off',
+        },
       },
     });
 
+    // To automatically run linting after synthesizing the project,
+    // use the following hook. This ensures ESLint fixes any issues:
+    this.hook('synth:after', async () => {
+      await PackageManager
+        // Find the package manager configured for this project
+        .required(myProject)
+        // Run: npx eslint --fix to automatically correct linting issues
+        .exec('eslint --fix');
+    });
+
+    // You can extract your features into components
+    // to enable reuse across different projects.
+    new MySampleFiles(myProject);
+  }
+}
+
+export class MySampleFiles extends Component {
+  constructor(scope: Scope) {
+    super(scope, undefined);
+
     // Sample files
-    new SampleFiles(this.root, {
+    new SampleFiles(this, {
       files: {
         // src/index.ts
         'src/index.ts': `import { name } from './config.json';
-
-export const sayHello = () => 'Hello ' + name`,
+    
+    export const sayHello = () => 'Hello ' + name`,
         // src/config.ts
         'src/config.json': {
           type: 'json',
@@ -84,26 +116,16 @@ expect(result).toMatch(/^Hello Alice .+$/g);
       },
     });
   }
-  async synth(): Promise<void> {
-    // Synthetize the root project
-    await this.root.synth();
-  }
 }
 
 /*
- * Run the following commands:
+ * To setup QDK, run the following commands:
  * ```sh
- *   npm init -y; npm pkg set type="module" scripts.qdk="tsx qdk.config.ts synth"; npm install --save-dev qdk tsx
- *   npx tsx qdk.config.ts
+ * npx qdk init
  * ```
+ *
  * After that you can run:
  * ```sh
- * npm run qdk
+ * npx qdk synth
  * ```
  */
-
-if (process.argv.slice(2).includes('synth')) {
-  await new MyApp({
-    cwd: import.meta.dirname,
-  }).synth();
-}

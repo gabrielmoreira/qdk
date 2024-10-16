@@ -7,12 +7,14 @@ import {
   AnyString,
   assertRequired,
   Component,
-  DefaultOptions,
+  createOptionsManager,
   getErrorCode,
   Gitignore,
   gitignoreDefault,
   HasOptions,
   JsonFile,
+  OptionsMerger,
+  PartialOptionsContext,
   processCwd,
   QdkFile,
   QdkNodeType,
@@ -23,21 +25,7 @@ import {
   unlink,
 } from '../index.js';
 
-export const BaseProjectDefaults = {
-  gitignore: gitignoreDefault,
-  buildDir: 'dist',
-  outdir: '.',
-  sourceSets: {
-    main: {
-      pattern: ['src/**/*.ts'],
-    },
-    tests: {
-      pattern: ['test/**/*.ts'],
-    },
-  } satisfies BaseProjectOptions['sourceSets'],
-};
-
-export interface BaseProjectOptions {
+export interface BaseProjectOptionsType {
   name: string;
   outdir: string;
   cwd: string;
@@ -49,7 +37,7 @@ export interface BaseProjectOptions {
   buildDir: string;
 }
 
-type SourceSetType = 'main' | 'tests' | 'assets' | AnyString;
+type SourceSetType = 'main' | 'tests' | 'qdk' | 'assets' | AnyString;
 
 type SourceSets = {
   [name in SourceSetType]?: SourceSet;
@@ -58,11 +46,54 @@ interface SourceSet {
   pattern: string[];
 }
 
-export type BaseProjectInitialOptions = Pick<
-  BaseProjectOptions,
+export type BaseProjectInitialOptionsType = Pick<
+  BaseProjectOptionsType,
   'name' | 'version' | 'description'
 > &
-  Partial<BaseProjectOptions>;
+  Partial<BaseProjectOptionsType>;
+
+export const BaseProjectDefaults = {
+  gitignore: gitignoreDefault,
+  buildDir: 'dist',
+  outdir: '.',
+  sourceSets: {
+    main: {
+      pattern: ['src/**/*.ts'],
+    },
+    qdk: {
+      pattern: ['qdk.config.ts', 'qdk/**/*.ts'],
+    },
+    tests: {
+      pattern: ['test/**/*.ts'],
+    },
+  } satisfies BaseProjectOptionsType['sourceSets'],
+};
+
+const optionsMerger: OptionsMerger<
+  BaseProjectOptionsType,
+  BaseProjectInitialOptionsType,
+  typeof BaseProjectDefaults,
+  PartialOptionsContext
+> = (initialOptions, defaults, { scope }) => {
+  const cwd =
+    initialOptions?.cwd ?? scope?.project?.options?.path ?? processCwd();
+  const outdir = initialOptions.outdir ?? defaults?.outdir ?? '.';
+  const path = join(cwd, outdir);
+  return {
+    ...defaults,
+    ...initialOptions,
+    buildDir: assertRequired(initialOptions.buildDir ?? defaults.buildDir),
+    cwd,
+    outdir,
+    path,
+  };
+};
+
+export const BaseProjectOptions = createOptionsManager(
+  Symbol.for('BaseProjectOptions'),
+  BaseProjectDefaults,
+  optionsMerger,
+);
 
 export interface BaseProjectMetadata {
   project: string;
@@ -71,7 +102,7 @@ export interface BaseProjectMetadata {
 }
 
 export abstract class BaseProject<
-    T extends BaseProjectOptions = BaseProjectOptions,
+    T extends BaseProjectOptionsType = BaseProjectOptionsType,
   >
   extends ScopedNode
   implements HasOptions<T>
@@ -86,38 +117,17 @@ export abstract class BaseProject<
     return 'project';
   }
 
-  static defaults(
-    options: BaseProjectInitialOptions,
-    scope?: Scope,
-  ): BaseProjectOptions {
-    const defaultOpts = DefaultOptions.getWithPartialDefaults(BaseProject, {
-      sourceSets: BaseProjectDefaults.sourceSets,
-      buildDir: BaseProjectDefaults.buildDir,
-      outdir: BaseProjectDefaults.outdir,
-    });
-    const cwd =
-      options?.cwd ??
-      scope?.project?.options?.path ??
-      defaultOpts?.cwd ??
-      processCwd();
-    const outdir = options.outdir ?? defaultOpts?.outdir ?? '.';
-    const path = join(cwd, outdir);
-    return {
-      ...defaultOpts,
-      ...options,
-      buildDir: assertRequired(options.buildDir ?? defaultOpts.buildDir),
-      cwd,
-      outdir,
-      path,
-    };
-  }
-  constructor(scope: Scope | undefined | null = undefined, options: T) {
+  constructor(scope: Scope | undefined | null = undefined, opts: T) {
+    const options = BaseProjectOptions.getOptions(opts, { scope });
     super(scope ?? undefined, options.name);
-    this.options = options;
+    this.options = options as T;
     const gitignore = this.options.gitignore ?? true;
     if (gitignore) {
       new Gitignore(this, {
-        pattern: gitignore ? BaseProjectDefaults.gitignore : gitignore,
+        pattern:
+          typeof gitignore === 'boolean'
+            ? BaseProjectDefaults.gitignore
+            : gitignore,
       });
     }
     this.metadataFile = new JsonFile<BaseProjectMetadata>(
