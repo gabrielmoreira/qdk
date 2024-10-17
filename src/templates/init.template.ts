@@ -134,6 +134,7 @@ export const monorepo = () => `import {
   PackageJson,
   PackageJsonInitialOptions,
   PackageJsonOptions,
+  PartialOptionsContext,
   PnpmPackageManager,
   Project,
   QdkApp,

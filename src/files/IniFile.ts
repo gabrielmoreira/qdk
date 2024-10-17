@@ -45,8 +45,10 @@ export const IniFileOptions = createOptionsManager(
 );
 
 export const createIniCodec = <T = Iniifiable>(): FileCodec<T> => ({
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
   encode: (data: T) => Buffer.from(stringify(data)),
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   decode: buffer => parse(buffer.toString('utf8')) as T,
 });
 
