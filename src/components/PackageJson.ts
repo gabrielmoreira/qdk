@@ -210,6 +210,14 @@ export class PackageJson
     );
     return this;
   }
+  addOptionalDeps(...dependencies: string[]): this {
+    const devDeps = get(this.file.loadedData, 'optionalDependencies');
+    this.file.mergeField(
+      'optionalDependencies',
+      this.buildDepsObject(devDeps, ...dependencies),
+    );
+    return this;
+  }
   addPeerDeps(...dependencies: string[]): this {
     const peerDeps = get(this.file.loadedData, 'peerDependencies');
     this.file.mergeField(

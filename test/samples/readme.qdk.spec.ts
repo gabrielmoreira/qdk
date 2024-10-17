@@ -16,10 +16,9 @@ beforeAll(() => {
 const synthReadmeSample = async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
   const fs = (await vi.importActual('node:fs')) as any;
-  const content = templates.basic.replace(
-    `} from 'qdk';`,
-    `} from '../../src/index.js';`,
-  );
+  const content = templates
+    .simple()
+    .replace(`} from 'qdk';`, `} from '../../src/index.js';`);
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   fs.writeFileSync(import.meta.dirname + '/readme.qdk.ts', content);
   const { default: MyApp } =

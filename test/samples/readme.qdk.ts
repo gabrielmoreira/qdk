@@ -117,15 +117,3 @@ expect(result).toMatch(/^Hello Alice .+$/g);
     });
   }
 }
-
-/*
- * To setup QDK, run the following commands:
- * ```sh
- * npx qdk init
- * ```
- *
- * After that you can run:
- * ```sh
- * npx qdk synth
- * ```
- */

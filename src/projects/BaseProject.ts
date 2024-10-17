@@ -52,7 +52,7 @@ export type BaseProjectInitialOptionsType = Pick<
 > &
   Partial<BaseProjectOptionsType>;
 
-export const BaseProjectDefaults = {
+const BaseProjectDefaults = {
   gitignore: gitignoreDefault,
   buildDir: 'dist',
   outdir: '.',
@@ -116,6 +116,12 @@ export abstract class BaseProject<
   get nodeType(): QdkNodeType {
     return 'project';
   }
+  get name(): string {
+    return this.options.name;
+  }
+  get path(): string {
+    return this.options.path;
+  }
 
   constructor(scope: Scope | undefined | null = undefined, opts: T) {
     const options = BaseProjectOptions.getOptions(opts, { scope });
@@ -149,13 +155,19 @@ export abstract class BaseProject<
         tree.getStringTree([this.toTreeNode()]),
       ).write(options);
       const previousFiles = (this.metadataFile.loadedData?.files ?? []).sort();
-      const managedFiles = this.files
-        .filter(file => !file.options.sample)
-        .map(it => it.relativePath)
-        .sort();
-      const removedFiles = difference(previousFiles, managedFiles);
+      const sampleFiles: string[] = [this.metadataFile.options.basename];
+      const managedFiles: string[] = [];
+      this.files.forEach(it => {
+        if (it.options.sample) sampleFiles.push(it.relativePath);
+        else managedFiles.push(it.relativePath);
+      });
+      managedFiles.sort();
+      const removedFiles = difference(
+        difference(previousFiles, managedFiles),
+        sampleFiles, // do not delete files that are now a sample file
+      );
       this.debug('Previously managed files:', previousFiles);
-      this.debug('Files to delete:', removedFiles);
+      this.debug('Files to delete (orphan files):', removedFiles);
       this.debug('New managed files:', managedFiles);
 
       this.metadataFile.update(() => ({
@@ -164,17 +176,10 @@ export abstract class BaseProject<
         files: managedFiles,
       }));
       if (options.removeDeletedFiles ?? true) {
-        const sampleFiles = new Set(
-          this.files
-            .filter(file => file.options.sample)
-            .map(it => it.relativePath),
-        );
         await Promise.all(
           removedFiles.map(async file => {
             this.debug('Deleting file', file);
             try {
-              // skip sample files
-              if (!sampleFiles.has(file)) return;
               await unlink(this.resolvePath(file));
             } catch (e) {
               // Do not throw if the file do not exists

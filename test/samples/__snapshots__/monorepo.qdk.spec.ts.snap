@@ -189,7 +189,7 @@ dist
     │   └── JsonFile(package.json)
     ├── Typescript(^5.6.2)
     │   └── TsConfig
-    │       └── JsonFile(tsconfig.json)
+    │       └── TsConfigJsonFile(tsconfig.json)
     ├── Project(simple)
     │   ├── JsonFile(.qdk/meta.json)
     │   ├── PnpmPackageManager(^9.12.0)
@@ -197,7 +197,7 @@ dist
     │   │   └── JsonFile(package.json)
     │   ├── Typescript(^5.6.2)
     │   │   └── TsConfig
-    │   │       └── JsonFile(tsconfig.json)
+    │   │       └── TsConfigJsonFile(tsconfig.json)
     │   ├── EsLint
     │   │   ├── Prettier
     │   │   │   └── JsonFile(.prettierrc)
@@ -280,7 +280,7 @@ dist
     │   └── JsonFile(package.json)
     ├── Typescript(^5.6.2)
     │   └── TsConfig
-    │       └── JsonFile(tsconfig.json)
+    │       └── TsConfigJsonFile(tsconfig.json)
     ├── EsLint
     │   ├── Prettier
     │   │   └── JsonFile(.prettierrc)
@@ -385,35 +385,35 @@ console.log(B);
 
 exports[`qdk/monorepo sample > builds a monorepo sample project and delete orphan files 1`] = `
 "/
-└─ build/
-   └─ monorepo/
-      ├─ .gitignore
-      ├─ .qdk/
-      │  ├─ meta.json
-      │  └─ tree.txt
-      ├─ orphan.txt
-      ├─ package.json
-      ├─ pnpm-workspace.yaml
-      ├─ services/
-      │  └─ simple/
-      │     ├─ .prettierrc
-      │     ├─ .qdk/
-      │     │  ├─ meta.json
-      │     │  └─ tree.txt
-      │     ├─ README.md
-      │     ├─ eslint.config.js
-      │     ├─ package.json
-      │     ├─ src/
-      │     │  └─ index.ts
-      │     └─ tsconfig.json
-      ├─ src/
-      │  └─ index.ts
-      └─ tsconfig.json"
+└─ test2/
+   └─ build/
+      └─ monorepo/
+         ├─ .gitignore
+         ├─ .qdk/
+         │  ├─ meta.json
+         │  └─ tree.txt
+         ├─ package.json
+         ├─ pnpm-workspace.yaml
+         ├─ services/
+         │  └─ simple/
+         │     ├─ .prettierrc
+         │     ├─ .qdk/
+         │     │  ├─ meta.json
+         │     │  └─ tree.txt
+         │     ├─ README.md
+         │     ├─ eslint.config.js
+         │     ├─ package.json
+         │     ├─ src/
+         │     │  └─ index.ts
+         │     └─ tsconfig.json
+         ├─ src/
+         │  └─ index.ts
+         └─ tsconfig.json"
 `;
 
 exports[`qdk/monorepo sample > builds a monorepo sample project and delete orphan files 2`] = `
 {
-  "/build/monorepo/.gitignore": "
+  "/test2/build/monorepo/.gitignore": "
 ### Node ###
 # Logs
 logs
@@ -548,7 +548,7 @@ dist
 # SvelteKit build / generate output
 .svelte-kit
 ",
-  "/build/monorepo/.qdk/meta.json": "{
+  "/test2/build/monorepo/.qdk/meta.json": "{
   "project": "monorepo",
   "custom": {},
   "files": [
@@ -561,7 +561,7 @@ dist
   ]
 }
 ",
-  "/build/monorepo/.qdk/tree.txt": "·
+  "/test2/build/monorepo/.qdk/tree.txt": "·
 └── Project(monorepo)
     ├── Gitignore
     │   └── TextFile(.gitignore)
@@ -573,7 +573,7 @@ dist
     │   └── JsonFile(package.json)
     ├── Typescript(^5.6.2)
     │   └── TsConfig
-    │       └── JsonFile(tsconfig.json)
+    │       └── TsConfigJsonFile(tsconfig.json)
     ├── Project(simple)
     │   ├── JsonFile(.qdk/meta.json)
     │   ├── PnpmPackageManager(^9.12.0)
@@ -581,7 +581,7 @@ dist
     │   │   └── JsonFile(package.json)
     │   ├── Typescript(^5.6.2)
     │   │   └── TsConfig
-    │   │       └── JsonFile(tsconfig.json)
+    │   │       └── TsConfigJsonFile(tsconfig.json)
     │   ├── EsLint
     │   │   ├── Prettier
     │   │   │   └── JsonFile(.prettierrc)
@@ -592,10 +592,9 @@ dist
     │   └── TextFile(.qdk/tree.txt)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/build/monorepo/orphan.txt": "some file data",
-  "/build/monorepo/package.json": "{
+  "/test2/build/monorepo/package.json": "{
   "name": "monorepo",
-  "version": "0.2.0-buildsamonoreposampleprojectanddeleteorphanfiles",
+  "version": "9.9.9-buildsamonoreposampleprojectanddeleteorphanfiles",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -627,20 +626,20 @@ dist
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "monorepo@0.2.0-buildsamonoreposampleprojectanddeleteorphanfiles"
+  "_id": "monorepo@9.9.9-buildsamonoreposampleprojectanddeleteorphanfiles"
 }
 ",
-  "/build/monorepo/pnpm-workspace.yaml": "packages:
+  "/test2/build/monorepo/pnpm-workspace.yaml": "packages:
   - services/simple
 ",
-  "/build/monorepo/services/simple/.prettierrc": "{
+  "/test2/build/monorepo/services/simple/.prettierrc": "{
   "arrowParens": "avoid",
   "singleQuote": true,
   "overrides": [],
   "plugins": ["prettier-plugin-organize-imports"]
 }
 ",
-  "/build/monorepo/services/simple/.qdk/meta.json": "{
+  "/test2/build/monorepo/services/simple/.qdk/meta.json": "{
   "project": "simple",
   "custom": {},
   "files": [
@@ -653,7 +652,7 @@ dist
   ]
 }
 ",
-  "/build/monorepo/services/simple/.qdk/tree.txt": "·
+  "/test2/build/monorepo/services/simple/.qdk/tree.txt": "·
 └── Project(simple)
     ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
@@ -661,7 +660,7 @@ dist
     │   └── JsonFile(package.json)
     ├── Typescript(^5.6.2)
     │   └── TsConfig
-    │       └── JsonFile(tsconfig.json)
+    │       └── TsConfigJsonFile(tsconfig.json)
     ├── EsLint
     │   ├── Prettier
     │   │   └── JsonFile(.prettierrc)
@@ -669,9 +668,9 @@ dist
     ├── TextFile(README.md)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/build/monorepo/services/simple/README.md": "123
+  "/test2/build/monorepo/services/simple/README.md": "123
 ",
-  "/build/monorepo/services/simple/eslint.config.js": "import globals from 'globals';
+  "/test2/build/monorepo/services/simple/eslint.config.js": "import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
@@ -698,9 +697,9 @@ export default tseslint.config(
   },
 );
 ",
-  "/build/monorepo/services/simple/package.json": "{
+  "/test2/build/monorepo/services/simple/package.json": "{
   "name": "simple",
-  "version": "0.2.0-buildsamonoreposampleprojectanddeleteorphanfiles",
+  "version": "9.9.9-buildsamonoreposampleprojectanddeleteorphanfiles",
   "exports": {
     "require": {
       "types": "./dist/index.d.cts",
@@ -724,38 +723,38 @@ export default tseslint.config(
     "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
   },
   "devDependencies": {
-    "@eslint/js": "^9.12.0",
-    "@tsconfig/node20": "^20.1.4",
+    "@eslint/js": "9.9.9-mock-latest",
+    "@tsconfig/node20": "9.9.9-mock-latest",
     "eslint": "^9.0.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "globals": "^15.11.0",
+    "eslint-config-prettier": "9.9.9-mock-latest",
+    "eslint-plugin-prettier": "9.9.9-mock-latest",
+    "globals": "9.9.9-mock-latest",
     "pkgroll": "9.9.9-mock-latest",
-    "prettier": "^3.0.0",
-    "prettier-plugin-organize-imports": "^4.1.0",
+    "prettier": "9.9.9-mock-latest",
+    "prettier-plugin-organize-imports": "9.9.9-mock-latest",
     "typescript": "^5.6.2",
-    "typescript-eslint": "^8.9.0"
+    "typescript-eslint": "9.9.9-mock-latest"
   },
   "engine": {
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "simple@0.2.0-buildsamonoreposampleprojectanddeleteorphanfiles"
+  "_id": "simple@9.9.9-buildsamonoreposampleprojectanddeleteorphanfiles"
 }
 ",
-  "/build/monorepo/services/simple/src/index.ts": "export const B = 'B';
+  "/test2/build/monorepo/services/simple/src/index.ts": "export const B = 'B';
 ",
-  "/build/monorepo/services/simple/tsconfig.json": "{
+  "/test2/build/monorepo/services/simple/tsconfig.json": "{
   "extends": ["@tsconfig/node20"],
   "include": ["src/**/*", "tests/**/*"]
 }
 ",
-  "/build/monorepo/src/index.ts": "export type A = 'a';
+  "/test2/build/monorepo/src/index.ts": "export type A = 'a';
 export const a = 'a' satisfies A;
 import { B } from 'simple';
 console.log(B);
 ",
-  "/build/monorepo/tsconfig.json": "{
+  "/test2/build/monorepo/tsconfig.json": "{
   "extends": ["@tsconfig/node20"],
   "include": ["src/**/*", "tests/**/*"]
 }

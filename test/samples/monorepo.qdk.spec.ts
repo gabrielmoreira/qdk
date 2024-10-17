@@ -1,16 +1,27 @@
-import { afterEach, describe, expect, it, vi, vitest } from 'vitest';
-import { PackageJsonOptions } from '../../src/index.js';
+import { beforeEach, describe, expect, it, vi, vitest } from 'vitest';
+
+import { Volume } from 'memfs/lib/volume.js';
+import type { PackageJsonOptions, QdkApp } from '../../src/index.js';
 import {
   printFsTree,
   reset,
-  SampleApp,
+  resetFilesystem,
   toSnapshot,
   writeFiles,
 } from '../test-helpers.js';
 
+interface QdkConfig {
+  default: new (...args: unknown[]) => QdkApp;
+  PackageJsonOptions: typeof PackageJsonOptions;
+  vol: Volume;
+}
+
+const loadQdkConfig = async () => {
+  return await vi.importActual<QdkConfig>('./monorepo.qdk.js');
+};
+
 const synthMonorepo = async () => {
-  const { default: MyApp } =
-    await vi.importActual<SampleApp>('./monorepo.qdk.js');
+  const { default: MyApp } = await loadQdkConfig();
   return new MyApp({ cwd: '/' }).synth();
 };
 
@@ -31,9 +42,8 @@ vitest.mock('../../src/system/execution.ts', () => {
 });
 
 describe('qdk/monorepo sample', () => {
-  afterEach(() => {
+  beforeEach(() => {
     reset();
-    PackageJsonOptions.restoreDefaults();
   });
   it('builds a monorepo sample project', async () => {
     // When
@@ -45,23 +55,33 @@ describe('qdk/monorepo sample', () => {
     expect(filesystemContent).toMatchSnapshot();
   });
 
-  it('builds a monorepo sample project and delete orphan files', async s => {
+  it('builds a monorepo sample project and delete orphan files', async t => {
+    // Given
+    const { PackageJsonOptions, default: MyApp, vol } = await loadQdkConfig();
+    // ... we reset any previously loaded fileystem
+    resetFilesystem({}, vol);
+    // ... we change the package json defaults
     PackageJsonOptions.replaceDefaults({
-      version: '0.2.0-' + s.task.name.replace(/[^a-zA-Z0-9]/g, ''),
+      version: '9.9.9-' + t.task.name.replace(/[^a-zA-Z0-9]/g, ''),
     });
-    // Given some preexistent files
-    await writeFiles({
-      '/build/monorepo/.qdk/meta.json': JSON.stringify({
-        files: ['.qdk/meta.json', './orphan.txt'],
-      }),
-      '/build/monorepo/orphan.txt': 'some file data',
-    });
+    // ... we have some preexistent files
+    await writeFiles(
+      {
+        '/test2/build/monorepo/.qdk/meta.json': JSON.stringify({
+          files: ['.qdk/meta.json', './orphan.txt'],
+        }),
+        '/test2/build/monorepo/orphan.txt': 'some file data',
+      },
+      vol,
+    );
     // When
-    await synthMonorepo();
+    expect(vol.existsSync('/test2/build/monorepo/orphan.txt')).toBe(true);
+    await new MyApp({ cwd: '/test2' }).synth();
     // Then
     const filesystemTree = printFsTree();
-    const filesystemContent = toSnapshot();
+    const filesystemContent = toSnapshot(undefined, vol);
     expect(filesystemTree).toMatchSnapshot();
     expect(filesystemContent).toMatchSnapshot();
+    expect(vol.existsSync('/test2/build/monorepo/orphan.txt')).toBe(false);
   });
 });

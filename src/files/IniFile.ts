@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { parse, stringify } from 'ini';
 import { get, merge, set } from 'lodash-es';
-import type { Jsonifiable } from 'type-fest';
 import {
   createOptionsManager,
   FileCodec,
+  JsonifiableObject,
   OptionsMerger,
   QdkFile,
   QdkFileInitialOptionsType,
@@ -13,19 +14,16 @@ import {
   Scope,
 } from '../index.js';
 
-export { Jsonifiable };
-export type JsonifiableObject =
-  | { [Key in string]?: Jsonifiable }
-  | { toJSON: () => Jsonifiable };
+export type Iniifiable = JsonifiableObject;
 
-export type JsonFileOptionsType = QdkFileOptionsType & {};
-export type JsonFileInitialOptionsType = QdkFileInitialOptionsType & {};
-const JsonFileDefaults = {} satisfies Partial<JsonFileOptionsType>;
+export type IniFileOptionsType = QdkFileOptionsType & {};
+export type IniFileInitialOptionsType = QdkFileInitialOptionsType & {};
+const IniFileDefaults = {} satisfies Partial<IniFileOptionsType>;
 
 const optionsMerger: OptionsMerger<
-  JsonFileOptionsType,
-  JsonFileInitialOptionsType,
-  typeof JsonFileDefaults
+  IniFileOptionsType,
+  IniFileInitialOptionsType,
+  typeof IniFileDefaults
 > = (initialOptions, defaults, context) => {
   const fileOptions = QdkFileOptions.getOptions(
     {
@@ -40,43 +38,41 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const JsonFileOptions = createOptionsManager(
-  Symbol.for('JsonFileOptions'),
-  JsonFileDefaults,
+export const IniFileOptions = createOptionsManager(
+  Symbol.for('IniFileOptions'),
+  IniFileDefaults,
   optionsMerger,
 );
 
-const sanitizeJson = (key: string, value: unknown) =>
-  key === '__proto__' ? undefined : value;
+export const createIniCodec = <T = Iniifiable>(): FileCodec<T> => ({
+  encode: (data: T) => Buffer.from(stringify(data)),
 
-export const createJsonCodec = <T = Jsonifiable>(): FileCodec<T> => ({
-  encode: (data: T) => Buffer.from(JSON.stringify(data, null, 2)),
-  decode: buffer => JSON.parse(buffer.toString('utf8'), sanitizeJson) as T,
+  decode: buffer => parse(buffer.toString('utf8')) as T,
 });
 
-export class JsonFile<T = Jsonifiable> extends QdkFile<T, JsonFileOptionsType> {
-  static ofJson(node: QdkNode, path: string): JsonFile | undefined {
-    return node instanceof JsonFile
-      ? (QdkFile.of(node, path) as JsonFile | undefined)
+export class IniFile<T = Iniifiable> extends QdkFile<T, IniFileOptionsType> {
+  static ofIni(node: QdkNode, path: string): IniFile | undefined {
+    return node instanceof IniFile
+      ? (QdkFile.of(node, path) as IniFile | undefined)
       : undefined;
   }
   static ofPath(path: string) {
-    return (node: QdkNode): JsonFile | undefined => {
-      return JsonFile.ofJson(node, path);
+    return (node: QdkNode): IniFile | undefined => {
+      return IniFile.ofIni(node, path);
     };
   }
-  static forPath(scope: Scope, path: string): JsonFile | undefined {
-    return scope.project.findComponent(JsonFile.ofPath(path));
+  static forPath(scope: Scope, path: string): IniFile | undefined {
+    return scope.project.findComponent(IniFile.ofPath(path));
   }
   constructor(
     scope: Scope,
-    options: JsonFileInitialOptionsType,
+    options: IniFileInitialOptionsType,
     initialData: T,
   ) {
-    super(scope, JsonFileOptions.getOptions(options, { scope }), initialData);
+    super(scope, IniFileOptions.getOptions(options, { scope }), initialData);
   }
   protected createCodec(): FileCodec<T> {
-    return createJsonCodec();
+    return createIniCodec();
   }
   mergeField(property: string, newValue: T, defaultValue: any = {}) {
     this.update(data => {

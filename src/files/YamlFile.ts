@@ -45,8 +45,8 @@ export const YamlFileOptions = createOptionsManager(
 );
 
 const createYamlCodec = <T = Yamlifiable>(): FileCodec<T> => ({
-  serializer: (data: T) => Buffer.from(stringifyYaml(data, null, 2)),
-  deserializer: buffer => parseYaml(buffer.toString('utf8')) as T,
+  encode: (data: T) => Buffer.from(stringifyYaml(data, null, 2)),
+  decode: buffer => parseYaml(buffer.toString('utf8')) as T,
 });
 
 export class YamlFile<T extends Yamlifiable = Yamlifiable> extends QdkFile<
@@ -72,12 +72,11 @@ export class YamlFile<T extends Yamlifiable = Yamlifiable> extends QdkFile<
     options: YamlFileInitialOptionsType,
     initialData: T,
   ) {
-    super(
-      scope,
-      YamlFileOptions.getOptions(options, { scope }),
-      createYamlCodec(),
-      initialData,
-    );
+    super(scope, YamlFileOptions.getOptions(options, { scope }), initialData);
+  }
+
+  protected createCodec(): FileCodec<T> {
+    return createYamlCodec();
   }
 
   mergeField(property: string, newValue: T, defaultValue: any = {}) {

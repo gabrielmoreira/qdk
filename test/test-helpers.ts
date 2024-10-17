@@ -1,5 +1,6 @@
-import { DirectoryJSON, fs, vol } from 'memfs';
+import { DirectoryJSON, vol } from 'memfs';
 import fsPrint from 'memfs/lib/print';
+import { Volume } from 'memfs/lib/volume.js';
 import { dirname, join } from 'node:path';
 import { vi } from 'vitest';
 import { QdkApp } from '../src/index.js';
@@ -9,25 +10,33 @@ const logger = createLogger('testing', 'test-helpers');
 
 export const rootPath = '/';
 
-export function resetFilesystem(opts: { json?: DirectoryJSON; cwd?: string }) {
+export function resetFilesystem(
+  opts: { json?: DirectoryJSON; cwd?: string },
+  volume: Volume = vol,
+) {
   logger.debug('resetFilesystem');
-  vol.reset();
-  vol.fromJSON(opts?.json ?? {}, opts?.cwd ?? rootPath);
+  volume.reset();
+  volume.fromJSON(opts?.json ?? {}, opts?.cwd ?? rootPath);
 }
 
-export function printFsTree(dir: string = rootPath) {
-  return fsPrint.toTreeSync(fs, { dir });
+export function printFsTree(dir: string = rootPath, volume: Volume = vol) {
+  return fsPrint.toTreeSync(volume, { dir });
 }
 
-export async function readStringFile(path: string, cwd: string = rootPath) {
+export async function readStringFile(
+  path: string,
+  cwd: string = rootPath,
+  volume: Volume = vol,
+) {
   logger.debug('readStringFile(', path, cwd, ')');
-  const file = await fs.promises.readFile(cwd ? join(cwd, path) : path);
+  const file = await volume.promises.readFile(cwd ? join(cwd, path) : path);
   return file.toString();
 }
 
 export async function writeStringFile(
   pathOrOptions: string | { path: string; cwd?: string },
   data: string | Buffer,
+  volume: Volume = vol,
 ) {
   const isOptions = typeof pathOrOptions !== 'string';
   const path = isOptions ? pathOrOptions.path : pathOrOptions;
@@ -41,20 +50,23 @@ export async function writeStringFile(
     data,
     '\n===EOF===\n',
   );
-  await fs.promises.writeFile(filename, data);
+  await volume.promises.writeFile(filename, data);
 }
 
-export async function writeFiles(files: Record<string, string | Buffer>) {
+export async function writeFiles(
+  files: Record<string, string | Buffer>,
+  volume: Volume = vol,
+) {
   await Promise.all(
     Object.entries(files).map(async ([name, content]) => {
-      await fs.promises.mkdir(dirname(name), { recursive: true });
+      await volume.promises.mkdir(dirname(name), { recursive: true });
       await writeStringFile(name, content);
     }),
   );
 }
 
-export function toSnapshot(path?: string) {
-  return vol.toJSON(path);
+export function toSnapshot(path?: string, volume: Volume = vol) {
+  return volume.toJSON(path);
 }
 
 export function reset({

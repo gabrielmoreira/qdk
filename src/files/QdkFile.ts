@@ -11,6 +11,7 @@ import {
 import { dirname, join } from 'node:path';
 import * as prettier from 'prettier';
 import {
+  chmod,
   createFile,
   createOptionsManager,
   existsSync,
@@ -39,6 +40,8 @@ export interface QdkFileOptionsType {
   freeze?: boolean;
   formatOnCheck?: boolean | prettier.Options;
   formatOnWrite?: boolean | prettier.Options;
+  fileMode?: string | number;
+  sampleFileMode?: string | number;
 }
 export type QdkFileInitialOptionsType = Partial<QdkFileOptionsType> &
   Pick<QdkFileOptionsType, 'basename'>;
@@ -50,6 +53,8 @@ const QdkFileDefaults = {
   writeOnSynth: true,
   formatOnCheck: true,
   formatOnWrite: true,
+  fileMode: 444,
+  sampleFileMode: undefined,
 } satisfies Omit<QdkFileOptionsType, 'cwd' | 'basename'>;
 
 const optionsMerger: OptionsMerger<
@@ -73,14 +78,15 @@ export const QdkFileOptions = createOptionsManager(
 );
 
 export interface FileCodec<T = any> {
-  serializer: (data: T) => Buffer;
-  deserializer: (buffer: Buffer) => T;
+  encode: (data: T) => Buffer;
+  decode: (buffer: Buffer) => T;
 }
 export abstract class QdkFile<
   T = any,
   O extends QdkFileOptionsType = QdkFileOptionsType,
 > extends QdkNode {
   protected file: FsFile;
+  protected abstract createCodec(): FileCodec<T>;
   protected codec: FileCodec<T>;
   data: T;
   private patches: Patch[][] = [];
@@ -105,10 +111,10 @@ export abstract class QdkFile<
     if (basename && (node as QdkFile).options.basename !== basename) return;
     return node;
   }
-  constructor(scope: Scope, options: O, codec: FileCodec<T>, initialData: T) {
+  constructor(scope: Scope, options: O, initialData: T) {
     super(scope, options.basename);
     this.options = options;
-    this.codec = codec;
+    this.codec = this.createCodec();
     if (options.freeze) {
       this.data = freeze(initialData, true);
     } else {
@@ -120,7 +126,7 @@ export abstract class QdkFile<
     if (this.options.readOnInit) {
       this.readSync({
         silentWhenMissing: true,
-        updateData: this.options.sample,
+        useLoadedDataAsDefault: false,
       });
     }
     if (this.options.writeOnSynth) {
@@ -132,15 +138,23 @@ export abstract class QdkFile<
     }
   }
 
-  async read(opts: { updateData?: boolean } = { updateData: false }) {
+  async read(
+    opts: { useLoadedDataAsDefault?: boolean } = {
+      useLoadedDataAsDefault: false,
+    },
+  ) {
     return this.useHook(
       'read',
       [opts],
-      async (opts: { updateData?: boolean } = { updateData: false }) => {
+      async (
+        opts: { useLoadedDataAsDefault?: boolean } = {
+          useLoadedDataAsDefault: false,
+        },
+      ) => {
         this.debug('Reading file', this.relativePath);
         this.raw = await readFile(this.file.path);
-        this.loadedData = this.codec.deserializer(this.raw);
-        if (opts.updateData) {
+        this.loadedData = this.decode(this.raw);
+        if (opts.useLoadedDataAsDefault) {
           this.debug('Using loaded data');
           this.data = this.loadedData;
         }
@@ -150,12 +164,12 @@ export abstract class QdkFile<
 
   readSync(
     opts: {
-      updateData?: boolean;
+      useLoadedDataAsDefault?: boolean;
       silentWhenMissing?: boolean;
       rawOnly?: boolean;
     } = {
       silentWhenMissing: false,
-      updateData: false,
+      useLoadedDataAsDefault: false,
       rawOnly: false,
     },
   ) {
@@ -166,19 +180,51 @@ export abstract class QdkFile<
     this.debug('Reading (sync) file', this.relativePath);
     this.raw = readFileSync(this.file.path);
     if (!opts.rawOnly) {
-      this.loadedData = this.codec.deserializer(this.raw);
-      if (opts.updateData) {
+      this.loadedData = this.decode(this.raw);
+      if (opts.useLoadedDataAsDefault) {
         this.debug('Using loaded data');
         this.data = this.loadedData;
       }
     }
   }
 
-  async write(options: SynthOptions = {}) {
-    if (options.checkOnly && !this.raw) {
-      this.readSync({ updateData: false, rawOnly: true });
+  protected encode(data: T): Buffer {
+    try {
+      return this.codec.encode(data);
+    } catch (e) {
+      console.error(this.nodeName, 'Failed to encode data', e);
+      this.debug('Data', data);
+      throw e;
     }
-    const buffer = this.codec.serializer(this.data);
+  }
+
+  protected decode(
+    buffer: Buffer,
+    contentOrReference: { toString(): string } = buffer,
+  ): T {
+    try {
+      return this.codec.decode(buffer);
+    } catch (e) {
+      console.error(
+        this.nodeName,
+        { cwd: this.options.cwd },
+        'Failed to decode buffer',
+        e,
+      );
+      this.debug('Buffer', contentOrReference.toString());
+      throw e;
+    }
+  }
+
+  async write(options: SynthOptions = {}) {
+    if (this.options.sample && existsSync(this.file.path)) {
+      // this sample file already exists
+      return;
+    }
+    if (options.checkOnly && !this.raw) {
+      this.readSync({ useLoadedDataAsDefault: false, rawOnly: true });
+    }
+    const buffer = this.encode(this.data);
     this.changed = !this.raw || !buffer.equals(this.raw);
     if (this.changed) {
       this.debug('File has changed');
@@ -251,6 +297,14 @@ export abstract class QdkFile<
     } else {
       // console.log('didnt change', this);
       this.debug('Nothing changed');
+    }
+    if (!options.checkOnly) {
+      if (this.options.sample && this.options.sampleFileMode !== undefined) {
+        await chmod(this.file.path, this.options.sampleFileMode);
+      }
+      if (!this.options.sample && this.options.fileMode !== undefined) {
+        await chmod(this.file.path, this.options.fileMode);
+      }
     }
   }
 

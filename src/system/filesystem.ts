@@ -4,6 +4,7 @@ import {
   type Stats,
 } from 'node:fs';
 import {
+  chmod as fsChmod,
   mkdir as fsMkdir,
   readFile as fsReadFile,
   unlink as fsUnlink,
@@ -73,6 +74,7 @@ function traceIt<T extends (...args: Parameters<T>) => ReturnType<T>>(
 
 export type FsFile = ReturnType<typeof createFile>;
 export const mkdir = traceIt('fs.promises.mkdir', fsMkdir);
+export const chmod = traceIt('fs.promises.chmod', fsChmod);
 export const readFile = traceIt('fs.promises.readFile', fsReadFile);
 export const writeFile = traceIt('fs.promises.writeFile', fsWriteFile);
 export const existsSync = traceIt('fs.existsSync', fsExistsSync);

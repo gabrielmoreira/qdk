@@ -49,6 +49,9 @@ export function createOptionsManager<
     getOptions(input: I, context: C): O {
       return extensions[name](input, extensionDefaults[name], context);
     },
+    getDefaults(): D {
+      return { ...extensionDefaults[name] };
+    },
   } as const;
   return { ...methods, ...options } as typeof options & M;
 }

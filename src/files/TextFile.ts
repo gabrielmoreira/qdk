@@ -39,8 +39,8 @@ export const TextFileOptions = createOptionsManager(
 );
 
 const createTextCodec = (): FileCodec<string> => ({
-  serializer: (data: string) => Buffer.from(data),
-  deserializer: buffer => buffer.toString('utf8'),
+  encode: (data: string) => Buffer.from(data),
+  decode: buffer => buffer.toString('utf8'),
 });
 
 export class TextFile extends QdkFile<string, TextFileOptionsType> {
@@ -62,12 +62,11 @@ export class TextFile extends QdkFile<string, TextFileOptionsType> {
     options: TextFileInitialOptionsType,
     initialData: string,
   ) {
-    super(
-      scope,
-      TextFileOptions.getOptions(options, { scope }),
-      createTextCodec(),
-      initialData,
-    );
+    super(scope, TextFileOptions.getOptions(options, { scope }), initialData);
+  }
+
+  protected createCodec(): FileCodec<string> {
+    return createTextCodec();
   }
 
   change(newValue: string) {

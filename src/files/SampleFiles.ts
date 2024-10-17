@@ -1,4 +1,7 @@
 import {
+  IniFile,
+  IniFileInitialOptionsType,
+  Iniifiable,
   JsonFile,
   JsonFileInitialOptionsType,
   Jsonifiable,
@@ -25,6 +28,7 @@ export interface SampleFile<
 export type SampleFileType =
   | SampleFile<'json', JsonFileInitialOptionsType, Jsonifiable>
   | SampleFile<'yaml', YamlFileInitialOptionsType, Yamlifiable>
+  | SampleFile<'ini', IniFileInitialOptionsType, Iniifiable>
   | SampleFile<'text', TextFileInitialOptionsType, string>;
 
 export interface SampleFilesOptions {
@@ -55,6 +59,12 @@ export class SampleFiles extends QdkNode {
           );
         case 'yaml':
           return new YamlFile(
+            this,
+            { ...file.options, basename: name, sample: true },
+            file.data,
+          );
+        case 'ini':
+          return new IniFile(
             this,
             { ...file.options, basename: name, sample: true },
             file.data,

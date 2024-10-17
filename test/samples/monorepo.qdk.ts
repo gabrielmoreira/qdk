@@ -165,3 +165,8 @@ if (process.argv.slice(2).includes('synth')) {
     cwd: import.meta.dirname,
   }).synth();
 }
+
+// ---- FOR TESTS: begin ----
+export { vol } from 'memfs';
+export { PackageJsonOptions } from '../../src/index.js';
+// ---- FOR TESTS: end ----

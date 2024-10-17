@@ -84,12 +84,12 @@ export function createSourceCodeParserCodec({
 }: SourceCodeParserCodecOptions): FileCodec<SourceCode> {
   parserOptions.sourceFileName = sourceFileName;
   return {
-    serializer: data => {
+    encode: data => {
       const ast = '$ast' in data ? data.$ast : data;
       const { code } = generateCode(ast, generateOptions);
       return Buffer.from(code);
     },
-    deserializer: buffer => {
+    decode: buffer => {
       return parseModule(buffer.toString('utf8'), parserOptions);
     },
   };
@@ -120,12 +120,19 @@ export class SourceCodeFile extends QdkFile<
     initialData: string,
   ) {
     const opts = SourceCodeFileOptions.getOptions(options, { scope });
-    const codec = createSourceCodeParserCodec({
+    const _codec = createSourceCodeParserCodec({
       sourceFileName: basename(opts.basename),
       generateOptions: opts.generateOptions,
       parserOptions: opts.parserOptions,
     });
-    super(scope, opts, codec, codec.deserializer(Buffer.from(initialData)));
+    super(scope, opts, _codec.decode(Buffer.from(initialData)));
+  }
+  protected createCodec(): FileCodec<SourceCode> {
+    return createSourceCodeParserCodec({
+      sourceFileName: basename(this.options.basename),
+      generateOptions: this.options.generateOptions,
+      parserOptions: this.options.parserOptions,
+    });
   }
   update(mutate: (data: ProxifiedModule<object>) => void): void {
     mutate(this.data);

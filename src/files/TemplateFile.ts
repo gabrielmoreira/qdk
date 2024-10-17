@@ -65,7 +65,7 @@ export interface TemplateFileCodecContext<T extends TemplateParams> {
 const createTemplateFileCodec = <T extends TemplateParams>(
   context: TemplateFileCodecContext<T>,
 ): FileCodec<TemplateFileData<T>> => ({
-  serializer: data => {
+  encode: data => {
     const output: string[] = [];
     const { tags, blocks } = data.template;
     const { params } = data;
@@ -95,7 +95,7 @@ const createTemplateFileCodec = <T extends TemplateParams>(
 
     return Buffer.from(output.join('\n'));
   },
-  deserializer: (): TemplateFileData<T> => {
+  decode: (): TemplateFileData<T> => {
     throw new Error('Cannot deserialize a template file');
   },
 });
@@ -131,27 +131,29 @@ export class TemplateFile<
         options.template ?? (EsLintSourceFileDefaultTemplate as unknown as T),
     };
   }
+  private addedHooks: Record<string, HookCallback | undefined>[] = [];
   constructor(
     scope: Scope,
     options: TemplateFileInitialOptionsType<T>,
     initialData: TemplateFileData<T>,
   ) {
-    const addedHooks: Record<string, HookCallback | undefined>[] = [];
-    const _this: TemplateFile<T> | null = null;
-    const codec = createTemplateFileCodec<T>({
-      onLineAdded: line =>
-        line.hooks && addedHooks.push(line.hooks(_this ?? scope)),
-    });
-    super(scope, TemplateFile.defaults(options, scope), codec, initialData);
+    super(scope, TemplateFile.defaults(options, scope), initialData);
     ['synth:before', 'synth:after'].forEach(hookKey => {
       this.hook(hookKey, async (...args: unknown[]) => {
         await Promise.all(
-          addedHooks.map(hooks => {
+          this.addedHooks.map(hooks => {
             const hook = hooks[hookKey];
             if (hook) return hook(...args);
           }),
         );
       });
     });
+  }
+  protected createCodec(): FileCodec<TemplateFileData<T>> {
+    if (this.codec) return this.codec;
+    const codec = createTemplateFileCodec<T>({
+      onLineAdded: line => line.hooks && this.addedHooks.push(line.hooks(this)),
+    });
+    return codec;
   }
 }

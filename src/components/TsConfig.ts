@@ -1,8 +1,10 @@
+import { parse, ParseError } from 'jsonc-parser';
 import type { TsConfigJson } from 'type-fest';
 import {
   AnyString,
   Component,
   createOptionsManager,
+  FileCodec,
   JsonFile,
   OptionsMerger,
   PackageJson,
@@ -85,8 +87,25 @@ export const TsConfigOptions = createOptionsManager(
   TsConfigDefaults,
   optionsMerger,
 );
+
+export class TsConfigJsonFile extends JsonFile<TsConfigJson> {
+  protected createCodec(): FileCodec<TsConfigJson> {
+    const codec = super.createCodec();
+    return {
+      decode: buffer => {
+        const errors: ParseError[] = [];
+        const result = parse(buffer.toString('utf8'), errors) as TsConfigJson;
+        if (errors.length) {
+          throw new Error('Parser error: ' + JSON.stringify(errors));
+        }
+        return result;
+      },
+      encode: codec.encode,
+    };
+  }
+}
 export class TsConfig extends Component<TsConfigOptionsType> {
-  readonly file: JsonFile<TsConfigJson>;
+  readonly file: TsConfigJsonFile;
 
   constructor(scope: Scope, options: TsConfigInitialOptionsType = {}) {
     super(scope, TsConfigOptions.getOptions(options, { scope }));
@@ -95,7 +114,7 @@ export class TsConfig extends Component<TsConfigOptionsType> {
       this.options.extends,
       autoInstallDevDependencies,
     ).configExtends;
-    this.file = new JsonFile<TsConfigJson>(
+    this.file = new TsConfigJsonFile(
       this,
       { basename: tsconfigFilename },
       this.splitConfig().tsconfig,

@@ -21,6 +21,20 @@ const log = (...msg: unknown[]) => {
 type TemplateKey = keyof typeof templates;
 const templateKeys: TemplateKey[] = Object.keys(templates) as TemplateKey[];
 
+const bannerString = `
+/*
+ * To setup QDK, run the following commands:
+ * \`\`\`sh
+ * npx qdk init
+ * \`\`\`
+ *
+ * After that you can run:
+ * \`\`\`sh
+ * npx qdk synth
+ * \`\`\`
+ */
+`;
+
 cli.register(
   class InitCommand extends Command {
     static paths = [['init']];
@@ -29,12 +43,14 @@ cli.register(
       examples: [
         [`Default`, `$0 init`],
         [`Custom cwd`, `$0 init --cwd /some/folder`],
-        [`Use a custom template`, `$0 init --template basic`],
+        [`Use a custom template`, `$0 init --template simple`],
+        [`Monorepo example`, `$0 init --template monorepo`],
       ],
     });
     cwd = Option.String('--cwd', { hidden: true });
+    blank = Option.Boolean('--blank');
     template = Option.String('--template', {
-      description: 'Available qdk.config.ts templates: [basic]',
+      description: 'Available qdk.config.ts templates: [simple]',
       validator: t.isOneOf(templateKeys.map(it => t.isLiteral(it))),
     });
     async execute() {
@@ -44,10 +60,11 @@ cli.register(
       }
       const qdkConfig = await findQdkConfig(opts);
       if (!qdkConfig) {
-        await writeFile(
-          join(opts.cwd, 'qdk.config.ts'),
-          templates[this.template ?? 'basic'],
-        );
+        const templateName: keyof typeof templates =
+          this.template ?? (this.blank ? 'blank' : 'simple');
+        const template = templates[templateName];
+        const content = template() + '\n' + bannerString;
+        await writeFile(join(opts.cwd, 'qdk.config.ts'), content);
         log('The qdk.config.ts file has been created successfully.');
         log('Please adjust your qdk.config.ts file as needed.');
       }
@@ -78,16 +95,20 @@ cli.register(
         process.exit(1);
       }
       let hasError = false;
-      await qdkProject.synth({
-        checkOnly: this.checkOnly,
-        errorReporter: {
-          report(scope, type, msg, extra) {
-            console.error(scope.nodeName, type, msg);
-            if (extra) console.dir(extra, { depth: 100 });
-            hasError = true;
+      try {
+        await qdkProject.synth({
+          checkOnly: this.checkOnly,
+          errorReporter: {
+            report(scope, type, msg, extra) {
+              console.error(scope.nodeName, type, msg);
+              if (extra) console.dir(extra, { depth: 100 });
+              hasError = true;
+            },
           },
-        },
-      });
+        });
+      } catch (e) {
+        console.error(e);
+      }
       if (hasError) {
         process.exit(1);
       }
@@ -141,9 +162,8 @@ function tryGetQdkAppInstance(
     } else {
       // console.log('The exported configuration is not valid for QDK');
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
-    // console.log(e);
+    console.log(e);
     // ignore
   }
   return undefined;
