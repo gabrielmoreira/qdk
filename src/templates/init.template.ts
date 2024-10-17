@@ -128,20 +128,25 @@ export const monorepo = () => `import {
   BaseProjectOptions,
   BaseProjectOptionsType,
   createOptionsManager,
+  existsSync,
   IniFile,
   JsonifiableObject,
   OptionsMerger,
   PackageJson,
   PackageJsonInitialOptions,
   PackageJsonOptions,
+  PackageManager,
   PartialOptionsContext,
   PnpmPackageManager,
   Project,
   QdkApp,
+  readFile,
   Scope,
+  TomlFile,
   TsConfig,
   TsConfigInitialOptionsType,
   Typescript,
+  writeFile,
 } from 'qdk';
 
 export default class MyApp extends QdkApp {
@@ -149,7 +154,7 @@ export default class MyApp extends QdkApp {
     super();
 
     // Set some nice defaults for all instances of a PackageJson
-    PackageJsonOptions.updateDefaults((pkg) => {
+    PackageJsonOptions.updateDefaults(pkg => {
       pkg.author = {
         name: 'Gabriel Moreira',
       };
@@ -168,7 +173,14 @@ export default class MyApp extends QdkApp {
           // react native projects requires node-linker=hoisted on pnpm project
           'node-linker': 'hoisted',
         },
-      })
+        // If you haven't used it yet, give it a try: https://mise.jdx.dev/
+        mise: {
+          tools: {
+            java: 'zulu-17',
+            node: '20.18.0',
+          },
+        }
+      }),
     );
 
     const myApp = new ReactNativeAppProject(monorepo, {
@@ -179,7 +191,6 @@ export default class MyApp extends QdkApp {
       name: '@repo/some-other-app',
     });
 
-    // Node Library Project has not
     const myLibA = new NodeProject(monorepo, {
       name: '@repo/my-lib-a',
       outdir: 'packages/my-lib-a',
@@ -214,7 +225,7 @@ export default class MyApp extends QdkApp {
 }
 
 function getNameWithoutScope(name: string) {
-  if (name[0] === '@') {
+  if (name.startsWith('@')) {
     return name.split('/').pop();
   }
   return name;
@@ -222,13 +233,15 @@ function getNameWithoutScope(name: string) {
 
 // Move the code below to its own file. E.g: qdk/NodeProject.ts
 
-type NodeProjectOptionsBaseType = {
+interface NodeProjectOptionsBaseType {
   packageJson?: PackageJsonInitialOptions;
   tsconfig?: TsConfigInitialOptionsType;
   basedir?: string;
-};
-export type NodeProjectOptionsType = BaseProjectOptionsType & NodeProjectOptionsBaseType;
-export type NodeProjectInitialOptionsType = BaseProjectInitialOptionsType & Partial<NodeProjectOptionsBaseType>;
+}
+export type NodeProjectOptionsType = BaseProjectOptionsType &
+  NodeProjectOptionsBaseType;
+export type NodeProjectInitialOptionsType = BaseProjectInitialOptionsType &
+  Partial<NodeProjectOptionsBaseType>;
 const NodeProjectDefaults = {
   basedir: 'packages/',
   gitignore: false,
@@ -238,22 +251,33 @@ const NodeProjectDefaults = {
   },
 } satisfies Partial<NodeProjectOptionsType>;
 
-const nodeProjectOptionsMerger: OptionsMerger<NodeProjectOptionsType, NodeProjectInitialOptionsType, typeof NodeProjectDefaults> = (initialOptions, defaults, context) => {
+const nodeProjectOptionsMerger: OptionsMerger<
+  NodeProjectOptionsType,
+  NodeProjectInitialOptionsType,
+  typeof NodeProjectDefaults
+> = (initialOptions, defaults, context) => {
   return {
     ...BaseProjectOptions.getOptions(
       {
         ...defaults,
         ...initialOptions,
         name: initialOptions.name,
-        outdir: initialOptions.outdir ?? (initialOptions.basedir ?? defaults.basedir) + getNameWithoutScope(initialOptions.name),
+        outdir:
+          initialOptions.outdir ??
+          (initialOptions.basedir ?? defaults.basedir) +
+            getNameWithoutScope(initialOptions.name),
         gitignore: initialOptions.gitignore ?? defaults.gitignore,
       },
-      context
+      context,
     ),
   };
 };
 
-const NodeProjectOptions = createOptionsManager(Symbol.for('NodeProjectOptions'), NodeProjectDefaults, nodeProjectOptionsMerger);
+const NodeProjectOptions = createOptionsManager(
+  Symbol.for('NodeProjectOptions'),
+  NodeProjectDefaults,
+  nodeProjectOptionsMerger,
+);
 
 export class NodeProject<
   T extends NodeProjectOptionsType = NodeProjectOptionsType,
@@ -266,7 +290,7 @@ export class NodeProject<
     return this.typescript.tsconfig;
   }
   protected normalizeDeps(...deps: (string | BaseProject)[]) {
-    return deps.map((dep) => {
+    return deps.map(dep => {
       if (dep instanceof BaseProject) {
         return dep.name + '@workspace:*';
       }
@@ -292,11 +316,14 @@ export class NodeProject<
   constructor(scope: Scope, options: I) {
     super(scope, NodeProjectOptions.getOptions(options, { scope }) as T);
     this.packageManager = new PnpmPackageManager(this);
-    this.packageJson = new PackageJson(this, this.options.packageJson).addDeps('@repo/tsconfig@workspace:*');
+    this.packageJson = new PackageJson(this, this.options.packageJson).addDeps(
+      '@repo/tsconfig@workspace:*',
+    );
     this.typescript = new Typescript(this, {
       tsconfig: {
         ...this.options.tsconfig,
-        autoInstallDevDependencies: this.options.tsconfig?.autoInstallDevDependencies ?? false,
+        autoInstallDevDependencies:
+          this.options.tsconfig?.autoInstallDevDependencies ?? false,
         extends: this.options.tsconfig?.extends ?? ['@repo/tsconfig/node.json'],
       },
     });
@@ -304,9 +331,11 @@ export class NodeProject<
 }
 // Move the code below to its own file. E.g: qdk/TsProject.ts
 
-type TsProjectOptionsBaseType = {};
-export type TsProjectOptionsType = NodeProjectOptionsType & TsProjectOptionsBaseType;
-export type TsProjectInitialOptionsType = NodeProjectInitialOptionsType & Partial<TsProjectOptionsBaseType>;
+type TsProjectOptionsBaseType = {}
+export type TsProjectOptionsType = NodeProjectOptionsType &
+  TsProjectOptionsBaseType;
+export type TsProjectInitialOptionsType = NodeProjectInitialOptionsType &
+  Partial<TsProjectOptionsBaseType>;
 
 const TsProjectDefaults = {
   tsconfig: {
@@ -314,7 +343,11 @@ const TsProjectDefaults = {
   },
 } satisfies Partial<TsProjectOptionsType>;
 
-const tsProjectOptionsMerger: OptionsMerger<TsProjectOptionsType, TsProjectInitialOptionsType, typeof TsProjectDefaults> = (initialOptions, defaults, context) => {
+const tsProjectOptionsMerger: OptionsMerger<
+  TsProjectOptionsType,
+  TsProjectInitialOptionsType,
+  typeof TsProjectDefaults
+> = (initialOptions, defaults, context) => {
   return {
     ...NodeProjectOptions.getOptions(
       {
@@ -326,12 +359,16 @@ const tsProjectOptionsMerger: OptionsMerger<TsProjectOptionsType, TsProjectIniti
           ...initialOptions.tsconfig,
         },
       },
-      context
+      context,
     ),
   };
 };
 
-const TsProjectOptions = createOptionsManager(Symbol.for('TsProjectOptions'), TsProjectDefaults, tsProjectOptionsMerger);
+const TsProjectOptions = createOptionsManager(
+  Symbol.for('TsProjectOptions'),
+  TsProjectDefaults,
+  tsProjectOptionsMerger,
+);
 
 export class TsProject extends NodeProject<TsProjectOptionsType> {
   constructor(scope: Scope, options: TsProjectInitialOptionsType) {
@@ -341,22 +378,58 @@ export class TsProject extends NodeProject<TsProjectOptionsType> {
 
 // Move the code below to its own file. E.g: qdk/ReactNativeAppProject.ts
 
-type ReactNativeAppProjectOptionsBaseType = {};
-export type ReactNativeAppProjectOptionsType = TsProjectOptionsType & ReactNativeAppProjectOptionsBaseType;
-export type ReactNativeAppProjectInitialOptionsType = TsProjectInitialOptionsType & Partial<ReactNativeAppProjectOptionsBaseType>;
+interface ReactNativeAppProjectOptionsBaseType {
+  packageName: string;
+}
+export type ReactNativeAppProjectOptionsType = TsProjectOptionsType &
+  ReactNativeAppProjectOptionsBaseType;
+export type ReactNativeAppProjectInitialOptionsType =
+  TsProjectInitialOptionsType & Partial<ReactNativeAppProjectOptionsBaseType>;
 
 const ReactNativeAppProjectDefaults = {
   basedir: 'apps/',
   tsconfig: {
     extends: ['@repo/tsconfig/react-native.json'],
   },
+  packageName: 'com.example.app',
+  packageJson: {
+    type: 'commonjs',
+    scripts: {
+      android: 'react-native run-android',
+      ios: 'react-native run-ios',
+      lint: 'eslint .',
+      start: 'react-native start',
+      test: 'jest',
+    },
+    dependencies: {
+      react: '18.3.1',
+      'react-native': '0.75.4',
+    },
+    devDependencies: {
+      '@babel/core': '^7.20.0',
+      '@babel/preset-env': '^7.20.0',
+      '@babel/runtime': '^7.20.0',
+      '@react-native/babel-preset': '0.75.4',
+      '@react-native/eslint-config': '0.75.4',
+      '@react-native/metro-config': '0.75.4',
+      '@react-native/typescript-config': '0.75.4',
+      '@types/react': '^18.2.6',
+      '@types/react-test-renderer': '^18.0.0',
+      'babel-jest': '^29.6.3',
+      eslint: '^8.19.0',
+      jest: '^29.6.3',
+      prettier: '2.8.8',
+      'react-test-renderer': '18.3.1',
+      typescript: '5.0.4',
+    },
+  },
 } satisfies Partial<ReactNativeAppProjectOptionsType>;
 
-const reactNativeAppOptionsMerger: OptionsMerger<ReactNativeAppProjectOptionsType, ReactNativeAppProjectInitialOptionsType, typeof ReactNativeAppProjectDefaults> = (
-  initialOptions,
-  defaults,
-  context
-) => {
+const reactNativeAppOptionsMerger: OptionsMerger<
+  ReactNativeAppProjectOptionsType,
+  ReactNativeAppProjectInitialOptionsType,
+  typeof ReactNativeAppProjectDefaults
+> = (initialOptions, defaults, context) => {
   return {
     ...TsProjectOptions.getOptions(
       {
@@ -368,44 +441,129 @@ const reactNativeAppOptionsMerger: OptionsMerger<ReactNativeAppProjectOptionsTyp
           ...initialOptions.tsconfig,
         },
       },
-      context
+      context,
     ),
+    packageName: initialOptions?.packageName ?? defaults.packageName,
   };
 };
 
-const ReactNativeAppProjectOptions = createOptionsManager(Symbol.for('ReactNativeAppProjectOptions'), ReactNativeAppProjectDefaults, reactNativeAppOptionsMerger);
+const ReactNativeAppProjectOptions = createOptionsManager(
+  Symbol.for('ReactNativeAppProjectOptions'),
+  ReactNativeAppProjectDefaults,
+  reactNativeAppOptionsMerger,
+);
 
 export class ReactNativeAppProject extends NodeProject<ReactNativeAppProjectOptionsType> {
   constructor(scope: Scope, options: ReactNativeAppProjectInitialOptionsType) {
     super(scope, ReactNativeAppProjectOptions.getOptions(options, { scope }));
+    this.hook('synth:before', async () => {
+      const hasAppJson = existsSync(this.resolvePath('app.json'));
+      if (!hasAppJson) {
+        // Generate the react native app template
+        await this.execCmd(
+          \`npx @react-native-community/cli@latest init "\${this.name.replace(/@/g, '').replace(/[^a-zA-Z0-9]/g, '_')}" --pm npm --title "\${this.name}" --package-name "\${this.options.packageName}" --directory "\${this.options.path}" --skip-git-init --skip-install --replace-directory false\`,
+          { cwd: this.root.project.options.cwd },
+        );
+        // Fixes for monorepo
+        await this.fixNodeModulesPath(
+          this.resolvePath('android/settings.gradle'),
+        );
+        await this.fixNodeModulesPath(
+          this.resolvePath('android/app/build.gradle'),
+        );
+        await this.overwriteMetroConfig();
+        // Install packages using pnpm
+        await PackageManager.required(this).install();
+        this.log(
+          \`Run [pnpm --filter \${this.name} start] to start react native\`,
+        );
+      }
+    });
+  }
+
+  protected async fixNodeModulesPath(file: string) {
+    const original = (await readFile(file)).toString();
+    const content = original
+      .replace(/(['"])\\.\\.\\/node_modules\\//g, '$1../../../node_modules/')
+      .replace(
+        /(['"])\\.\\.\\/\\.\\.\\/node_modules\\//g,
+        '$1../../../../node_modules/',
+      )
+      .replace('// reactNativeDir = file', 'reactNativeDir = file')
+      .replace('// codegenDir = file', 'codegenDir = file')
+      .replace('// cliFile = file', 'cliFile = file');
+    if (original !== content) {
+      await writeFile(file, content);
+    }
+  }
+
+  protected async overwriteFile(file: string, content: string) {
+    await writeFile(file, content);
+  }
+
+  protected async overwriteMetroConfig() {
+    await this.overwriteFile(
+      this.resolvePath('metro.config.js'),
+      \`const {getDefaultConfig} = require('@react-native/metro-config');
+      const path = require('node:path');
+      
+      // Find the project and workspace directories
+      const projectRoot = __dirname;
+      const monorepoRoot = path.resolve(projectRoot, '../..');
+      
+      const config = getDefaultConfig(projectRoot);
+      
+      // 1. Watch all files within the monorepo
+      config.watchFolders = [monorepoRoot];
+      // 2. Let Metro know where to resolve packages and in what order
+      config.resolver.nodeModulesPaths = [
+        path.resolve(projectRoot, 'node_modules'),
+        path.resolve(monorepoRoot, 'node_modules'),
+      ];
+      
+      module.exports = config;\`,
+    );
   }
 }
 
 // Move the code below to its own file. E.g: qdk/MonorepoProject.ts
 
-type MonorepoProjectOptionsBaseType = {
+interface MonorepoProjectOptionsBaseType {
   packageJson?: PackageJsonInitialOptions;
   npmrc?: JsonifiableObject;
-};
-export type MonorepoProjectOptionsType = BaseProjectOptionsType & MonorepoProjectOptionsBaseType;
-export type MonorepoProjectInitialOptionsType = BaseProjectInitialOptionsType & MonorepoProjectOptionsBaseType;
+  mise?: JsonifiableObject;
+}
+export type MonorepoProjectOptionsType = BaseProjectOptionsType &
+  MonorepoProjectOptionsBaseType;
+export type MonorepoProjectInitialOptionsType = BaseProjectInitialOptionsType &
+  MonorepoProjectOptionsBaseType;
 
 const MonorepoProjectDefaults: Partial<MonorepoProjectOptionsType> = {
   npmrc: {},
 } as const;
 
-const merger: OptionsMerger<MonorepoProjectOptionsType, MonorepoProjectInitialOptionsType, typeof MonorepoProjectDefaults, PartialOptionsContext> = (
-  initialOptions,
-  defaults,
-  context
-) => {
+const merger: OptionsMerger<
+  MonorepoProjectOptionsType,
+  MonorepoProjectInitialOptionsType,
+  typeof MonorepoProjectDefaults,
+  PartialOptionsContext
+> = (initialOptions, defaults, context) => {
   return {
     ...BaseProjectOptions.getOptions(initialOptions, context),
     ...defaults,
-    npmrc: typeof initialOptions.npmrc === 'boolean' ? (initialOptions.npmrc ? defaults.npmrc : undefined) : (initialOptions.npmrc ?? defaults.npmrc),
+    npmrc:
+      typeof initialOptions.npmrc === 'boolean'
+        ? initialOptions.npmrc
+          ? defaults.npmrc
+          : undefined
+        : (initialOptions.npmrc ?? defaults.npmrc),
   };
 };
-export const MonorepoProjectOptions = createOptionsManager(Symbol.for('MonorepoProjectOptions'), MonorepoProjectDefaults, merger);
+export const MonorepoProjectOptions = createOptionsManager(
+  Symbol.for('MonorepoProjectOptions'),
+  MonorepoProjectDefaults,
+  merger,
+);
 
 export class MonorepoProject extends BaseProject<MonorepoProjectOptionsType> {
   static create(opts: MonorepoProjectInitialOptionsType) {
@@ -422,7 +580,16 @@ export class MonorepoProject extends BaseProject<MonorepoProjectOptionsType> {
         {
           basename: '.npmrc',
         },
-        this.options.npmrc
+        this.options.npmrc,
+      );
+    }
+    if (this.options.mise) {
+      new TomlFile(
+        this,
+        {
+          basename: '.mise.toml',
+        },
+        this.options.mise,
       );
     }
   }

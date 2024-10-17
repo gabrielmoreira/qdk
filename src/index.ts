@@ -15,12 +15,12 @@ export * from './core/Scope.js';
 export * from './core/ScopedNode.js';
 export * from './files/QdkFile.js';
 export * from './files/JsonFile.js';
-export * from './files/IniFile.js';
 export * from './files/SourceCodeFile.js';
 export * from './files/TemplateFile.js';
 export * from './files/TextFile.js';
 export * from './files/YamlFile.js';
 export * from './files/IniFile.js';
+export * from './files/TomlFile.js';
 export * from './files/SampleFiles.js';
 export * from './core/Component.js';
 
