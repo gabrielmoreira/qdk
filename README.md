@@ -10,7 +10,7 @@ QDK was created to offer flexibility and full control over project configuration
 
 Some tools suffer from **"kitchen sink"** or **"tight coupling"** antipatterns, where core classes like `NodeProject` drag in unrelated dependencies (Gitpod, DevContainer, AWS) by default. This forces users to manually disable unwanted features, which complicates inheritance and makes it confusing to decide whether to rely on built-in properties (e.g., from `NodeProject`) or instantiate separate components.
 
-### QDK is built around the following principles:
+### QDK is built around the following principles
 
 - **Only generate what’s explicitly requested.**
   Avoid unnecessary features or configurations unless they are specifically requested by the user.
@@ -38,19 +38,27 @@ QDK adopts a modular, component-centric approach that prioritizes clarity, custo
 
 Follow these steps to create a sample project with QDK:
 
-### Step 1: Create an empty folder
+### Step 1: Initialize a new QDK project
 
-Start by creating a new empty folder for your project.
-
-### Step 2: Create a `qdk.config.ts` file
-
-Run the following commands to initialize a QDK configuration:
+Run the following commands to create a new `qdk.config.ts` file:
 
 ```bash
 npx qdk init
 ```
 
-### Step 3: Synthesize your project configuration:
+For a blank project use:
+
+```sh
+npx qdk init --blank
+```
+
+**Note: For a more advanced project setup, consider trying:**
+
+```sh
+npx qdk init --template monorepo
+```
+
+### Step 2: Synthesize your project configuration
 
 Run the following commands to initialize npm and set up your project:
 
