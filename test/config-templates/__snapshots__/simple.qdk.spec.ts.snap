@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`qdk/readme sample > builds a readme sample project 1`] = `
+exports[`simple template > synthetize a simple template 1`] = `
 "/
 ├─ .gitignore
 ├─ .prettierrc
@@ -17,7 +17,7 @@ exports[`qdk/readme sample > builds a readme sample project 1`] = `
 └─ tsconfig.json"
 `;
 
-exports[`qdk/readme sample > builds a readme sample project 2`] = `
+exports[`simple template > synthetize a simple template 2`] = `
 {
   "/.gitignore": "
 ### Node ###
@@ -172,7 +172,8 @@ dist
     "./eslint.config.js",
     "./package.json",
     "./tsconfig.json"
-  ]
+  ],
+  "subprojects": []
 }
 ",
   "/.qdk/tree.txt": "·
@@ -263,7 +264,6 @@ export default tseslint.config(
 }
 ",
   "/src/index.ts": "import { name } from './config.json';
-
 export const sayHello = () => 'Hello ' + name;
 ",
   "/test/index.spec.ts": "import { describe, expect, it } from 'vitest';
@@ -298,18 +298,13 @@ describe('index', () => {
 }
 `;
 
-exports[`qdk/readme sample > builds a readme sample project and delete orphan files 1`] = `
+exports[`simple template > synthetize a simple template and delete orphan files 1`] = `
 "/
 ├─ .gitignore
 ├─ .prettierrc
 ├─ .qdk/
 │  ├─ meta.json
 │  └─ tree.txt
-├─ build/
-│  └─ readme/
-│     ├─ .qdk/
-│     │  └─ meta.json
-│     └─ orphan.txt
 ├─ eslint.config.js
 ├─ package.json
 ├─ src/
@@ -320,7 +315,7 @@ exports[`qdk/readme sample > builds a readme sample project and delete orphan fi
 └─ tsconfig.json"
 `;
 
-exports[`qdk/readme sample > builds a readme sample project and delete orphan files 2`] = `
+exports[`simple template > synthetize a simple template and delete orphan files 2`] = `
 {
   "/.gitignore": "
 ### Node ###
@@ -475,7 +470,8 @@ dist
     "./eslint.config.js",
     "./package.json",
     "./tsconfig.json"
-  ]
+  ],
+  "subprojects": []
 }
 ",
   "/.qdk/tree.txt": "·
@@ -498,8 +494,6 @@ dist
             ├── TextFile(src/index.ts)
             ├── JsonFile(src/config.json)
             └── TextFile(test/index.spec.ts)",
-  "/build/readme/.qdk/meta.json": "{"files":[".qdk/meta.json","./orphan.txt"]}",
-  "/build/readme/orphan.txt": "some file data",
   "/eslint.config.js": "import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
@@ -568,7 +562,6 @@ export default tseslint.config(
 }
 ",
   "/src/index.ts": "import { name } from './config.json';
-
 export const sayHello = () => 'Hello ' + name;
 ",
   "/test/index.spec.ts": "import { describe, expect, it } from 'vitest';

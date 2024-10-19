@@ -3,7 +3,7 @@ import type { TsConfigJson } from 'type-fest';
 import {
   AnyString,
   Component,
-  createOptionsManager,
+  createOptions,
   FileCodec,
   JsonFile,
   OptionsMerger,
@@ -82,8 +82,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const TsConfigOptions = createOptionsManager(
-  Symbol.for('TsConfigOptions'),
+export const TsConfigOptions = createOptions(
+  'TsConfigOptions',
   TsConfigDefaults,
   optionsMerger,
 );

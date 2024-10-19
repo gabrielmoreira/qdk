@@ -2,7 +2,7 @@
 import { get, merge, set } from 'lodash-es';
 import { parse, stringify } from 'smol-toml';
 import {
-  createOptionsManager,
+  createOptions,
   FileCodec,
   JsonifiableObject,
   OptionsMerger,
@@ -38,8 +38,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const TomlFileOptions = createOptionsManager(
-  Symbol.for('TomlFileOptions'),
+export const TomlFileOptions = createOptions(
+  'TomlFileOptions',
   TomlFileDefaults,
   optionsMerger,
 );

@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/class-literal-property-style */
 import { difference } from 'lodash-es';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import tree from 'tree-console';
 import type { Jsonifiable } from 'type-fest';
 import {
   AnyString,
   assertRequired,
   Component,
-  createOptionsManager,
+  createOptions,
   getErrorCode,
   Gitignore,
   gitignoreDefault,
@@ -82,15 +82,18 @@ const optionsMerger: OptionsMerger<
   return {
     ...defaults,
     ...initialOptions,
-    buildDir: assertRequired(initialOptions.buildDir ?? defaults.buildDir),
+    buildDir: assertRequired(
+      initialOptions.buildDir ?? defaults.buildDir,
+      'buildDir is required',
+    ),
     cwd,
     outdir,
     path,
   };
 };
 
-export const BaseProjectOptions = createOptionsManager(
-  Symbol.for('BaseProjectOptions'),
+export const BaseProjectOptions = createOptions(
+  'BaseProjectOptions',
   BaseProjectDefaults,
   optionsMerger,
 );
@@ -98,6 +101,7 @@ export const BaseProjectOptions = createOptionsManager(
 export interface BaseProjectMetadata {
   project: string;
   files: string[];
+  subprojects: string[];
   custom: Record<string, Jsonifiable>;
 }
 
@@ -146,6 +150,9 @@ export abstract class BaseProject<
           .filter(file => !file.options.sample)
           .map(it => it.relativePath)
           .sort(),
+        subprojects: this.subprojects
+          .map(it => this.relativeTo(it.options.path))
+          .sort(),
       },
     );
     this.hook('synth:after', async (options: SynthOptions) => {
@@ -170,10 +177,20 @@ export abstract class BaseProject<
       this.debug('Files to delete (orphan files):', removedFiles);
       this.debug('New managed files:', managedFiles);
 
+      // TODO: Detect orphan projects and delete their files.
+      // However, be cautious when handling subprojects. Adding a subproject midway might make it seem
+      // like certain files are no longer managed, leading to unintentional deletion of valid files.
+      // Example: Project(/a, [ Project(/b/c) ]) becomes Project(/a, [ Project(/b, [ Project(/c) ]) ])
+      // In this case, it may appear that project /b/c is gone, but it has actually been
+      // restructured into nested subprojects.
+
       this.metadataFile.update(() => ({
         project: this.options.name,
         custom: this.customMetadata,
         files: managedFiles,
+        subprojects: this.subprojects
+          .map(it => this.relativeTo(it.options.path))
+          .sort(),
       }));
       if (options.removeDeletedFiles ?? true) {
         await Promise.all(
@@ -195,6 +212,10 @@ export abstract class BaseProject<
 
   resolvePath(path: string) {
     return resolve(this.options.path, path);
+  }
+
+  relativeTo(path: string) {
+    return relative(this.options.path, path);
   }
 
   addSubproject(project: BaseProject) {

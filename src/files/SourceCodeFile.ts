@@ -6,7 +6,7 @@ import {
 } from 'magicast';
 import { basename } from 'path';
 import {
-  createOptionsManager,
+  createOptions,
   FileCodec,
   OptionsMerger,
   QdkFile,
@@ -59,8 +59,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const SourceCodeFileOptions = createOptionsManager(
-  Symbol.for('SourceCodeFileOptions'),
+export const SourceCodeFileOptions = createOptions(
+  'SourceCodeFileOptions',
   SourceCodeFileDefaults,
   optionsMerger,
 );

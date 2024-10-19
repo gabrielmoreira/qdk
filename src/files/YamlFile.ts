@@ -3,7 +3,7 @@ import { get, merge, set } from 'lodash-es';
 import type { Jsonifiable } from 'type-fest';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import {
-  createOptionsManager,
+  createOptions,
   FileCodec,
   OptionsMerger,
   QdkFile,
@@ -38,8 +38,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const YamlFileOptions = createOptionsManager(
-  Symbol.for('YamlFileOptions'),
+export const YamlFileOptions = createOptions(
+  'YamlFileOptions',
   YamlFileDefaults,
   optionsMerger,
 );

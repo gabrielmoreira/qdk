@@ -1,7 +1,7 @@
 import * as prettier from 'prettier';
 import {
   Component,
-  createOptionsManager,
+  createOptions,
   JsonFile,
   OptionsMerger,
   PackageJson,
@@ -66,8 +66,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const PrettierOptions = createOptionsManager(
-  Symbol.for('PrettierOptions'),
+export const PrettierOptions = createOptions(
+  'PrettierOptions',
   PrettierDefaults,
   optionsMerger,
 );

@@ -2,7 +2,7 @@
 import { parse, stringify } from 'ini';
 import { get, merge, set } from 'lodash-es';
 import {
-  createOptionsManager,
+  createOptions,
   FileCodec,
   JsonifiableObject,
   OptionsMerger,
@@ -38,17 +38,15 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const IniFileOptions = createOptionsManager(
-  Symbol.for('IniFileOptions'),
+export const IniFileOptions = createOptions(
+  'IniFileOptions',
   IniFileDefaults,
   optionsMerger,
 );
 
 export const createIniCodec = <T = Iniifiable>(): FileCodec<T> => ({
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
   encode: (data: T) => Buffer.from(stringify(data)),
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   decode: buffer => parse(buffer.toString('utf8')) as T,
 });
 

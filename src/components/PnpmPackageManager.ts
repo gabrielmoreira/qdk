@@ -1,6 +1,6 @@
 import {
   BaseProject,
-  createOptionsManager,
+  createOptions,
   OptionsMerger,
   PackageJson,
   PackageManager,
@@ -30,8 +30,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const PnpmPackageManagerOptions = createOptionsManager(
-  Symbol.for('PnpmPackageManagerOptions'),
+export const PnpmPackageManagerOptions = createOptions(
+  'PnpmPackageManagerOptions',
   PnpmPackageManagerDefaults,
   optionsMerger,
 );

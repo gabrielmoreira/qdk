@@ -4,6 +4,7 @@
   "compilerOptions": {
     "outDir": "build/ts",
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowJs": true
   }
 }

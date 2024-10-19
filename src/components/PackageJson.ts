@@ -5,7 +5,7 @@ import type { PackageJson as PackageJsonType } from 'type-fest';
 import {
   assertRequired,
   Component,
-  createOptionsManager,
+  createOptions,
   HasOptions,
   JsonFile,
   OptionsMerger,
@@ -93,8 +93,8 @@ const optionsMerger: OptionsMerger<
   return options;
 };
 
-export const PackageJsonOptions = createOptionsManager(
-  Symbol.for('PackageJsonOptions'),
+export const PackageJsonOptions = createOptions(
+  'PackageJsonOptions',
   PackageJsonDefaults,
   optionsMerger,
   {

@@ -1,6 +1,6 @@
 import {
   Component,
-  createOptionsManager,
+  createOptions,
   OptionsMerger,
   PackageJson,
   PackageJsonOptions,
@@ -50,8 +50,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const TypescriptOptions = createOptionsManager(
-  Symbol.for('TypescriptOptions'),
+export const TypescriptOptions = createOptions(
+  'TypescriptOptions',
   TypescriptDefaults,
   optionsMerger,
 );

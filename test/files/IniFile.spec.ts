@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi, vitest } from 'vitest';
+import { beforeEach, describe, expect, it, vi, vitest } from 'vitest';
 import { IniFile, Project } from '../../src/index.js';
 import {
   readStringFile,
@@ -24,7 +24,7 @@ vitest.mock('../../src/system/execution.ts', () => {
 });
 
 describe('IniFile', () => {
-  afterEach(() => reset());
+  beforeEach(() => reset());
 
   it('writes to filesystem', async () => {
     // Given

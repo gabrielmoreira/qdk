@@ -72,23 +72,22 @@ export default class MyApp extends QdkApp {
     );
 
     console.log(
-      subproject.findFileOf('package.json', JsonFile),
+      'package.json is the same?',
       subproject.findFileOf('package.json', JsonFile) ===
         JsonFile.forPath(subproject, 'package.json'),
     );
-    // console.log(project.findFile("package.json"))
-    console.log(subproject.findFileOf('README.md', TextFile)?.change('Hello'));
-    console.log(subproject.findFileOf('README.md', TextFile)?.change('123'));
-    console.log(
-      subproject
-        .findFileOf('eslint.config.mjs', SourceCodeFile)
-        ?.update(source => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const exports: any = source.exports;
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access,
-          exports.default.$args.push(builders.raw('{ HELLO: TRUE }'));
-        }),
-    );
+    // (project.findFile("package.json"))
+    subproject.findFileOf('README.md', TextFile)?.change('Hello');
+    subproject.findFileOf('README.md', TextFile)?.change('123');
+
+    subproject
+      .findFileOf('eslint.config.mjs', SourceCodeFile)
+      ?.update(source => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const exports: any = source.exports;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access,
+        exports.default.$args.push(builders.raw('{ HELLO: TRUE }'));
+      });
 
     // JsonFile.forPath(monorepo, 'package.json').merge({ type: 'module' });
 
@@ -167,6 +166,6 @@ if (process.argv.slice(2).includes('synth')) {
 }
 
 // ---- FOR TESTS: begin ----
-export { vol } from 'memfs';
+//export { vol } from 'memfs';
 export { PackageJsonOptions } from '../../src/index.js';
 // ---- FOR TESTS: end ----

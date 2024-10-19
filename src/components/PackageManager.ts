@@ -20,7 +20,10 @@ export abstract class PackageManager<T = unknown> extends Component<T> {
     return scope.project.findComponent(PackageManager.of);
   }
   static required(scope: Scope): PackageManager {
-    return assertRequired(scope.project.findComponent(PackageManager.of));
+    return assertRequired(
+      scope.project.findComponent(PackageManager.of),
+      `We couldn't find any package manager on the project ${scope.project.nodeName}.`,
+    );
   }
   async run(cmd: string) {
     return await this.execCmd(`${this.cmdPrefix} ${cmd}`);

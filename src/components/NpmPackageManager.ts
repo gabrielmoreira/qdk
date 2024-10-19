@@ -1,6 +1,6 @@
 import { relative } from 'node:path';
 import {
-  createOptionsManager,
+  createOptions,
   OptionsMerger,
   PackageJson,
   PackageManager,
@@ -27,8 +27,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const NpmPackageManagerOptions = createOptionsManager(
-  Symbol.for('NpmPackageManagerOptions'),
+export const NpmPackageManagerOptions = createOptions(
+  'NpmPackageManagerOptions',
   NpmPackagerManagerDefaults,
   optionsMerger,
 );

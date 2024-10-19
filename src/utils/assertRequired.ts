@@ -1,8 +1,8 @@
 export function assertRequired<T>(
-  instance?: T | null,
-  message = 'Instance is required',
+  instance: T | undefined | null,
+  message: string,
 ): T {
-  if (instance === null || typeof instance === 'undefined') {
+  if (instance === null || instance === undefined) {
     throw new Error(message);
   }
   return instance;

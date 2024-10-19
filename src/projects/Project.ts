@@ -3,7 +3,7 @@ import {
   BaseProjectInitialOptionsType,
   BaseProjectOptions,
   BaseProjectOptionsType,
-  createOptionsManager,
+  createOptions,
   OptionsMerger,
   PartialOptionsContext,
   Scope,
@@ -35,8 +35,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const ProjectOptions = createOptionsManager(
-  Symbol.for('ProjectOptions'),
+export const ProjectOptions = createOptions(
+  'ProjectOptions',
   ProjectDefaults,
   optionsMerger,
 );

@@ -1,6 +1,5 @@
-import { DirectoryJSON, vol } from 'memfs';
+import memfs from 'memfs';
 import fsPrint from 'memfs/lib/print';
-import { Volume } from 'memfs/lib/volume.js';
 import { dirname, join } from 'node:path';
 import { vi } from 'vitest';
 import { QdkApp } from '../src/index.js';
@@ -11,22 +10,22 @@ const logger = createLogger('testing', 'test-helpers');
 export const rootPath = '/';
 
 export function resetFilesystem(
-  opts: { json?: DirectoryJSON; cwd?: string },
-  volume: Volume = vol,
+  opts: { json?: memfs.DirectoryJSON; cwd?: string },
+  vol = memfs.vol,
 ) {
   logger.debug('resetFilesystem');
-  volume.reset();
-  volume.fromJSON(opts?.json ?? {}, opts?.cwd ?? rootPath);
+  vol.reset();
+  vol.fromJSON(opts?.json ?? {}, opts?.cwd ?? rootPath);
 }
 
-export function printFsTree(dir: string = rootPath, volume: Volume = vol) {
+export function printFsTree(dir: string = rootPath, volume = memfs.vol) {
   return fsPrint.toTreeSync(volume, { dir });
 }
 
 export async function readStringFile(
   path: string,
   cwd: string = rootPath,
-  volume: Volume = vol,
+  volume = memfs.vol,
 ) {
   logger.debug('readStringFile(', path, cwd, ')');
   const file = await volume.promises.readFile(cwd ? join(cwd, path) : path);
@@ -36,7 +35,7 @@ export async function readStringFile(
 export async function writeStringFile(
   pathOrOptions: string | { path: string; cwd?: string },
   data: string | Buffer,
-  volume: Volume = vol,
+  volume = memfs.vol,
 ) {
   const isOptions = typeof pathOrOptions !== 'string';
   const path = isOptions ? pathOrOptions.path : pathOrOptions;
@@ -55,7 +54,7 @@ export async function writeStringFile(
 
 export async function writeFiles(
   files: Record<string, string | Buffer>,
-  volume: Volume = vol,
+  volume = memfs.vol,
 ) {
   await Promise.all(
     Object.entries(files).map(async ([name, content]) => {
@@ -65,7 +64,7 @@ export async function writeFiles(
   );
 }
 
-export function toSnapshot(path?: string, volume: Volume = vol) {
+export function toSnapshot(path?: string, volume = memfs.vol) {
   return volume.toJSON(path);
 }
 
@@ -87,6 +86,8 @@ export function reset({
     resetFilesystem(typeof filesystem === 'boolean' ? {} : filesystem);
 }
 
-export interface SampleApp {
-  default: new ({ cwd }: { cwd: string }) => QdkApp;
+export interface QdkAppConfigFile {
+  default: QdkAppConstructor;
 }
+
+export type QdkAppConstructor = new ({ cwd }: { cwd: string }) => QdkApp;

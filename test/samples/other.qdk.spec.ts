@@ -1,36 +1,28 @@
 import { beforeEach, describe, expect, it, vi, vitest } from 'vitest';
 
-import { Volume } from 'memfs/lib/volume.js';
-import type { PackageJsonOptions, QdkApp } from '../../src/index.js';
+import memfs from 'memfs';
+import { PackageJsonOptions, QdkApp } from '../../src/index.js';
 import {
   printFsTree,
+  QdkAppConfigFile,
+  QdkAppConstructor,
   reset,
-  resetFilesystem,
   toSnapshot,
   writeFiles,
 } from '../test-helpers.js';
 
-interface QdkConfig {
-  default: new (...args: unknown[]) => QdkApp;
-  PackageJsonOptions: typeof PackageJsonOptions;
-  vol: Volume;
-}
-
-const loadQdkConfig = async () => {
-  return await vi.importActual<QdkConfig>('./monorepo.qdk.js');
-};
-
-const synthMonorepo = async () => {
-  const { default: MyApp } = await loadQdkConfig();
-  return new MyApp({ cwd: '/' }).synth();
-};
-
-vitest.mock('fs', async () => {
-  return await vi.importActual('memfs');
+vitest.mock('qdk', () => {
+  return vitest.importActual('../../src/index.js');
 });
 
-vitest.mock('fs/promises', async () => {
-  return (await vi.importActual('memfs')).promises;
+const fsMock: typeof memfs = await vi.hoisted(async () => {
+  return await vi.importActual('memfs');
+});
+vitest.mock('fs', () => {
+  return fsMock;
+});
+vitest.mock('fs/promises', () => {
+  return fsMock.fs.promises;
 });
 
 vitest.mock('../../src/system/execution.ts', () => {
@@ -41,13 +33,32 @@ vitest.mock('../../src/system/execution.ts', () => {
   };
 });
 
+interface OtherQdkAppConfigFile extends QdkAppConfigFile {
+  default: new (...args: unknown[]) => QdkApp;
+  PackageJsonOptions: typeof PackageJsonOptions;
+}
+
+const importQdkConfig = async <
+  T extends OtherQdkAppConfigFile = OtherQdkAppConfigFile,
+>() => {
+  const { default: QdkAppClass, ...rest } =
+    await vi.importActual<T>('./other.qdk.ts');
+  return { QdkAppClass, ...rest };
+};
+
 describe('qdk/monorepo sample', () => {
-  beforeEach(() => {
+  let QdkAppClass: QdkAppConstructor;
+  let config: Awaited<ReturnType<typeof importQdkConfig>>;
+
+  beforeEach(async () => {
     reset();
+    config = await importQdkConfig();
+    QdkAppClass = config.QdkAppClass;
   });
+
   it('builds a monorepo sample project', async () => {
     // When
-    await synthMonorepo();
+    await new QdkAppClass({ cwd: '/' }).synth();
     // Then
     const filesystemTree = printFsTree();
     const filesystemContent = toSnapshot();
@@ -57,9 +68,9 @@ describe('qdk/monorepo sample', () => {
 
   it('builds a monorepo sample project and delete orphan files', async t => {
     // Given
-    const { PackageJsonOptions, default: MyApp, vol } = await loadQdkConfig();
+
     // ... we reset any previously loaded fileystem
-    resetFilesystem({}, vol);
+    //resetFilesystem({}, vol);
     // ... we change the package json defaults
     PackageJsonOptions.replaceDefaults({
       version: '9.9.9-' + t.task.name.replace(/[^a-zA-Z0-9]/g, ''),
@@ -72,16 +83,16 @@ describe('qdk/monorepo sample', () => {
         }),
         '/test2/build/monorepo/orphan.txt': 'some file data',
       },
-      vol,
+      memfs.fs,
     );
     // When
-    expect(vol.existsSync('/test2/build/monorepo/orphan.txt')).toBe(true);
-    await new MyApp({ cwd: '/test2' }).synth();
+    expect(memfs.fs.existsSync('/test2/build/monorepo/orphan.txt')).toBe(true);
+    await new QdkAppClass({ cwd: '/test2' }).synth();
     // Then
     const filesystemTree = printFsTree();
-    const filesystemContent = toSnapshot(undefined, vol);
+    const filesystemContent = toSnapshot();
     expect(filesystemTree).toMatchSnapshot();
     expect(filesystemContent).toMatchSnapshot();
-    expect(vol.existsSync('/test2/build/monorepo/orphan.txt')).toBe(false);
+    expect(memfs.fs.existsSync('/test2/build/monorepo/orphan.txt')).toBe(false);
   });
 });

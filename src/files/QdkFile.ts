@@ -13,7 +13,7 @@ import * as prettier from 'prettier';
 import {
   chmod,
   createFile,
-  createOptionsManager,
+  createOptions,
   existsSync,
   FsFile,
   mkdir,
@@ -53,7 +53,6 @@ const QdkFileDefaults = {
   writeOnSynth: true,
   formatOnCheck: true,
   formatOnWrite: true,
-  fileMode: 444,
   sampleFileMode: undefined,
 } satisfies Omit<QdkFileOptionsType, 'cwd' | 'basename'>;
 
@@ -71,8 +70,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const QdkFileOptions = createOptionsManager(
-  Symbol.for('QdkFileOptions'),
+export const QdkFileOptions = createOptions(
+  'QdkFileOptions',
   QdkFileDefaults,
   optionsMerger,
 );

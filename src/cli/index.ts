@@ -1,10 +1,10 @@
 #!/usr/bin/env -S npx tsx
 import { Cli, Command, Option } from 'clipanion';
 import { findUp } from 'find-up-simple';
-import { join } from 'node:path';
+import { dirname } from 'node:path';
 import t from 'typanion';
-import { CanSynthesize, exec, writeFile } from './index.js';
-import * as templates from './templates/init.template.js';
+import { CanSynthesize, exec } from '../index.js';
+import { copyTemplate } from './init/copyTemplate.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const [node, app, ...args] = process.argv;
@@ -18,22 +18,8 @@ const log = (...msg: unknown[]) => {
   console.log('QDK:', ...msg);
 };
 
-type TemplateKey = keyof typeof templates;
-const templateKeys: TemplateKey[] = Object.keys(templates) as TemplateKey[];
-
-const bannerString = `
-/*
- * To setup QDK, run the following commands:
- * \`\`\`sh
- * npx qdk init
- * \`\`\`
- *
- * After that you can run:
- * \`\`\`sh
- * npx qdk synth
- * \`\`\`
- */
-`;
+const templates = ['blank', 'monorepo', 'simple'] as const;
+type Template = (typeof templates)[number];
 
 cli.register(
   class InitCommand extends Command {
@@ -49,25 +35,31 @@ cli.register(
     });
     cwd = Option.String('--cwd', { hidden: true });
     blank = Option.Boolean('--blank');
-    template = Option.String('--template', {
+    template = Option.String('-t,--template', {
       description: 'Available qdk.config.ts templates: [simple]',
-      validator: t.isOneOf(templateKeys.map(it => t.isLiteral(it))),
+      validator: t.isOneOf(templates.map(it => t.isLiteral(it))),
     });
+    forceOverwrite = Option.Boolean('-f,--force');
     async execute() {
-      const opts = { cwd: this.cwd ?? process.cwd() };
+      const opts = {
+        cwd: this.cwd ?? process.cwd(),
+        forceOverwrite: this.forceOverwrite ?? false,
+      };
       if (!(await hasQdk(opts))) {
         await installQdk(opts);
       }
-      const qdkConfig = await findQdkConfig(opts);
-      if (!qdkConfig) {
-        const templateName: keyof typeof templates =
-          this.template ?? (this.blank ? 'blank' : 'simple');
-        const template = templates[templateName];
-        const content = template() + '\n' + bannerString;
-        await writeFile(join(opts.cwd, 'qdk.config.ts'), content);
+
+      const templateName: Template =
+        this.template ?? (this.blank ? 'blank' : 'simple');
+
+      const generatedFiles = await copyTemplate(templateName, opts);
+      if (generatedFiles.includes('qdk.config.ts')) {
         log('The qdk.config.ts file has been created successfully.');
         log('Please adjust your qdk.config.ts file as needed.');
+      } else {
+        log(`${generatedFiles.length} generated file(s) in your project.`);
       }
+      console.log('');
       log('Run [npx qdk synth] to synthesize your project.');
     }
   },
@@ -141,11 +133,12 @@ async function loadQdk(opts: LoadOpts): Promise<CanSynthesize | undefined> {
   }
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const qdkProjectType = await import(qdkConfig);
+  const qdkAppOpts = { cwd: dirname(qdkConfig) };
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  let qdkProject = tryGetQdkAppInstance(qdkProjectType?.default, opts);
+  let qdkProject = tryGetQdkAppInstance(qdkProjectType?.default, qdkAppOpts);
   if (qdkProject) return qdkProject;
 
-  qdkProject = tryGetQdkAppInstance(qdkProjectType, opts);
+  qdkProject = tryGetQdkAppInstance(qdkProjectType, qdkAppOpts);
   if (qdkProject) return qdkProject;
 }
 

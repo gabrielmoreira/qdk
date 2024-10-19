@@ -1,7 +1,7 @@
 import {
   assertRequired,
   Component,
-  createOptionsManager,
+  createOptions,
   EsLintSourceFileDefaultTemplate,
   EsLintSourceFileDefaultTemplateParams,
   OptionsMerger,
@@ -113,8 +113,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const EsLintOptions = createOptionsManager(
-  Symbol.for('EsLintOptions'),
+export const EsLintOptions = createOptions(
+  'EsLintOptions',
   EsLintDefaults,
   optionsMerger,
 );

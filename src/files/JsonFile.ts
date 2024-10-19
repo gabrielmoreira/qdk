@@ -2,7 +2,7 @@
 import { get, merge, set } from 'lodash-es';
 import type { Jsonifiable } from 'type-fest';
 import {
-  createOptionsManager,
+  createOptions,
   FileCodec,
   OptionsMerger,
   QdkFile,
@@ -40,8 +40,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const JsonFileOptions = createOptionsManager(
-  Symbol.for('JsonFileOptions'),
+export const JsonFileOptions = createOptions(
+  'JsonFileOptions',
   JsonFileDefaults,
   optionsMerger,
 );

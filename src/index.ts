@@ -1,5 +1,8 @@
 // organize-imports-ignore
-export * from './options-manager.js';
+import dedent from 'dedent';
+export { dedent };
+
+export * from './options.js';
 
 export * from './utils/getErrorCode.js';
 export * from './utils/assertRequired.js';

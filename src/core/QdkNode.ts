@@ -119,7 +119,10 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
   }
 
   requiredComponent<T extends QdkNode>(predicate: (node: QdkNode) => T): T {
-    return assertRequired(this.findComponent(predicate));
+    return assertRequired(
+      this.findComponent(predicate),
+      `A component is required for ${predicate.toString()}`,
+    );
   }
 
   findFileOf<X extends QdkFile<any, any>>(

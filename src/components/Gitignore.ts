@@ -1,6 +1,6 @@
 import {
   Component,
-  createOptionsManager,
+  createOptions,
   gitignoreDefault,
   OptionsMerger,
   Scope,
@@ -25,8 +25,8 @@ const optionsMerger: OptionsMerger<
   ...initialOptions,
 });
 
-export const GitignoreOptions = createOptionsManager(
-  Symbol.for('GitignoreOptions'),
+export const GitignoreOptions = createOptions(
+  'GitignoreOptions',
   GitignoreDefaults,
   optionsMerger,
 );

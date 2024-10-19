@@ -1,24 +1,12 @@
-import {
-  Component,
-  EsLint,
-  NpmPackageManager,
-  PackageJson,
-  PackageManager,
-  Project,
-  QdkApp,
-  SampleFiles,
-  Scope,
-  TsConfigBases,
-  Typescript,
-} from '../../src/index.js';
+import * as qdk from 'qdk';
 
-export default class MyApp extends QdkApp {
+export default class MyApp extends qdk.QdkApp {
   constructor({ cwd }: { cwd: string }) {
     super();
     // Create a new empty project
 
     const myProject = this.add(
-      Project.create({
+      qdk.Project.create({
         name: 'qdk-sample',
         description: 'Sample QDK Project',
         version: '0.1.0',
@@ -28,10 +16,10 @@ export default class MyApp extends QdkApp {
     );
 
     // Use npm package manager
-    new NpmPackageManager(myProject);
+    new qdk.NpmPackageManager(myProject);
 
     // Customize package.json and add custom dependencies
-    new PackageJson(myProject, {
+    new qdk.PackageJson(myProject, {
       license: 'MIT',
       module: `${myProject.buildDir}/src/index.js`,
     }) // by default the package type is 'module'
@@ -39,9 +27,9 @@ export default class MyApp extends QdkApp {
       .setScript('test', 'vitest');
 
     // Typescript TSConfig
-    new Typescript(myProject, {
+    new qdk.Typescript(myProject, {
       tsconfig: {
-        extends: [TsConfigBases.Node20],
+        extends: [qdk.TsConfigBases.Node20],
         include: [
           'qdk.config.ts',
           'eslint.config.mjs',
@@ -58,7 +46,7 @@ export default class MyApp extends QdkApp {
     });
 
     // Enable ESLint (+ prettier)
-    new EsLint(myProject, {
+    new qdk.EsLint(myProject, {
       templateParams: {
         rules: {
           '@typescript-eslint/no-unsafe-call': 'off',
@@ -69,7 +57,7 @@ export default class MyApp extends QdkApp {
     // To automatically run linting after synthesizing the project,
     // use the following hook. This ensures ESLint fixes any issues:
     this.hook('synth:after', async () => {
-      await PackageManager
+      await qdk.PackageManager
         // Find the package manager configured for this project
         .required(myProject)
         // Run: npx eslint --fix to automatically correct linting issues
@@ -82,17 +70,18 @@ export default class MyApp extends QdkApp {
   }
 }
 
-export class MySampleFiles extends Component {
-  constructor(scope: Scope) {
-    super(scope, undefined);
+export class MySampleFiles extends qdk.Component {
+  constructor(scope: qdk.Scope) {
+    super(scope, {});
 
     // Sample files
-    new SampleFiles(this, {
+    new qdk.SampleFiles(this, {
       files: {
         // src/index.ts
-        'src/index.ts': `import { name } from './config.json';
-    
-    export const sayHello = () => 'Hello ' + name`,
+        'src/index.ts': qdk.dedent`
+          import { name } from './config.json';
+          export const sayHello = () => 'Hello ' + name
+        `,
         // src/config.ts
         'src/config.json': {
           type: 'json',
@@ -100,19 +89,19 @@ export class MySampleFiles extends Component {
           data: { name: 'Alice ' + new Date().toISOString() },
         },
         // Test file
-        'test/index.spec.ts': `
-import { describe, expect, it } from 'vitest';
-import { sayHello } from '../src/index.js';
+        'test/index.spec.ts': qdk.dedent`
+          import { describe, expect, it } from 'vitest';
+          import { sayHello } from '../src/index.js';
 
-describe('index', () => {
-it('say hello', () => {
-// When
-const result = sayHello();
-// Then
-expect(result).toMatch(/^Hello Alice .+$/g);
-});
-});
-`,
+          describe('index', () => {
+            it('say hello', () => {
+              // When
+              const result = sayHello();
+              // Then
+              expect(result).toMatch(/^Hello Alice .+$/g);
+            });
+          });
+        `,
       },
     });
   }

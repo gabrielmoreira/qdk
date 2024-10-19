@@ -1,7 +1,7 @@
 import { relative } from 'path';
 import {
   Component,
-  createOptionsManager,
+  createOptions,
   OptionsMerger,
   YamlFile,
   Yamlifiable,
@@ -35,8 +35,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const PnpmWorkspaceOptions = createOptionsManager(
-  Symbol.for('PnpmWorkspaceOptions'),
+export const PnpmWorkspaceOptions = createOptions(
+  'PnpmWorkspaceOptions',
   PnpmWorkspaceDefaults,
   optionsMerger,
 );

@@ -1,5 +1,5 @@
 import {
-  createOptionsManager,
+  createOptions,
   FileCodec,
   OptionsMerger,
   QdkFile,
@@ -32,8 +32,8 @@ const optionsMerger: OptionsMerger<
   };
 };
 
-export const TextFileOptions = createOptionsManager(
-  Symbol.for('TextFileOptions'),
+export const TextFileOptions = createOptions(
+  'TextFileOptions',
   TextFileDefaults,
   optionsMerger,
 );
