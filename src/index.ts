@@ -1,6 +1,8 @@
 // organize-imports-ignore
 import dedent from 'dedent';
 export { dedent };
+import chalkInstance from 'chalk';
+export const chalk: typeof chalkInstance = chalkInstance;
 
 export * from './options.js';
 

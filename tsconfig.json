@@ -1,8 +1,12 @@
 {
   "extends": ["@tsconfig/node20"],
-  "include": ["src/**/*", "test/**/*", "*.ts"],
+  "include": ["src/**/*", "test/**/*", "*.ts", "src/cli/init/templates/monorepo/.qdk/components"],
   "compilerOptions": {
+    "rootDir": ".",
     "outDir": "build/ts",
+    "paths": {
+      "qdk": ["./src/index"]
+    },
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true

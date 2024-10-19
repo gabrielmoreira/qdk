@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import debug from 'debug';
 
 export type Logger = ReturnType<typeof createLogger>;
@@ -13,7 +14,7 @@ export type LoggerNamespace =
 
 export function createLogger(ns: LoggerNamespace, tag?: string) {
   const logger = debug(`qdk:${ns}`);
-  const prefix = tag ? `${tag}:` : '';
+  const prefix = tag ? `${chalk.gray(tag)}:` : '';
   return {
     log(...message: unknown[]) {
       console.log(prefix, ...message);

@@ -10,7 +10,7 @@ export async function copyTemplate(
 ) {
   const srcdir = join(metaDirname, 'templates', template);
   //console.log('srcdir', srcdir);
-  const paths = await globby(`**/*`, { cwd: srcdir });
+  const paths = await globby(`**/*`, { cwd: srcdir, dot: true });
   //console.log('paths', srcdir);
   const directories = [
     ...new Set(paths.map(path => join(destdir, dirname(path)))),

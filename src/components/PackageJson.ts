@@ -3,6 +3,7 @@ import normalizePackageData from 'normalize-package-data';
 import sortPackageJson from 'sort-package-json';
 import type { PackageJson as PackageJsonType } from 'type-fest';
 import {
+  AnyString,
   assertRequired,
   Component,
   createOptions,
@@ -26,6 +27,9 @@ type PackageJsonOptionsTypeWithoutRoot = PackageJsonType.NodeJsStandard &
     name: string;
     defaultVersions: Record<string, string>;
     defaultScripts: Record<string, string>;
+  } & {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key in AnyString]?: any;
   };
 
 type PackageJsonOptionsType = PackageJsonOptionsTypeWithoutRoot & {

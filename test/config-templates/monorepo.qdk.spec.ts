@@ -73,11 +73,20 @@ const settingsGradleSample = dedent`
   includeBuild('../node_modules/@react-native/gradle-plugin')
 `;
 
+const appTsxSample = dedent`
+// ...
+import React from 'react';
+// ...
+  <Section title="See Your Changes">
+    ...
+  </Section>
+// ...
+`;
+
 const defaultFilesystem = {
-  '/apps/my-app/android/settings.gradle': settingsGradleSample,
-  '/apps/my-app/android/app/build.gradle': buildGradleSample,
-  '/apps/some-other-app/android/settings.gradle': settingsGradleSample,
-  '/apps/some-other-app/android/app/build.gradle': buildGradleSample,
+  '/apps/myapp/android/settings.gradle': settingsGradleSample,
+  '/apps/myapp/android/app/build.gradle': buildGradleSample,
+  '/apps/myapp/App.tsx': appTsxSample,
 };
 
 describe('monorepo template', () => {
