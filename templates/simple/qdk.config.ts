@@ -1,19 +1,16 @@
 import * as qdk from 'qdk';
 
 export default class MyApp extends qdk.QdkApp {
-  constructor({ cwd }: { cwd: string }) {
-    super();
+  constructor(options: qdk.QdkAppOptions) {
+    super(options);
     // Create a new empty project
 
-    const myProject = this.add(
-      qdk.Project.create({
-        name: 'qdk-sample',
-        description: 'Sample QDK Project',
-        version: '0.1.0',
-        cwd,
-        // outdir: 'some-other-folder', // by default outdir is '.' (same as cwd)
-      }),
-    );
+    const myProject = new qdk.Project(this, {
+      name: 'qdk-sample',
+      description: 'Sample QDK Project',
+      version: '0.1.0',
+      // outdir: 'somewhere/else', // by default outdir is '.'
+    });
 
     // Use npm package manager
     new qdk.NpmPackageManager(myProject);

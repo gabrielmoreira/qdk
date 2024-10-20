@@ -1,6 +1,6 @@
 {
   "extends": ["@tsconfig/node20"],
-  "include": ["src/**/*", "test/**/*", "*.ts", "src/cli/init/templates/monorepo/.qdk/components"],
+  "include": ["src/**/*", "test/**/*", "*.ts", "templates/**/*.ts"],
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "build/ts",

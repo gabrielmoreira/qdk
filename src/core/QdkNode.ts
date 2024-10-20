@@ -8,6 +8,7 @@ import {
   BaseProject,
   BaseProjectOptionsType,
   Component,
+  QdkApp,
   QdkFile,
   QdkFileOptionsType,
   relativeToCwd,
@@ -43,15 +44,20 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
       ? this.constructor.name + '(' + nodeName + ')'
       : this.constructor.name;
     this.parent = parent;
+    const project = parent instanceof QdkApp ? undefined : parent?.project;
     if (this instanceof BaseProject) {
       this.logger = createLogger('project', this.nodeName);
-      parent?.project?.addSubproject(this);
+      project?.addSubproject(this);
     } else if (this instanceof Component) {
       this.logger = createLogger('component', this.nodeName);
-      parent?.project?.addComponent(this);
+      if (parent === undefined)
+        throw new Error('Components should have a project as parent scope');
+      project?.addComponent(this);
     } else if (this instanceof QdkFile) {
       this.logger = createLogger('file', this.nodeName);
-      parent?.project?.addFile(this);
+      if (parent === undefined)
+        throw new Error('Files should have a project as parent scope');
+      project?.addFile(this);
     } else {
       this.logger = createLogger('node', this.nodeName);
     }
@@ -69,6 +75,11 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
   get root(): Scope {
     if (!this.parent) return this;
     return this.parent.root;
+  }
+
+  get app(): QdkApp {
+    if (this instanceof QdkApp) return this;
+    return assertRequired(this.parent?.app, 'No app found');
   }
 
   get project(): BaseProject<BaseProjectOptionsType> {

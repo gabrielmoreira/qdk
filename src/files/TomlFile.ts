@@ -16,8 +16,10 @@ import {
 
 export type Tomlifiable = JsonifiableObject;
 
-export type TomlFileOptionsType = QdkFileOptionsType & {};
-export type TomlFileInitialOptionsType = QdkFileInitialOptionsType & {};
+type TomlFileBaseOptionsType = object;
+export type TomlFileOptionsType = QdkFileOptionsType & TomlFileBaseOptionsType;
+export type TomlFileInitialOptionsType = QdkFileInitialOptionsType &
+  TomlFileBaseOptionsType;
 const TomlFileDefaults = {} satisfies Partial<TomlFileOptionsType>;
 
 const optionsMerger: OptionsMerger<

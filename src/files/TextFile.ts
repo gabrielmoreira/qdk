@@ -10,8 +10,10 @@ import {
   Scope,
 } from '../index.js';
 
-export type TextFileOptionsType = QdkFileOptionsType & {};
-export type TextFileInitialOptionsType = QdkFileInitialOptionsType & {};
+type TextFileBaseOptions = object;
+export type TextFileOptionsType = QdkFileOptionsType & TextFileBaseOptions;
+export type TextFileInitialOptionsType = QdkFileInitialOptionsType &
+  TextFileBaseOptions;
 const TextFileDefaults = {} satisfies Partial<TextFileOptionsType>;
 
 const optionsMerger: OptionsMerger<

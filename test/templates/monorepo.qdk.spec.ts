@@ -45,7 +45,7 @@ vitest.mock('../../src/system/execution.ts', () => {
 
 const importQdkConfig = async () => {
   const { default: QdkAppClass } = await vi.importActual<QdkAppConfigFile>(
-    '../../src/cli/init/templates/monorepo/qdk.config.ts',
+    '.../../templates/monorepo/qdk.config.ts',
   );
   return { QdkAppClass };
 };

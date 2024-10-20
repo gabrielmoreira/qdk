@@ -1,13 +1,16 @@
 declare module 'tree-console' {
-  type TreeNode =
+  export type TreeNode =
     | {
         name: string;
         children: TreeNode[];
       }
     | { nodeName: string; children: TreeNode[] };
-  interface TreeOptions {
+  export interface TreeOptions {
     label: string;
     children: string;
   }
-  function getStringTree(nodes: TreeNode[], options?: TreeOptions): string;
+  export function getStringTree(
+    nodes: TreeNode[],
+    options?: TreeOptions,
+  ): string;
 }

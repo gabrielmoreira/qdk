@@ -8,8 +8,8 @@ import * as myapp from './.qdk/components/index.js';
 
 // Main application class that sets up the QDK app
 export default class MyApp extends qdk.QdkApp {
-  constructor({ cwd }: { cwd: string }) {
-    super();
+  constructor(options: qdk.QdkAppOptions) {
+    super(options);
     // ----------------------------
     // Default Package.json Options
     // ----------------------------
@@ -30,30 +30,26 @@ export default class MyApp extends qdk.QdkApp {
     // ---------------------------
     // Monorepo Project @repo/root
     // ---------------------------
-    const monorepo = this.add(
-      myapp.MonorepoProject.create({
-        name: '@repo/root',
-        description: 'Sample QDK Project',
-        version: '0.1.0',
-        cwd,
-        npmrc: {
-          // Configure pnpm for React Native projects
-          // More info:
-          // - https://docs.expo.dev/guides/monorepos/#can-i-use-another-monorepo-tool-instead-of-yarn-workspaces
-          // - https://github.com/pnpm/pnpm/issues/4286
-          // - https://github.com/facebook/metro/issues/1042
-          'node-linker': 'hoisted',
+    const monorepo = new myapp.MonorepoProject(this, {
+      name: '@repo/root',
+      description: 'Sample QDK Project',
+      version: '0.1.0',
+      npmrc: {
+        // Configure pnpm for React Native projects
+        // More info:
+        // - https://docs.expo.dev/guides/monorepos/#can-i-use-another-monorepo-tool-instead-of-yarn-workspaces
+        // - https://github.com/pnpm/pnpm/issues/4286
+        // - https://github.com/facebook/metro/issues/1042
+        'node-linker': 'hoisted',
+      },
+      // If you haven't used it yet, give it a try: https://mise.jdx.dev/
+      mise: {
+        tools: {
+          java: 'zulu-17',
+          node: '20.18.0',
         },
-        // If you haven't used it yet, give it a try: https://mise.jdx.dev/
-        mise: {
-          tools: {
-            java: 'zulu-17',
-            node: '20.18.0',
-          },
-        },
-      }),
-    );
-
+      },
+    });
     // ------------------------------------
     // React Native App Project @repo/myapp
     // ------------------------------------

@@ -4,7 +4,7 @@ import {
   PackageJson,
   SourceFileTemplate,
   TemplateParams,
-} from '../index.js';
+} from '../../index.js';
 
 export const SourceFileTemplateDefaultTags = [
   'file_start',

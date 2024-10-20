@@ -18,7 +18,7 @@ const log = (...msg: unknown[]) => {
   console.log('QDK:', ...msg);
 };
 
-const templates = ['blank', 'monorepo', 'simple'] as const;
+const templates = ['blank', 'monorepo', 'simple', 'readme'] as const;
 type Template = (typeof templates)[number];
 
 cli.register(

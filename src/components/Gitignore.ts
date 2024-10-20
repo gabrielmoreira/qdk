@@ -32,7 +32,7 @@ export const GitignoreOptions = createOptions(
 );
 
 export class Gitignore extends Component<GitignoreOptionsType> {
-  private ignored: string[] = [];
+  private readonly ignored: string[] = [];
   readonly file: TextFile;
   constructor(scope: Scope, options: GitignoreInitialOptionsType) {
     super(scope, GitignoreOptions.getOptions(options, { scope }));

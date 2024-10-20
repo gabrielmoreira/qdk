@@ -24,7 +24,13 @@ export type MonorepoProjectOptionsType = qdk.BaseProjectOptionsType &
  * Initial options for creating a Monorepo project, with partial custom options.
  */
 export type MonorepoProjectInitialOptionsType =
-  qdk.BaseProjectInitialOptionsType & MonorepoProjectOptionsBaseType;
+  qdk.BaseProjectInitialOptionsType & {
+    packageJson?: qdk.PackageJsonInitialOptions;
+    // Enable or disable the npmrc file generation.
+    npmrc?: qdk.JsonifiableObject | boolean;
+    // Enable or disable the mise file generation
+    mise?: qdk.JsonifiableObject | boolean;
+  };
 
 /**
  * Default options for the Monorepo project.
@@ -45,17 +51,31 @@ const merger: qdk.OptionsMerger<
   typeof MonorepoProjectDefaults,
   qdk.PartialOptionsContext
 > = (initialOptions, defaults, context) => {
-  return {
-    ...qdk.BaseProjectOptions.getOptions(initialOptions, context),
+  const base = {
     ...defaults,
-    npmrc:
-      typeof initialOptions.npmrc === 'boolean'
-        ? initialOptions.npmrc
-          ? defaults.npmrc // Use default if npmrc is true
-          : undefined // Do not create the file if it's false
-        : (initialOptions.npmrc ?? defaults.npmrc), // Fallback to default or provided npmrc
+    ...qdk.BaseProjectOptions.getOptions(
+      { ...defaults, ...initialOptions },
+      context,
+    ),
+  };
+  return {
+    ...base,
+    npmrc: useDefaultIfTrue(initialOptions.npmrc, defaults.npmrc),
+    mise: useDefaultIfTrue(initialOptions.mise, defaults.mise),
   };
 };
+
+function useDefaultIfTrue<X extends Exclude<T, boolean>, T = unknown>(
+  value: T,
+  defaultValue: X,
+): X | undefined {
+  if (value === undefined || value === true) {
+    return defaultValue;
+  } else if (value === false) {
+    return undefined;
+  }
+  return value as X;
+}
 
 /**
  * Creates a new options handler for Monorepo projects using default values and the merger function.
@@ -74,15 +94,11 @@ export const MonorepoProjectOptions = qdk.createOptions(
  * - and additional config files.
  */
 export class MonorepoProject extends qdk.BaseProject<MonorepoProjectOptionsType> {
-  /**
-   * Factory method to create a new instance of MonorepoProject with initial options.
-   */
-  static create(opts: MonorepoProjectInitialOptionsType) {
-    return new MonorepoProject(MonorepoProjectOptions.getOptions(opts, {}));
-  }
-
-  constructor(options: MonorepoProjectOptionsType) {
-    super(undefined, options);
+  constructor(
+    scope: qdk.Scope | undefined,
+    options: MonorepoProjectInitialOptionsType,
+  ) {
+    super(scope, MonorepoProjectOptions.getOptions(options, { scope }));
 
     // --------------------------------------
     // Setup Pnpm as the package manager with workspace support

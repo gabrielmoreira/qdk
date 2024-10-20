@@ -16,6 +16,8 @@ import {
   OptionsMerger,
   PartialOptionsContext,
   processCwd,
+  QdkApp,
+  QdkAppOptions,
   QdkFile,
   QdkNodeType,
   Scope,
@@ -61,7 +63,7 @@ const BaseProjectDefaults = {
       pattern: ['src/**/*.ts'],
     },
     qdk: {
-      pattern: ['qdk.config.ts', 'qdk/**/*.ts'],
+      pattern: ['qdk.config.ts', '.qdk/components/**/*.ts'],
     },
     tests: {
       pattern: ['test/**/*.ts'],
@@ -76,7 +78,11 @@ const optionsMerger: OptionsMerger<
   PartialOptionsContext
 > = (initialOptions, defaults, { scope }) => {
   const cwd =
-    initialOptions?.cwd ?? scope?.project?.options?.path ?? processCwd();
+    initialOptions?.cwd ??
+    (scope instanceof QdkApp
+      ? (scope.options as QdkAppOptions).cwd
+      : scope?.project?.options?.path) ??
+    processCwd();
   const outdir = initialOptions.outdir ?? defaults?.outdir ?? '.';
   const path = join(cwd, outdir);
   return {

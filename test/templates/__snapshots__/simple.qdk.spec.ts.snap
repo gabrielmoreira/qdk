@@ -350,7 +350,7 @@ describe('index', () => {
     "src/**/*.ts",
     "test/**/*.ts",
     "qdk.config.ts",
-    "qdk/**/*.ts"
+    ".qdk/components/**/*.ts"
   ],
   "compilerOptions": {
     "outDir": "dist",
@@ -712,7 +712,7 @@ describe('index', () => {
     "src/**/*.ts",
     "test/**/*.ts",
     "qdk.config.ts",
-    "qdk/**/*.ts"
+    ".qdk/components/**/*.ts"
   ],
   "compilerOptions": {
     "outDir": "dist",

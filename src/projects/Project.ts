@@ -9,10 +9,13 @@ import {
   Scope,
 } from '../index.js';
 
-export type ProjectOptionsType = BaseProjectOptionsType & {};
+type ProjectOptionsBaseType = object;
+export type ProjectOptionsType = BaseProjectOptionsType &
+  ProjectOptionsBaseType;
 
 export type ProjectInitialOptionsType = Pick<ProjectOptionsType, 'name'> &
-  BaseProjectInitialOptionsType;
+  BaseProjectInitialOptionsType &
+  ProjectOptionsBaseType;
 
 const ProjectDefaults = {} satisfies Partial<ProjectOptionsType>;
 

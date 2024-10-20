@@ -88,8 +88,8 @@ export abstract class QdkFile<
   protected abstract createCodec(): FileCodec<T>;
   protected codec: FileCodec<T>;
   data: T;
-  private patches: Patch[][] = [];
-  private revertPatches: Patch[][] = [];
+  private readonly patches: Patch[][] = [];
+  private readonly revertPatches: Patch[][] = [];
   loadedData?: T;
   protected raw?: Buffer;
   options: O;

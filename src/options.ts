@@ -57,4 +57,3 @@ export function createOptions<
 
   return { ...methods, ...base } as typeof base & M;
 }
-

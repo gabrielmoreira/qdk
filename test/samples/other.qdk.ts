@@ -9,6 +9,7 @@ import {
   PnpmPackageManager,
   Project,
   QdkApp,
+  QdkAppOptions,
   QdkNode,
   SourceCodeFile,
   TextFile,
@@ -17,22 +18,12 @@ import {
 // } from 'qdk';
 
 export default class MyApp extends QdkApp {
-  monorepo: Project;
-  subproject: Project;
-  constructor({ cwd }: { cwd: string }) {
-    super();
+  constructor(options: QdkAppOptions) {
+    super(options);
     // Create a new empty project
-    const monorepo = (this.monorepo = this.add(
-      Project.create({
-        name: 'monorepo',
-        outdir: 'build/monorepo',
-        cwd,
-      }),
-    ));
-
-    this.hook('after:synth', async () => {
-      await PackageManager.required(this.project).run('run build');
-      await PackageManager.required(this.monorepo).run('run build');
+    const monorepo = new Project(this, {
+      name: 'monorepo',
+      outdir: 'build/monorepo',
     });
 
     new PnpmPackageManager(monorepo, { workspace: true });
@@ -50,7 +41,10 @@ export default class MyApp extends QdkApp {
       outdir: 'services/simple',
       gitignore: false,
     });
-    this.subproject = subproject;
+    this.hook('after:synth', async () => {
+      await PackageManager.required(subproject).run('run build');
+      await PackageManager.required(monorepo).run('run build');
+    });
     new PnpmPackageManager(subproject);
     // new NpmPackageManager(subproject);
     new PackageJson(subproject);

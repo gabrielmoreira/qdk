@@ -19,17 +19,17 @@ interface ConstructorOptions {
   /**
    * The current working directory of the file. Default: process.cwd()
    */
-  cwd?: string | undefined;
+  cwd?: string;
 
   /**
    * Used for relative pathing. Typically where a glob starts. Default: options.cwd
    */
-  base?: string | undefined;
+  base?: string;
 
   /**
    * Full path to the file.
    */
-  path?: string | undefined;
+  path?: string;
 
   /**
    * Stores the path history. If `options.path` and `options.history` are both passed,
@@ -37,21 +37,21 @@ interface ConstructorOptions {
    * normalized by the `file.path` setter.
    * Default: `[]` (or `[options.path]` if `options.path` is passed)
    */
-  history?: string[] | undefined;
+  history?: string[];
 
   /**
    * The result of an fs.stat call. This is how you mark the file as a directory or
    * symbolic link. See `isDirectory()`, `isSymbolic()` and `fs.Stats` for more information.
    * https://nodejs.org/api/fs.html#fs_class_fs_stats
    */
-  stat?: Stats | undefined;
+  stat?: Stats;
 
   /**
    * File contents.
    * Type: `Buffer`, `Stream`, or null
    * Default: null
    */
-  contents?: Buffer | NodeJS.ReadableStream | null | undefined;
+  contents?: Buffer | NodeJS.ReadableStream | null;
 
   /**
    * Any custom option properties will be directly assigned to the new Vinyl object.

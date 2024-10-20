@@ -1,21 +1,21 @@
 import { globby } from 'globby';
-import { existsSync } from 'node:fs';
+import fs, { existsSync } from 'node:fs';
 import { copyFile, mkdir } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
-import { metaDirname } from './dirname.cjs';
+import { qdkPackageRoot } from '../../system/package.cjs';
 
 export async function copyTemplate(
   template: string,
   { cwd: destdir, forceOverwrite }: { cwd: string; forceOverwrite: boolean },
 ) {
-  const srcdir = join(metaDirname, 'templates', template);
-  //console.log('srcdir', srcdir);
-  const paths = await globby(`**/*`, { cwd: srcdir, dot: true });
-  //console.log('paths', srcdir);
+  const srcdir = join(qdkPackageRoot, 'templates', template);
+  // console.log('srcdir', srcdir);
+  const paths = await globby(`**/*`, { cwd: srcdir, dot: true, fs });
+  // console.log('paths', srcdir);
   const directories = [
     ...new Set(paths.map(path => join(destdir, dirname(path)))),
   ];
-  //console.log('directories', directories);
+  // console.log('directories', directories);
   await Promise.all(directories.map(dir => mkdir(dir, { recursive: true })));
   const copyList = paths.map(path => [join(srcdir, path), join(destdir, path)]);
   //console.log('copy list', copyList);

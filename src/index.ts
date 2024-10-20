@@ -1,6 +1,6 @@
 // organize-imports-ignore
-import dedent from 'dedent';
-export { dedent };
+import dedentInstance from 'dedent';
+export const dedent: typeof dedentInstance = dedentInstance;
 import chalkInstance from 'chalk';
 export const chalk: typeof chalkInstance = chalkInstance;
 
@@ -29,8 +29,8 @@ export * from './files/TomlFile.js';
 export * from './files/SampleFiles.js';
 export * from './core/Component.js';
 
-export * from './templates/eslint.template.js';
-export * from './templates/gitignore.template.js';
+export * from './components/defaults/eslint.default.js';
+export * from './components/defaults/gitignore.default.js';
 
 export * from './projects/BaseProject.js';
 export * from './projects/Project.js';

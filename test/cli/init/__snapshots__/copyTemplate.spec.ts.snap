@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`copyTemplate > can copy a blank template 1`] = `
+{
+  "/pkg/qdk/templates/blank/.qdk/components/config.ts": "config",
+  "/pkg/qdk/templates/blank/qdk.config.js": "something",
+  "/tmp/.qdk/components/config.ts": "config",
+  "/tmp/qdk.config.js": "something",
+}
+`;
