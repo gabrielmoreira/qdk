@@ -8,7 +8,7 @@ QDK simplifies configuration file generation via TypeScript, offering flexibilit
 
 ## Why QDK?
 
-QDK was designed to address the complexity seen in tools like Projen, which incorporates many elements, responsibilities, and features for code generation across various programming languages. This design choice can lead to cluttered projects, as base classes like `NodeProject` automatically pull in numerous dependencies (e.g., Gitpod, DevContainer, AWS services). As a result, users often need to disable unwanted features, complicating customization.
+QDK was designed to address the complexity seen in tools like Projen, which incorporates many elements, responsibilities, and features for code generation across various programming languages. Such design choices can lead to cluttered projects, as base classes like `NodeProject` automatically pull in numerous dependencies (e.g., Gitpod, DevContainer, AWS services). As a result, users often need to disable unwanted features, complicating customization.
 
 In contrast, QDK specifically targets Node.js and TypeScript projects, focusing on:
 
