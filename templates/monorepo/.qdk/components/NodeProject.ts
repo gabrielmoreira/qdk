@@ -26,11 +26,10 @@ export type NodeProjectInitialOptionsType = qdk.BaseProjectInitialOptionsType &
 
 /**
  * Default options for Node.js projects.
- * The base directory is set to 'packages/' and gitignore is disabled by default.
+ * The base directory is set to 'packages/'.
  */
 const NodeProjectDefaults = {
   basedir: 'packages/', // Default directory name for a node project
-  gitignore: false, // Default: gitignore is not generated
 } satisfies Partial<NodeProjectOptionsType>;
 
 /**
@@ -54,7 +53,6 @@ const nodeProjectOptionsMerger: qdk.OptionsMerger<
             initialOptions.basedir ?? defaults.basedir, // Use basedir or default 'packages/'
             getNameWithoutScope(initialOptions.name), // Calculate directory from project name
           ),
-        gitignore: initialOptions.gitignore ?? defaults.gitignore,
       },
       context,
     ),
@@ -90,7 +88,6 @@ export class NodeProject<
    */
   constructor(scope: qdk.Scope, options: I) {
     super(scope, NodeProjectOptions.getOptions(options, { scope }) as T);
-
     // --------------------------------------
     // Setup pnpm as the package manager
     // --------------------------------------

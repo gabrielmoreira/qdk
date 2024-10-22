@@ -9,8 +9,6 @@ import {
   Component,
   createOptions,
   getErrorCode,
-  Gitignore,
-  gitignoreDefault,
   HasOptions,
   JsonFile,
   OptionsMerger,
@@ -55,7 +53,6 @@ export type BaseProjectInitialOptionsType = Pick<
   Partial<BaseProjectOptionsType>;
 
 const BaseProjectDefaults = {
-  gitignore: gitignoreDefault,
   buildDir: 'dist',
   outdir: '.',
   sourceSets: {
@@ -137,15 +134,6 @@ export abstract class BaseProject<
     const options = BaseProjectOptions.getOptions(opts, { scope });
     super(scope ?? undefined, options.name);
     this.options = options as T;
-    const gitignore = this.options.gitignore ?? true;
-    if (gitignore) {
-      new Gitignore(this, {
-        pattern:
-          typeof gitignore === 'boolean'
-            ? BaseProjectDefaults.gitignore
-            : gitignore,
-      });
-    }
     this.metadataFile = new JsonFile<BaseProjectMetadata>(
       this,
       { basename: '.qdk/meta.json', writeOnSynth: false },

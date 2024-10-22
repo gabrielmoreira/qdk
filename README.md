@@ -1,38 +1,24 @@
 # QDK - Quick Development Kit
 
-**⚠️ Important: This project is in an experimental phase and is under active development. Expect frequent changes and updates as we continue to evolve the toolkit. Breaking changes will occur as features are improved and refined. Use at your own discretion.**
+**⚠️ Important: This project is experimental and actively evolving. Expect frequent updates and breaking changes. Use cautiously.**
 
-QDK (Quick Development Kit) is a toolkit designed to simplify the generation of configuration files through TypeScript. It's inspired by tools like Projen but provides more flexibility for creating and managing any kind of configuration file in your projects.
+QDK simplifies configuration file generation via TypeScript, offering flexibility like Projen but with more control over project configurations.
 
 ## Why QDK?
 
-QDK was created to offer flexibility and full control over project configuration, avoiding the pitfalls of overly complex base classes with too many responsibilities, like those found in tools such as Projen.
+QDK was designed to address the complexity seen in tools like Projen, which incorporates many elements, responsibilities, and features for code generation across various programming languages. This design choice can lead to cluttered projects, as base classes like `NodeProject` automatically pull in numerous dependencies (e.g., Gitpod, DevContainer, AWS services). As a result, users often need to disable unwanted features, complicating customization.
 
-Some tools suffer from **"kitchen sink"** or **"tight coupling"** antipatterns, where core classes like `NodeProject` drag in unrelated dependencies (Gitpod, DevContainer, AWS) by default. This forces users to manually disable unwanted features, which complicates inheritance and makes it confusing to decide whether to rely on built-in properties (e.g., from `NodeProject`) or instantiate separate components.
+In contrast, QDK specifically targets Node.js and TypeScript projects, focusing on:
 
-### QDK is built around the following principles
+- **Generate only what’s requested**: Files are only created when explicitly requested. For instance, if you need a `package.json`, instantiate the `PackageJson` component; if you want a `.gitignore`, instantiate the `Gitignore`, and so on.
+- **Minimal coupling**: Components are designed to be as independent as possible. However, logical dependencies do exist; for example, multiple components may need to communicate with `package.json` to add dependencies or utilize the package manager for command execution.
+- **Composable design**: QDK favors small, focused components over large, complex objects, allowing projects to define their own component defaults without inheriting from a bloated base.
+- **Customizable defaults**: Users can set options for individual components while establishing global default settings, enhancing overall flexibility.
+- **No runtime impact**: QDK does not add any code, libraries, or dependencies to your project's runtime. It solely serves to generate code based on a central configuration. Additionally, QDK can be easily removed from your workspace; ejecting it is as simple as deleting the `.qdk` directories and the `qdk.config.ts` file.
 
-- **Only generate what’s explicitly requested.**
-  Avoid unnecessary features or configurations unless they are specifically requested by the user.
+You may wonder, "But won't my project need to instantiate several components instead of having nice defaults decided by the project?" In this case, I don't see it as a drawback, but rather as a feature. The JavaScript community evolves rapidly, and different techniques, frameworks, and libraries require distinct configurations. It's challenging to decide on defaults and behaviors that broadly meet everyone's needs. Thus, QDK's approach is to help manage the files that need to be generated while providing small components that allow you to create your own defaults. 
 
-- **Avoid creating components that manage unrelated components.**
-  Maintain clear boundaries between components to prevent unintended dependencies and keep project configurations clean.
-
-- **Let users compose components and promote composability.**
-  Allow full control over how components are combined and enable users to mix and match them effortlessly, ensuring flexibility in project setups.
-
-- **Ensure easy extensibility with flexible defaults.**
-  Provide sensible defaults that are easily adjustable without requiring complex overrides or patches.
-
-We believe that companies with multiple teams often have specific setups tailored to their unique workflows, including configurations for pipelines, tooling, folder structures, etc. These setups are essential for maintaining efficiency and consistency across projects and teams, allowing for precise control over what is being generated and ensuring that users can easily understand and verify the outputs. Predictability is a core necessity of the tool, as it enables effective project management and reduces uncertainties in the development process.
-
-QDK adopts a modular, component-centric approach that prioritizes clarity, customizability, and composability.
-
-## Features
-
-- Generate configuration files using TypeScript
-- Easily customize your `package.json` with scripts and dependencies
-- Manage TypeScript configurations, ESLint setups, and more
+To assist in deciding between different approaches, QDK will focus on creating project templates that you can use as a starting point for your project, allowing you to customize the organization in a way that is most effective for you.
 
 ## Quickstart
 

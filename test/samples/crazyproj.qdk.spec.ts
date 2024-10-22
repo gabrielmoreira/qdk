@@ -33,20 +33,20 @@ vitest.mock('../../src/system/execution.ts', () => {
   };
 });
 
-interface OtherQdkAppConfigFile extends QdkAppConfigFile {
+interface CrazyProjQdkAppConfigFile extends QdkAppConfigFile {
   default: new (...args: unknown[]) => QdkApp;
   PackageJsonOptions: typeof PackageJsonOptions;
 }
 
 const importQdkConfig = async <
-  T extends OtherQdkAppConfigFile = OtherQdkAppConfigFile,
+  T extends CrazyProjQdkAppConfigFile = CrazyProjQdkAppConfigFile,
 >() => {
   const { default: QdkAppClass, ...rest } =
-    await vi.importActual<T>('./other.qdk.ts');
+    await vi.importActual<T>('./crazyproj.qdk.ts');
   return { QdkAppClass, ...rest };
 };
 
-describe('qdk/monorepo sample', () => {
+describe('qdk/crazyproj sample', () => {
   let QdkAppClass: QdkAppConstructor;
   let config: Awaited<ReturnType<typeof importQdkConfig>>;
 
@@ -56,7 +56,7 @@ describe('qdk/monorepo sample', () => {
     QdkAppClass = config.QdkAppClass;
   });
 
-  it('builds a monorepo sample project', async () => {
+  it('builds a crazyproj sample project', async () => {
     // When
     await new QdkAppClass({ cwd: '/' }).synth();
     // Then
@@ -66,7 +66,7 @@ describe('qdk/monorepo sample', () => {
     expect(filesystemContent).toMatchSnapshot();
   });
 
-  it('builds a monorepo sample project and delete orphan files', async t => {
+  it('builds a crazyproj sample project and delete orphan files', async t => {
     // Given
 
     // ... we reset any previously loaded fileystem
@@ -78,21 +78,23 @@ describe('qdk/monorepo sample', () => {
     // ... we have some preexistent files
     await writeFiles(
       {
-        '/test2/build/monorepo/.qdk/meta.json': JSON.stringify({
+        '/test2/build/crazyproj/.qdk/meta.json': JSON.stringify({
           files: ['.qdk/meta.json', './orphan.txt'],
         }),
-        '/test2/build/monorepo/orphan.txt': 'some file data',
+        '/test2/build/crazyproj/orphan.txt': 'some file data',
       },
       memfs.fs,
     );
     // When
-    expect(memfs.fs.existsSync('/test2/build/monorepo/orphan.txt')).toBe(true);
+    expect(memfs.fs.existsSync('/test2/build/crazyproj/orphan.txt')).toBe(true);
     await new QdkAppClass({ cwd: '/test2' }).synth();
     // Then
     const filesystemTree = printFsTree();
     const filesystemContent = toSnapshot();
     expect(filesystemTree).toMatchSnapshot();
     expect(filesystemContent).toMatchSnapshot();
-    expect(memfs.fs.existsSync('/test2/build/monorepo/orphan.txt')).toBe(false);
+    expect(memfs.fs.existsSync('/test2/build/crazyproj/orphan.txt')).toBe(
+      false,
+    );
   });
 });

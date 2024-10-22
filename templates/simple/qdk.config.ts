@@ -5,37 +5,40 @@ export default class MyApp extends qdk.QdkApp {
     super(options);
     // Create a new empty project
 
-    const myProject = new qdk.Project(this, {
+    const project = new qdk.Project(this, {
       name: 'qdk-sample',
       description: 'Sample QDK Project',
       version: '0.1.0',
       // outdir: 'somewhere/else', // by default outdir is '.'
     });
 
+    // Add .gitignore to the project
+    new qdk.Gitignore(project);
+
     // Use npm package manager
-    new qdk.NpmPackageManager(myProject);
+    new qdk.NpmPackageManager(project);
 
     // Customize package.json and add custom dependencies
-    new qdk.PackageJson(myProject, {
+    new qdk.PackageJson(project, {
       license: 'MIT',
-      module: `${myProject.buildDir}/src/index.js`,
+      module: `${project.buildDir}/src/index.js`,
     }) // by default the package type is 'module'
       .addDevDeps('vitest')
       .setScript('test', 'vitest');
 
     // Typescript TSConfig
-    new qdk.Typescript(myProject, {
+    new qdk.Typescript(project, {
       tsconfig: {
         extends: [qdk.TsConfigBases.Node20],
         include: [
           'qdk.config.ts',
           'eslint.config.mjs',
-          ...(myProject.sourceSets.main?.pattern ?? []),
-          ...(myProject.sourceSets.tests?.pattern ?? []),
-          ...(myProject.sourceSets.qdk?.pattern ?? []),
+          ...(project.sourceSets.main?.pattern ?? []),
+          ...(project.sourceSets.tests?.pattern ?? []),
+          ...(project.sourceSets.qdk?.pattern ?? []),
         ],
         compilerOptions: {
-          outDir: myProject.buildDir,
+          outDir: project.buildDir,
           strictNullChecks: true,
           resolveJsonModule: true,
         },
@@ -43,7 +46,7 @@ export default class MyApp extends qdk.QdkApp {
     });
 
     // Enable ESLint (+ prettier)
-    new qdk.EsLint(myProject, {
+    new qdk.EsLint(project, {
       templateParams: {
         rules: {
           '@typescript-eslint/no-unsafe-call': 'off',
@@ -56,14 +59,14 @@ export default class MyApp extends qdk.QdkApp {
     this.hook('synth:after', async () => {
       await qdk.PackageManager
         // Find the package manager configured for this project
-        .required(myProject)
+        .required(project)
         // Run: npx eslint --fix to automatically correct linting issues
         .exec('eslint --fix');
     });
 
     // You can extract your features into components
     // to enable reuse across different projects.
-    new MySampleFiles(myProject);
+    new MySampleFiles(project);
   }
 }
 

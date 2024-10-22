@@ -17,33 +17,33 @@ import {
 } from '../../src/index.js';
 // } from 'qdk';
 
-export default class MyApp extends QdkApp {
+export default class CrazyApp extends QdkApp {
   constructor(options: QdkAppOptions) {
     super(options);
     // Create a new empty project
-    const monorepo = new Project(this, {
-      name: 'monorepo',
-      outdir: 'build/monorepo',
+    const crazyproj = new Project(this, {
+      name: 'crazyproj',
+      outdir: 'build/crazyproj',
     });
 
-    new PnpmPackageManager(monorepo, { workspace: true });
-    // new NpmPackageManager(monorepo, {workspace: true });
-    new PackageJson(monorepo);
-    new Typescript(monorepo, {
+    new PnpmPackageManager(crazyproj, { workspace: true });
+    // new NpmPackageManager(crazyproj, {workspace: true });
+    new PackageJson(crazyproj);
+    new Typescript(crazyproj, {
       tsconfig: {
         extends: ['@tsconfig/node20@^1.0.0'],
         include: ['src/**/*', 'tests/**/*'],
       },
     });
 
-    const subproject = new Project(monorepo, {
+    const subproject = new Project(crazyproj, {
       name: 'simple',
       outdir: 'services/simple',
       gitignore: false,
     });
     this.hook('after:synth', async () => {
       await PackageManager.required(subproject).run('run build');
-      await PackageManager.required(monorepo).run('run build');
+      await PackageManager.required(crazyproj).run('run build');
     });
     new PnpmPackageManager(subproject);
     // new NpmPackageManager(subproject);
@@ -83,15 +83,15 @@ export default class MyApp extends QdkApp {
         exports.default.$args.push(builders.raw('{ HELLO: TRUE }'));
       });
 
-    // JsonFile.forPath(monorepo, 'package.json').merge({ type: 'module' });
+    // JsonFile.forPath(crazyproj, 'package.json').merge({ type: 'module' });
 
-    PackageJson.required(monorepo).addDeps('simple@workspace:*');
+    PackageJson.required(crazyproj).addDeps('simple@workspace:*');
 
-    new Pkgroll(monorepo, {});
+    new Pkgroll(crazyproj, {});
     new Pkgroll(subproject, {});
 
     new TextFile(
-      monorepo,
+      crazyproj,
       {
         basename: 'src/index.ts',
         sample: true,
@@ -154,7 +154,7 @@ class Pkgroll extends Component<PkgrollOptions> {
 }
 
 if (process.argv.slice(2).includes('synth')) {
-  await new MyApp({
+  await new CrazyApp({
     cwd: import.meta.dirname,
   }).synth();
 }

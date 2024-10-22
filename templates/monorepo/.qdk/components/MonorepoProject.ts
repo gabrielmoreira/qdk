@@ -99,6 +99,10 @@ export class MonorepoProject extends qdk.BaseProject<MonorepoProjectOptionsType>
     options: MonorepoProjectInitialOptionsType,
   ) {
     super(scope, MonorepoProjectOptions.getOptions(options, { scope }));
+    // -----------------
+    // Setup .gitignore
+    // -----------------
+    new qdk.Gitignore(this);
 
     // --------------------------------------
     // Setup Pnpm as the package manager with workspace support

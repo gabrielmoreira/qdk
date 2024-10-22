@@ -10,5 +10,20 @@ export default class MyApp extends qdk.QdkApp {
       description: 'Sample QDK Project',
       version: '0.1.0',
     });
+
+    // Add .gitignore to the project
+    // new qdk.Gitignore(project);
+
+    // Use npm package manager
+    // new qdk.NpmPackageManager(project);
+
+    // Use pnpm package manager
+    // new qdk.PnpmPackageManager(project);
+
+    // Customize package.json
+    // new qdk.PackageJson(project);
+
+    // Add typescript
+    // new qdk.Typescript(project);
   }
 }

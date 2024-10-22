@@ -242,9 +242,9 @@ android/generated/
 ",
   "/.qdk/tree.txt": "·
 └── Project(qdk-sample)
+    ├── JsonFile(.qdk/meta.json)
     ├── Gitignore
     │   └── TextFile(.gitignore)
-    ├── JsonFile(.qdk/meta.json)
     ├── NpmPackageManager
     ├── PackageJson
     │   └── JsonFile(package.json)
@@ -604,9 +604,9 @@ android/generated/
 ",
   "/.qdk/tree.txt": "·
 └── Project(qdk-sample)
+    ├── JsonFile(.qdk/meta.json)
     ├── Gitignore
     │   └── TextFile(.gitignore)
-    ├── JsonFile(.qdk/meta.json)
     ├── NpmPackageManager
     ├── PackageJson
     │   └── JsonFile(package.json)

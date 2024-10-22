@@ -1,0 +1,726 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`qdk/crazyproj sample > builds a crazyproj sample project 1`] = `
+"/
+└─ build/
+   └─ crazyproj/
+      ├─ .qdk/
+      │  ├─ meta.json
+      │  └─ tree.txt
+      ├─ package.json
+      ├─ pnpm-workspace.yaml
+      ├─ services/
+      │  └─ simple/
+      │     ├─ .prettierrc
+      │     ├─ .qdk/
+      │     │  ├─ meta.json
+      │     │  └─ tree.txt
+      │     ├─ README.md
+      │     ├─ eslint.config.js
+      │     ├─ package.json
+      │     ├─ src/
+      │     │  └─ index.ts
+      │     └─ tsconfig.json
+      ├─ src/
+      │  └─ index.ts
+      └─ tsconfig.json"
+`;
+
+exports[`qdk/crazyproj sample > builds a crazyproj sample project 2`] = `
+{
+  "/build/crazyproj/.qdk/meta.json": "{
+  "project": "crazyproj",
+  "custom": {},
+  "files": [
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./package.json",
+    "./pnpm-workspace.yaml",
+    "./tsconfig.json"
+  ],
+  "subprojects": ["services/simple"]
+}
+",
+  "/build/crazyproj/.qdk/tree.txt": "·
+└── Project(crazyproj)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    │   └── PnpmWorkspace
+    │       └── YamlFile(pnpm-workspace.yaml)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── Project(simple)
+    │   ├── JsonFile(.qdk/meta.json)
+    │   ├── PnpmPackageManager(^9.12.0)
+    │   ├── PackageJson
+    │   │   └── JsonFile(package.json)
+    │   ├── Typescript(^5.6.2)
+    │   │   └── TsConfig
+    │   │       └── TsConfigJsonFile(tsconfig.json)
+    │   ├── EsLint
+    │   │   ├── Prettier
+    │   │   │   └── JsonFile(.prettierrc)
+    │   │   └── TemplateFile(eslint.config.js)
+    │   ├── TextFile(README.md)
+    │   ├── Pkgroll
+    │   ├── TextFile(src/index.ts)
+    │   └── TextFile(.qdk/tree.txt)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/build/crazyproj/package.json": "{
+  "name": "crazyproj",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "qdk": "qdk synth",
+    "qdk:check": "qdk synth --check",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "dependencies": {
+    "simple": "workspace:*"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^1.0.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "qdk": "9.9.9-mock-latest",
+    "typescript": "^5.6.2"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "crazyproj@0.1.0"
+}
+",
+  "/build/crazyproj/pnpm-workspace.yaml": "packages:
+  - services/simple
+",
+  "/build/crazyproj/services/simple/.prettierrc": "{
+  "arrowParens": "avoid",
+  "singleQuote": true,
+  "overrides": [],
+  "plugins": ["prettier-plugin-organize-imports"]
+}
+",
+  "/build/crazyproj/services/simple/.qdk/meta.json": "{
+  "project": "simple",
+  "custom": {},
+  "files": [
+    "./.prettierrc",
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./eslint.config.js",
+    "./package.json",
+    "./tsconfig.json"
+  ],
+  "subprojects": []
+}
+",
+  "/build/crazyproj/services/simple/.qdk/tree.txt": "·
+└── Project(simple)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── EsLint
+    │   ├── Prettier
+    │   │   └── JsonFile(.prettierrc)
+    │   └── TemplateFile(eslint.config.js)
+    ├── TextFile(README.md)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/build/crazyproj/services/simple/README.md": "123
+",
+  "/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+export default tseslint.config(
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  eslintPluginPrettierRecommended,
+  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { ignores: ['dist/**/*'] },
+  { languageOptions: { globals: globals.nodeBuiltin } },
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: { allowDefaultProject: ['*.config.{mjs,js}'] },
+      },
+    },
+  },
+  { rules: {} },
+  {
+    languageOptions: {
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
+    },
+  },
+);
+",
+  "/build/crazyproj/services/simple/package.json": "{
+  "name": "simple",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "eslint": "eslint",
+    "eslint:fix": "eslint --fix",
+    "format": "prettier . --write",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@tsconfig/node20": "^20.1.4",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.11.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.9.0"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "simple@0.1.0"
+}
+",
+  "/build/crazyproj/services/simple/src/index.ts": "export const B = 'B';
+",
+  "/build/crazyproj/services/simple/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+  "/build/crazyproj/src/index.ts": "export type A = 'a';
+export const a = 'a' satisfies A;
+import { B } from 'simple';
+console.log(B);
+",
+  "/build/crazyproj/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+}
+`;
+
+exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orphan files 1`] = `
+"/
+├─ build/
+│  └─ crazyproj/
+│     ├─ .qdk/
+│     │  ├─ meta.json
+│     │  └─ tree.txt
+│     ├─ package.json
+│     ├─ pnpm-workspace.yaml
+│     ├─ services/
+│     │  └─ simple/
+│     │     ├─ .prettierrc
+│     │     ├─ .qdk/
+│     │     │  ├─ meta.json
+│     │     │  └─ tree.txt
+│     │     ├─ README.md
+│     │     ├─ eslint.config.js
+│     │     ├─ package.json
+│     │     ├─ src/
+│     │     │  └─ index.ts
+│     │     └─ tsconfig.json
+│     ├─ src/
+│     │  └─ index.ts
+│     └─ tsconfig.json
+└─ test2/
+   └─ build/
+      └─ crazyproj/
+         ├─ .qdk/
+         │  ├─ meta.json
+         │  └─ tree.txt
+         ├─ package.json
+         ├─ pnpm-workspace.yaml
+         ├─ services/
+         │  └─ simple/
+         │     ├─ .prettierrc
+         │     ├─ .qdk/
+         │     │  ├─ meta.json
+         │     │  └─ tree.txt
+         │     ├─ README.md
+         │     ├─ eslint.config.js
+         │     ├─ package.json
+         │     ├─ src/
+         │     │  └─ index.ts
+         │     └─ tsconfig.json
+         ├─ src/
+         │  └─ index.ts
+         └─ tsconfig.json"
+`;
+
+exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orphan files 2`] = `
+{
+  "/build/crazyproj/.qdk/meta.json": "{
+  "project": "crazyproj",
+  "custom": {},
+  "files": [
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./package.json",
+    "./pnpm-workspace.yaml",
+    "./tsconfig.json"
+  ],
+  "subprojects": ["services/simple"]
+}
+",
+  "/build/crazyproj/.qdk/tree.txt": "·
+└── Project(crazyproj)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    │   └── PnpmWorkspace
+    │       └── YamlFile(pnpm-workspace.yaml)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── Project(simple)
+    │   ├── JsonFile(.qdk/meta.json)
+    │   ├── PnpmPackageManager(^9.12.0)
+    │   ├── PackageJson
+    │   │   └── JsonFile(package.json)
+    │   ├── Typescript(^5.6.2)
+    │   │   └── TsConfig
+    │   │       └── TsConfigJsonFile(tsconfig.json)
+    │   ├── EsLint
+    │   │   ├── Prettier
+    │   │   │   └── JsonFile(.prettierrc)
+    │   │   └── TemplateFile(eslint.config.js)
+    │   ├── TextFile(README.md)
+    │   ├── Pkgroll
+    │   ├── TextFile(src/index.ts)
+    │   └── TextFile(.qdk/tree.txt)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/build/crazyproj/package.json": "{
+  "name": "crazyproj",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "qdk": "qdk synth",
+    "qdk:check": "qdk synth --check",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "dependencies": {
+    "simple": "workspace:*"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^1.0.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "qdk": "9.9.9-mock-latest",
+    "typescript": "^5.6.2"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "crazyproj@0.1.0"
+}
+",
+  "/build/crazyproj/pnpm-workspace.yaml": "packages:
+  - services/simple
+",
+  "/build/crazyproj/services/simple/.prettierrc": "{
+  "arrowParens": "avoid",
+  "singleQuote": true,
+  "overrides": [],
+  "plugins": ["prettier-plugin-organize-imports"]
+}
+",
+  "/build/crazyproj/services/simple/.qdk/meta.json": "{
+  "project": "simple",
+  "custom": {},
+  "files": [
+    "./.prettierrc",
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./eslint.config.js",
+    "./package.json",
+    "./tsconfig.json"
+  ],
+  "subprojects": []
+}
+",
+  "/build/crazyproj/services/simple/.qdk/tree.txt": "·
+└── Project(simple)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── EsLint
+    │   ├── Prettier
+    │   │   └── JsonFile(.prettierrc)
+    │   └── TemplateFile(eslint.config.js)
+    ├── TextFile(README.md)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/build/crazyproj/services/simple/README.md": "123
+",
+  "/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+export default tseslint.config(
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  eslintPluginPrettierRecommended,
+  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { ignores: ['dist/**/*'] },
+  { languageOptions: { globals: globals.nodeBuiltin } },
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: { allowDefaultProject: ['*.config.{mjs,js}'] },
+      },
+    },
+  },
+  { rules: {} },
+  {
+    languageOptions: {
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
+    },
+  },
+);
+",
+  "/build/crazyproj/services/simple/package.json": "{
+  "name": "simple",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "eslint": "eslint",
+    "eslint:fix": "eslint --fix",
+    "format": "prettier . --write",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@tsconfig/node20": "^20.1.4",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.11.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.9.0"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "simple@0.1.0"
+}
+",
+  "/build/crazyproj/services/simple/src/index.ts": "export const B = 'B';
+",
+  "/build/crazyproj/services/simple/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+  "/build/crazyproj/src/index.ts": "export type A = 'a';
+export const a = 'a' satisfies A;
+import { B } from 'simple';
+console.log(B);
+",
+  "/build/crazyproj/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+  "/test2/build/crazyproj/.qdk/meta.json": "{
+  "project": "crazyproj",
+  "custom": {},
+  "files": [
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./package.json",
+    "./pnpm-workspace.yaml",
+    "./tsconfig.json"
+  ],
+  "subprojects": ["services/simple"]
+}
+",
+  "/test2/build/crazyproj/.qdk/tree.txt": "·
+└── Project(crazyproj)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    │   └── PnpmWorkspace
+    │       └── YamlFile(pnpm-workspace.yaml)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── Project(simple)
+    │   ├── JsonFile(.qdk/meta.json)
+    │   ├── PnpmPackageManager(^9.12.0)
+    │   ├── PackageJson
+    │   │   └── JsonFile(package.json)
+    │   ├── Typescript(^5.6.2)
+    │   │   └── TsConfig
+    │   │       └── TsConfigJsonFile(tsconfig.json)
+    │   ├── EsLint
+    │   │   ├── Prettier
+    │   │   │   └── JsonFile(.prettierrc)
+    │   │   └── TemplateFile(eslint.config.js)
+    │   ├── TextFile(README.md)
+    │   ├── Pkgroll
+    │   ├── TextFile(src/index.ts)
+    │   └── TextFile(.qdk/tree.txt)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/test2/build/crazyproj/package.json": "{
+  "name": "crazyproj",
+  "version": "9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "dependencies": {
+    "simple": "workspace:*"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^1.0.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "typescript": "^5.6.2"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "crazyproj@9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles"
+}
+",
+  "/test2/build/crazyproj/pnpm-workspace.yaml": "packages:
+  - services/simple
+",
+  "/test2/build/crazyproj/services/simple/.prettierrc": "{
+  "arrowParens": "avoid",
+  "singleQuote": true,
+  "overrides": [],
+  "plugins": ["prettier-plugin-organize-imports"]
+}
+",
+  "/test2/build/crazyproj/services/simple/.qdk/meta.json": "{
+  "project": "simple",
+  "custom": {},
+  "files": [
+    "./.prettierrc",
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./eslint.config.js",
+    "./package.json",
+    "./tsconfig.json"
+  ],
+  "subprojects": []
+}
+",
+  "/test2/build/crazyproj/services/simple/.qdk/tree.txt": "·
+└── Project(simple)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── EsLint
+    │   ├── Prettier
+    │   │   └── JsonFile(.prettierrc)
+    │   └── TemplateFile(eslint.config.js)
+    ├── TextFile(README.md)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/test2/build/crazyproj/services/simple/README.md": "123
+",
+  "/test2/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+export default tseslint.config(
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  eslintPluginPrettierRecommended,
+  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { ignores: ['dist/**/*'] },
+  { languageOptions: { globals: globals.nodeBuiltin } },
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: { allowDefaultProject: ['*.config.{mjs,js}'] },
+      },
+    },
+  },
+  { rules: {} },
+  {
+    languageOptions: {
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
+    },
+  },
+);
+",
+  "/test2/build/crazyproj/services/simple/package.json": "{
+  "name": "simple",
+  "version": "9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "eslint": "eslint",
+    "eslint:fix": "eslint --fix",
+    "format": "prettier . --write",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.9.9-mock-latest",
+    "@tsconfig/node20": "9.9.9-mock-latest",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "9.9.9-mock-latest",
+    "eslint-plugin-prettier": "9.9.9-mock-latest",
+    "globals": "9.9.9-mock-latest",
+    "pkgroll": "9.9.9-mock-latest",
+    "prettier": "9.9.9-mock-latest",
+    "prettier-plugin-organize-imports": "9.9.9-mock-latest",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "9.9.9-mock-latest"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "simple@9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles"
+}
+",
+  "/test2/build/crazyproj/services/simple/src/index.ts": "export const B = 'B';
+",
+  "/test2/build/crazyproj/services/simple/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+  "/test2/build/crazyproj/src/index.ts": "export type A = 'a';
+export const a = 'a' satisfies A;
+import { B } from 'simple';
+console.log(B);
+",
+  "/test2/build/crazyproj/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+}
+`;

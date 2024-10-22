@@ -11,6 +11,9 @@ export default class MyApp extends qdk.QdkApp {
       version: '0.1.0',
     });
 
+    // Add .gitignore to the project
+    new qdk.Gitignore(project);
+
     // Attach a package manager to the project
     new qdk.NpmPackageManager(project);
     // If you prefer pnpm, use the line below:

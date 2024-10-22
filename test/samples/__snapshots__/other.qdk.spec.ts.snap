@@ -1,10 +1,734 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`qdk/crazyproj sample > builds a crazyproj sample project 1`] = `
+"/
+└─ build/
+   └─ crazyproj/
+      ├─ .qdk/
+      │  ├─ meta.json
+      │  └─ tree.txt
+      ├─ package.json
+      ├─ pnpm-workspace.yaml
+      ├─ services/
+      │  └─ simple/
+      │     ├─ .prettierrc
+      │     ├─ .qdk/
+      │     │  ├─ meta.json
+      │     │  └─ tree.txt
+      │     ├─ README.md
+      │     ├─ eslint.config.js
+      │     ├─ package.json
+      │     ├─ src/
+      │     │  └─ index.ts
+      │     └─ tsconfig.json
+      ├─ src/
+      │  └─ index.ts
+      └─ tsconfig.json"
+`;
+
+exports[`qdk/crazyproj sample > builds a crazyproj sample project 2`] = `
+{
+  "/build/crazyproj/.qdk/meta.json": "{
+  "project": "crazyproj",
+  "custom": {},
+  "files": [
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./package.json",
+    "./pnpm-workspace.yaml",
+    "./tsconfig.json"
+  ],
+  "subprojects": ["services/simple"]
+}
+",
+  "/build/crazyproj/.qdk/tree.txt": "·
+└── Project(crazyproj)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    │   └── PnpmWorkspace
+    │       └── YamlFile(pnpm-workspace.yaml)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── Project(simple)
+    │   ├── JsonFile(.qdk/meta.json)
+    │   ├── PnpmPackageManager(^9.12.0)
+    │   ├── PackageJson
+    │   │   └── JsonFile(package.json)
+    │   ├── Typescript(^5.6.2)
+    │   │   └── TsConfig
+    │   │       └── TsConfigJsonFile(tsconfig.json)
+    │   ├── EsLint
+    │   │   ├── Prettier
+    │   │   │   └── JsonFile(.prettierrc)
+    │   │   └── TemplateFile(eslint.config.js)
+    │   ├── TextFile(README.md)
+    │   ├── Pkgroll
+    │   ├── TextFile(src/index.ts)
+    │   └── TextFile(.qdk/tree.txt)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/build/crazyproj/package.json": "{
+  "name": "crazyproj",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "qdk": "qdk synth",
+    "qdk:check": "qdk synth --check",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "dependencies": {
+    "simple": "workspace:*"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^1.0.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "qdk": "9.9.9-mock-latest",
+    "typescript": "^5.6.2"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "crazyproj@0.1.0"
+}
+",
+  "/build/crazyproj/pnpm-workspace.yaml": "packages:
+  - services/simple
+",
+  "/build/crazyproj/services/simple/.prettierrc": "{
+  "arrowParens": "avoid",
+  "singleQuote": true,
+  "overrides": [],
+  "plugins": ["prettier-plugin-organize-imports"]
+}
+",
+  "/build/crazyproj/services/simple/.qdk/meta.json": "{
+  "project": "simple",
+  "custom": {},
+  "files": [
+    "./.prettierrc",
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./eslint.config.js",
+    "./package.json",
+    "./tsconfig.json"
+  ],
+  "subprojects": []
+}
+",
+  "/build/crazyproj/services/simple/.qdk/tree.txt": "·
+└── Project(simple)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── EsLint
+    │   ├── Prettier
+    │   │   └── JsonFile(.prettierrc)
+    │   └── TemplateFile(eslint.config.js)
+    ├── TextFile(README.md)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/build/crazyproj/services/simple/README.md": "123
+",
+  "/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+export default tseslint.config(
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  eslintPluginPrettierRecommended,
+  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { ignores: ['dist/**/*'] },
+  { languageOptions: { globals: globals.nodeBuiltin } },
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: { allowDefaultProject: ['*.config.{mjs,js}'] },
+      },
+    },
+  },
+  { rules: {} },
+  {
+    languageOptions: {
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
+    },
+  },
+);
+",
+  "/build/crazyproj/services/simple/package.json": "{
+  "name": "simple",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "eslint": "eslint",
+    "eslint:fix": "eslint --fix",
+    "format": "prettier . --write",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@tsconfig/node20": "^20.1.4",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.11.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.9.0"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "simple@0.1.0"
+}
+",
+  "/build/crazyproj/services/simple/src/index.ts": "export const B = 'B';
+",
+  "/build/crazyproj/services/simple/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+  "/build/crazyproj/src/index.ts": "export type A = 'a';
+export const a = 'a' satisfies A;
+import { B } from 'simple';
+console.log(B);
+",
+  "/build/crazyproj/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+}
+`;
+
+exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orphan files 1`] = `
+"/
+├─ build/
+│  └─ crazyproj/
+│     ├─ .qdk/
+│     │  ├─ meta.json
+│     │  └─ tree.txt
+│     ├─ package.json
+│     ├─ pnpm-workspace.yaml
+│     ├─ services/
+│     │  └─ simple/
+│     │     ├─ .prettierrc
+│     │     ├─ .qdk/
+│     │     │  ├─ meta.json
+│     │     │  └─ tree.txt
+│     │     ├─ README.md
+│     │     ├─ eslint.config.js
+│     │     ├─ package.json
+│     │     ├─ src/
+│     │     │  └─ index.ts
+│     │     └─ tsconfig.json
+│     ├─ src/
+│     │  └─ index.ts
+│     └─ tsconfig.json
+└─ test2/
+   └─ build/
+      └─ crazyproj/
+         ├─ .qdk/
+         │  ├─ meta.json
+         │  └─ tree.txt
+         ├─ package.json
+         ├─ pnpm-workspace.yaml
+         ├─ services/
+         │  └─ simple/
+         │     ├─ .prettierrc
+         │     ├─ .qdk/
+         │     │  ├─ meta.json
+         │     │  └─ tree.txt
+         │     ├─ README.md
+         │     ├─ eslint.config.js
+         │     ├─ package.json
+         │     ├─ src/
+         │     │  └─ index.ts
+         │     └─ tsconfig.json
+         ├─ src/
+         │  └─ index.ts
+         └─ tsconfig.json"
+`;
+
+exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orphan files 2`] = `
+{
+  "/build/crazyproj/.qdk/meta.json": "{
+  "project": "crazyproj",
+  "custom": {},
+  "files": [
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./package.json",
+    "./pnpm-workspace.yaml",
+    "./tsconfig.json"
+  ],
+  "subprojects": ["services/simple"]
+}
+",
+  "/build/crazyproj/.qdk/tree.txt": "·
+└── Project(crazyproj)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    │   └── PnpmWorkspace
+    │       └── YamlFile(pnpm-workspace.yaml)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── Project(simple)
+    │   ├── JsonFile(.qdk/meta.json)
+    │   ├── PnpmPackageManager(^9.12.0)
+    │   ├── PackageJson
+    │   │   └── JsonFile(package.json)
+    │   ├── Typescript(^5.6.2)
+    │   │   └── TsConfig
+    │   │       └── TsConfigJsonFile(tsconfig.json)
+    │   ├── EsLint
+    │   │   ├── Prettier
+    │   │   │   └── JsonFile(.prettierrc)
+    │   │   └── TemplateFile(eslint.config.js)
+    │   ├── TextFile(README.md)
+    │   ├── Pkgroll
+    │   ├── TextFile(src/index.ts)
+    │   └── TextFile(.qdk/tree.txt)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/build/crazyproj/package.json": "{
+  "name": "crazyproj",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "qdk": "qdk synth",
+    "qdk:check": "qdk synth --check",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "dependencies": {
+    "simple": "workspace:*"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^1.0.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "qdk": "9.9.9-mock-latest",
+    "typescript": "^5.6.2"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "crazyproj@0.1.0"
+}
+",
+  "/build/crazyproj/pnpm-workspace.yaml": "packages:
+  - services/simple
+",
+  "/build/crazyproj/services/simple/.prettierrc": "{
+  "arrowParens": "avoid",
+  "singleQuote": true,
+  "overrides": [],
+  "plugins": ["prettier-plugin-organize-imports"]
+}
+",
+  "/build/crazyproj/services/simple/.qdk/meta.json": "{
+  "project": "simple",
+  "custom": {},
+  "files": [
+    "./.prettierrc",
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./eslint.config.js",
+    "./package.json",
+    "./tsconfig.json"
+  ],
+  "subprojects": []
+}
+",
+  "/build/crazyproj/services/simple/.qdk/tree.txt": "·
+└── Project(simple)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── EsLint
+    │   ├── Prettier
+    │   │   └── JsonFile(.prettierrc)
+    │   └── TemplateFile(eslint.config.js)
+    ├── TextFile(README.md)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/build/crazyproj/services/simple/README.md": "123
+",
+  "/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+export default tseslint.config(
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  eslintPluginPrettierRecommended,
+  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { ignores: ['dist/**/*'] },
+  { languageOptions: { globals: globals.nodeBuiltin } },
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: { allowDefaultProject: ['*.config.{mjs,js}'] },
+      },
+    },
+  },
+  { rules: {} },
+  {
+    languageOptions: {
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
+    },
+  },
+);
+",
+  "/build/crazyproj/services/simple/package.json": "{
+  "name": "simple",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "eslint": "eslint",
+    "eslint:fix": "eslint --fix",
+    "format": "prettier . --write",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@tsconfig/node20": "^20.1.4",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.11.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "prettier": "^3.0.0",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.9.0"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "simple@0.1.0"
+}
+",
+  "/build/crazyproj/services/simple/src/index.ts": "export const B = 'B';
+",
+  "/build/crazyproj/services/simple/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+  "/build/crazyproj/src/index.ts": "export type A = 'a';
+export const a = 'a' satisfies A;
+import { B } from 'simple';
+console.log(B);
+",
+  "/build/crazyproj/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+  "/test2/build/crazyproj/.qdk/meta.json": "{
+  "project": "crazyproj",
+  "custom": {},
+  "files": [
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./package.json",
+    "./pnpm-workspace.yaml",
+    "./tsconfig.json"
+  ],
+  "subprojects": ["services/simple"]
+}
+",
+  "/test2/build/crazyproj/.qdk/tree.txt": "·
+└── Project(crazyproj)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    │   └── PnpmWorkspace
+    │       └── YamlFile(pnpm-workspace.yaml)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── Project(simple)
+    │   ├── JsonFile(.qdk/meta.json)
+    │   ├── PnpmPackageManager(^9.12.0)
+    │   ├── PackageJson
+    │   │   └── JsonFile(package.json)
+    │   ├── Typescript(^5.6.2)
+    │   │   └── TsConfig
+    │   │       └── TsConfigJsonFile(tsconfig.json)
+    │   ├── EsLint
+    │   │   ├── Prettier
+    │   │   │   └── JsonFile(.prettierrc)
+    │   │   └── TemplateFile(eslint.config.js)
+    │   ├── TextFile(README.md)
+    │   ├── Pkgroll
+    │   ├── TextFile(src/index.ts)
+    │   └── TextFile(.qdk/tree.txt)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/test2/build/crazyproj/package.json": "{
+  "name": "crazyproj",
+  "version": "9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "dependencies": {
+    "simple": "workspace:*"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^1.0.0",
+    "pkgroll": "9.9.9-mock-latest",
+    "typescript": "^5.6.2"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "crazyproj@9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles"
+}
+",
+  "/test2/build/crazyproj/pnpm-workspace.yaml": "packages:
+  - services/simple
+",
+  "/test2/build/crazyproj/services/simple/.prettierrc": "{
+  "arrowParens": "avoid",
+  "singleQuote": true,
+  "overrides": [],
+  "plugins": ["prettier-plugin-organize-imports"]
+}
+",
+  "/test2/build/crazyproj/services/simple/.qdk/meta.json": "{
+  "project": "simple",
+  "custom": {},
+  "files": [
+    "./.prettierrc",
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./eslint.config.js",
+    "./package.json",
+    "./tsconfig.json"
+  ],
+  "subprojects": []
+}
+",
+  "/test2/build/crazyproj/services/simple/.qdk/tree.txt": "·
+└── Project(simple)
+    ├── JsonFile(.qdk/meta.json)
+    ├── PnpmPackageManager(^9.12.0)
+    ├── PackageJson
+    │   └── JsonFile(package.json)
+    ├── Typescript(^5.6.2)
+    │   └── TsConfig
+    │       └── TsConfigJsonFile(tsconfig.json)
+    ├── EsLint
+    │   ├── Prettier
+    │   │   └── JsonFile(.prettierrc)
+    │   └── TemplateFile(eslint.config.js)
+    ├── TextFile(README.md)
+    ├── Pkgroll
+    └── TextFile(src/index.ts)",
+  "/test2/build/crazyproj/services/simple/README.md": "123
+",
+  "/test2/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+export default tseslint.config(
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
+  eslintPluginPrettierRecommended,
+  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { ignores: ['dist/**/*'] },
+  { languageOptions: { globals: globals.nodeBuiltin } },
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: { allowDefaultProject: ['*.config.{mjs,js}'] },
+      },
+    },
+  },
+  { rules: {} },
+  {
+    languageOptions: {
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
+    },
+  },
+);
+",
+  "/test2/build/crazyproj/services/simple/package.json": "{
+  "name": "simple",
+  "version": "9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "eslint": "eslint",
+    "eslint:fix": "eslint --fix",
+    "format": "prettier . --write",
+    "typescript": "tsc",
+    "typescript:check": "tsc -p tsconfig.json --noEmit",
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.9.9-mock-latest",
+    "@tsconfig/node20": "9.9.9-mock-latest",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "9.9.9-mock-latest",
+    "eslint-plugin-prettier": "9.9.9-mock-latest",
+    "globals": "9.9.9-mock-latest",
+    "pkgroll": "9.9.9-mock-latest",
+    "prettier": "9.9.9-mock-latest",
+    "prettier-plugin-organize-imports": "9.9.9-mock-latest",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "9.9.9-mock-latest"
+  },
+  "engine": {
+    "pnpm": "^9.12.0"
+  },
+  "readme": "ERROR: No README data found!",
+  "_id": "simple@9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles"
+}
+",
+  "/test2/build/crazyproj/services/simple/src/index.ts": "export const B = 'B';
+",
+  "/test2/build/crazyproj/services/simple/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+  "/test2/build/crazyproj/src/index.ts": "export type A = 'a';
+export const a = 'a' satisfies A;
+import { B } from 'simple';
+console.log(B);
+",
+  "/test2/build/crazyproj/tsconfig.json": "{
+  "extends": ["@tsconfig/node20"],
+  "include": ["src/**/*", "tests/**/*"]
+}
+",
+}
+`;
+
 exports[`qdk/monorepo sample > builds a monorepo sample project 1`] = `
 "/
 └─ build/
-   └─ monorepo/
-      ├─ .gitignore
+   └─ crazyproj/
       ├─ .qdk/
       │  ├─ meta.json
       │  └─ tree.txt
@@ -29,210 +753,10 @@ exports[`qdk/monorepo sample > builds a monorepo sample project 1`] = `
 
 exports[`qdk/monorepo sample > builds a monorepo sample project 2`] = `
 {
-  "/build/monorepo/.gitignore": "
-### Node.js Standard ###
-# Logs generated by Node.js and related tools
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Runtime data files (PID files, seeds, locks)
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Dependency directories (Node.js and package managers)
-node_modules/
-jspm_packages/
-web_modules/ # Snowpack (https://snowpack.dev/)
-
-# Build outputs and binary addons (https://nodejs.org/api/addons.html)
-build/Release
-.lock-wscript
-
-# Coverage files used by testing tools like Istanbul/nyc
-coverage/
-*.lcov
-.nyc_output
-
-# Cache directories
-.npm
-.cache
-.parcel-cache # Parcel (https://parceljs.org/)
-.eslintcache # ESLint
-.stylelintcache # Stylelint
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Yarn Integrity file
-.yarn-integrity
-
-# REPL history
-.node_repl_history
-
-# Output from 'npm pack'
-*.tgz
-
-### Environment Variables ###
-# dotenv environment variable files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-### Framework-specific Build Outputs ###
-# Next.js (https://nextjs.org/)
-.next/
-out/
-
-# Nuxt.js (https://nuxtjs.org/)
-.nuxt/
-dist/
-
-# Gatsby (https://gatsbyjs.com/)
-.cache/
-# public/ # Uncomment if using Gatsby instead of Next.js
-
-# SvelteKit (https://kit.svelte.dev/)
-.svelte-kit/
-
-# VuePress (https://vuepress.vuejs.org/)
-.vuepress/dist/
-.temp/ # VuePress v2.x cache
-
-# Docusaurus (https://docusaurus.io/)
-.docusaurus/
-
-# Serverless Framework (https://www.serverless.com/)
-.serverless/
-
-# FuseBox (https://fuse-box.org/)
-.fusebox/
-
-# DynamoDB Local (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
-.dynamodb/
-
-# Serverless Webpack directories
-.webpack/
-
-### Development Tools ###
-# VSCode
-.vscode-test
-
-# Yarn v2 (https://yarnpkg.com/getting-started/migration)
-.yarn/cache/
-.yarn/unplugged/
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-### macOS ###
-# macOS Finder and Spotlight files
-.DS_Store
-
-### Xcode (https://developer.apple.com/xcode/) ###
-# Xcode-specific files and directories
-build/
-*.pbxuser
-*.mode1v3
-*.mode2v3
-*.perspectivev3
-xcuserdata/
-*.xccheckout
-*.moved-aside
-DerivedData/
-*.hmap
-*.ipa
-*.xcuserstate
-**/.xcode.env.local
-
-### Android/IntelliJ (https://developer.android.com/studio) ###
-# Android Studio/IntelliJ project files
-build/
-.idea/
-.gradle/
-local.properties
-*.iml
-*.hprof
-.cxx/
-*.keystore
-!debug.keystore
-
-### Mobile Development ###
-# Fastlane (https://docs.fastlane.tools/best-practices/source-control/)
-**/fastlane/report.xml
-**/fastlane/Preview.html
-**/fastlane/screenshots/
-**/fastlane/test_output/
-
-# Metro (React Native) health check file
-.metro-health-check*
-
-# Bundle artifacts for mobile platforms
-*.jsbundle
-
-### Ruby/CocoaPods (https://guides.cocoapods.org/) ###
-# Pods and vendor directories
-**/Pods/
-**/vendor/bundle/
-
-### Testing ###
-# Coverage reports and testing output
-/coverage/
-
-### Other ###
-# TernJS (https://ternjs.net/)
-.tern-port
-
-# Eclipse (https://www.eclipse.org/)
-.metadata/
-tmp/
-
-# BUCK (https://buck.build/)
-buck-out/
-.buckd/
-android/app/libs/
-android/keystores/debug.keystore
-
-# Expo (https://expo.dev/)
-.expo/
-
-# Turborepo (https://turborepo.org/)
-.turbo/
-
-# Generated by react native bob builder
-lib/
-
-# React Native Codegen
-ios/generated/
-android/generated/
-
-",
-  "/build/monorepo/.qdk/meta.json": "{
-  "project": "monorepo",
+  "/build/crazyproj/.qdk/meta.json": "{
+  "project": "crazyproj",
   "custom": {},
   "files": [
-    "./.gitignore",
     "./.qdk/meta.json",
     "./.qdk/tree.txt",
     "./package.json",
@@ -242,10 +766,8 @@ android/generated/
   "subprojects": ["services/simple"]
 }
 ",
-  "/build/monorepo/.qdk/tree.txt": "·
-└── Project(monorepo)
-    ├── Gitignore
-    │   └── TextFile(.gitignore)
+  "/build/crazyproj/.qdk/tree.txt": "·
+└── Project(crazyproj)
     ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
     │   └── PnpmWorkspace
@@ -273,8 +795,8 @@ android/generated/
     │   └── TextFile(.qdk/tree.txt)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/build/monorepo/package.json": "{
-  "name": "monorepo",
+  "/build/crazyproj/package.json": "{
+  "name": "crazyproj",
   "version": "0.1.0",
   "type": "module",
   "exports": {
@@ -311,20 +833,20 @@ android/generated/
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "monorepo@0.1.0"
+  "_id": "crazyproj@0.1.0"
 }
 ",
-  "/build/monorepo/pnpm-workspace.yaml": "packages:
+  "/build/crazyproj/pnpm-workspace.yaml": "packages:
   - services/simple
 ",
-  "/build/monorepo/services/simple/.prettierrc": "{
+  "/build/crazyproj/services/simple/.prettierrc": "{
   "arrowParens": "avoid",
   "singleQuote": true,
   "overrides": [],
   "plugins": ["prettier-plugin-organize-imports"]
 }
 ",
-  "/build/monorepo/services/simple/.qdk/meta.json": "{
+  "/build/crazyproj/services/simple/.qdk/meta.json": "{
   "project": "simple",
   "custom": {},
   "files": [
@@ -338,7 +860,7 @@ android/generated/
   "subprojects": []
 }
 ",
-  "/build/monorepo/services/simple/.qdk/tree.txt": "·
+  "/build/crazyproj/services/simple/.qdk/tree.txt": "·
 └── Project(simple)
     ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
@@ -354,9 +876,9 @@ android/generated/
     ├── TextFile(README.md)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/build/monorepo/services/simple/README.md": "123
+  "/build/crazyproj/services/simple/README.md": "123
 ",
-  "/build/monorepo/services/simple/eslint.config.js": "import globals from 'globals';
+  "/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
@@ -383,7 +905,7 @@ export default tseslint.config(
   },
 );
 ",
-  "/build/monorepo/services/simple/package.json": "{
+  "/build/crazyproj/services/simple/package.json": "{
   "name": "simple",
   "version": "0.1.0",
   "type": "module",
@@ -429,19 +951,19 @@ export default tseslint.config(
   "_id": "simple@0.1.0"
 }
 ",
-  "/build/monorepo/services/simple/src/index.ts": "export const B = 'B';
+  "/build/crazyproj/services/simple/src/index.ts": "export const B = 'B';
 ",
-  "/build/monorepo/services/simple/tsconfig.json": "{
+  "/build/crazyproj/services/simple/tsconfig.json": "{
   "extends": ["@tsconfig/node20"],
   "include": ["src/**/*", "tests/**/*"]
 }
 ",
-  "/build/monorepo/src/index.ts": "export type A = 'a';
+  "/build/crazyproj/src/index.ts": "export type A = 'a';
 export const a = 'a' satisfies A;
 import { B } from 'simple';
 console.log(B);
 ",
-  "/build/monorepo/tsconfig.json": "{
+  "/build/crazyproj/tsconfig.json": "{
   "extends": ["@tsconfig/node20"],
   "include": ["src/**/*", "tests/**/*"]
 }
@@ -452,8 +974,7 @@ console.log(B);
 exports[`qdk/monorepo sample > builds a monorepo sample project and delete orphan files 1`] = `
 "/
 ├─ build/
-│  └─ monorepo/
-│     ├─ .gitignore
+│  └─ crazyproj/
 │     ├─ .qdk/
 │     │  ├─ meta.json
 │     │  └─ tree.txt
@@ -476,236 +997,39 @@ exports[`qdk/monorepo sample > builds a monorepo sample project and delete orpha
 │     └─ tsconfig.json
 └─ test2/
    └─ build/
+      ├─ crazyproj/
+      │  ├─ .qdk/
+      │  │  ├─ meta.json
+      │  │  └─ tree.txt
+      │  ├─ package.json
+      │  ├─ pnpm-workspace.yaml
+      │  ├─ services/
+      │  │  └─ simple/
+      │  │     ├─ .prettierrc
+      │  │     ├─ .qdk/
+      │  │     │  ├─ meta.json
+      │  │     │  └─ tree.txt
+      │  │     ├─ README.md
+      │  │     ├─ eslint.config.js
+      │  │     ├─ package.json
+      │  │     ├─ src/
+      │  │     │  └─ index.ts
+      │  │     └─ tsconfig.json
+      │  ├─ src/
+      │  │  └─ index.ts
+      │  └─ tsconfig.json
       └─ monorepo/
-         ├─ .gitignore
          ├─ .qdk/
-         │  ├─ meta.json
-         │  └─ tree.txt
-         ├─ package.json
-         ├─ pnpm-workspace.yaml
-         ├─ services/
-         │  └─ simple/
-         │     ├─ .prettierrc
-         │     ├─ .qdk/
-         │     │  ├─ meta.json
-         │     │  └─ tree.txt
-         │     ├─ README.md
-         │     ├─ eslint.config.js
-         │     ├─ package.json
-         │     ├─ src/
-         │     │  └─ index.ts
-         │     └─ tsconfig.json
-         ├─ src/
-         │  └─ index.ts
-         └─ tsconfig.json"
+         │  └─ meta.json
+         └─ orphan.txt"
 `;
 
 exports[`qdk/monorepo sample > builds a monorepo sample project and delete orphan files 2`] = `
 {
-  "/build/monorepo/.gitignore": "
-### Node.js Standard ###
-# Logs generated by Node.js and related tools
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Runtime data files (PID files, seeds, locks)
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Dependency directories (Node.js and package managers)
-node_modules/
-jspm_packages/
-web_modules/ # Snowpack (https://snowpack.dev/)
-
-# Build outputs and binary addons (https://nodejs.org/api/addons.html)
-build/Release
-.lock-wscript
-
-# Coverage files used by testing tools like Istanbul/nyc
-coverage/
-*.lcov
-.nyc_output
-
-# Cache directories
-.npm
-.cache
-.parcel-cache # Parcel (https://parceljs.org/)
-.eslintcache # ESLint
-.stylelintcache # Stylelint
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Yarn Integrity file
-.yarn-integrity
-
-# REPL history
-.node_repl_history
-
-# Output from 'npm pack'
-*.tgz
-
-### Environment Variables ###
-# dotenv environment variable files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-### Framework-specific Build Outputs ###
-# Next.js (https://nextjs.org/)
-.next/
-out/
-
-# Nuxt.js (https://nuxtjs.org/)
-.nuxt/
-dist/
-
-# Gatsby (https://gatsbyjs.com/)
-.cache/
-# public/ # Uncomment if using Gatsby instead of Next.js
-
-# SvelteKit (https://kit.svelte.dev/)
-.svelte-kit/
-
-# VuePress (https://vuepress.vuejs.org/)
-.vuepress/dist/
-.temp/ # VuePress v2.x cache
-
-# Docusaurus (https://docusaurus.io/)
-.docusaurus/
-
-# Serverless Framework (https://www.serverless.com/)
-.serverless/
-
-# FuseBox (https://fuse-box.org/)
-.fusebox/
-
-# DynamoDB Local (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
-.dynamodb/
-
-# Serverless Webpack directories
-.webpack/
-
-### Development Tools ###
-# VSCode
-.vscode-test
-
-# Yarn v2 (https://yarnpkg.com/getting-started/migration)
-.yarn/cache/
-.yarn/unplugged/
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-### macOS ###
-# macOS Finder and Spotlight files
-.DS_Store
-
-### Xcode (https://developer.apple.com/xcode/) ###
-# Xcode-specific files and directories
-build/
-*.pbxuser
-*.mode1v3
-*.mode2v3
-*.perspectivev3
-xcuserdata/
-*.xccheckout
-*.moved-aside
-DerivedData/
-*.hmap
-*.ipa
-*.xcuserstate
-**/.xcode.env.local
-
-### Android/IntelliJ (https://developer.android.com/studio) ###
-# Android Studio/IntelliJ project files
-build/
-.idea/
-.gradle/
-local.properties
-*.iml
-*.hprof
-.cxx/
-*.keystore
-!debug.keystore
-
-### Mobile Development ###
-# Fastlane (https://docs.fastlane.tools/best-practices/source-control/)
-**/fastlane/report.xml
-**/fastlane/Preview.html
-**/fastlane/screenshots/
-**/fastlane/test_output/
-
-# Metro (React Native) health check file
-.metro-health-check*
-
-# Bundle artifacts for mobile platforms
-*.jsbundle
-
-### Ruby/CocoaPods (https://guides.cocoapods.org/) ###
-# Pods and vendor directories
-**/Pods/
-**/vendor/bundle/
-
-### Testing ###
-# Coverage reports and testing output
-/coverage/
-
-### Other ###
-# TernJS (https://ternjs.net/)
-.tern-port
-
-# Eclipse (https://www.eclipse.org/)
-.metadata/
-tmp/
-
-# BUCK (https://buck.build/)
-buck-out/
-.buckd/
-android/app/libs/
-android/keystores/debug.keystore
-
-# Expo (https://expo.dev/)
-.expo/
-
-# Turborepo (https://turborepo.org/)
-.turbo/
-
-# Generated by react native bob builder
-lib/
-
-# React Native Codegen
-ios/generated/
-android/generated/
-
-",
-  "/build/monorepo/.qdk/meta.json": "{
-  "project": "monorepo",
+  "/build/crazyproj/.qdk/meta.json": "{
+  "project": "crazyproj",
   "custom": {},
   "files": [
-    "./.gitignore",
     "./.qdk/meta.json",
     "./.qdk/tree.txt",
     "./package.json",
@@ -715,10 +1039,8 @@ android/generated/
   "subprojects": ["services/simple"]
 }
 ",
-  "/build/monorepo/.qdk/tree.txt": "·
-└── Project(monorepo)
-    ├── Gitignore
-    │   └── TextFile(.gitignore)
+  "/build/crazyproj/.qdk/tree.txt": "·
+└── Project(crazyproj)
     ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
     │   └── PnpmWorkspace
@@ -746,8 +1068,8 @@ android/generated/
     │   └── TextFile(.qdk/tree.txt)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/build/monorepo/package.json": "{
-  "name": "monorepo",
+  "/build/crazyproj/package.json": "{
+  "name": "crazyproj",
   "version": "0.1.0",
   "type": "module",
   "exports": {
@@ -784,20 +1106,20 @@ android/generated/
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "monorepo@0.1.0"
+  "_id": "crazyproj@0.1.0"
 }
 ",
-  "/build/monorepo/pnpm-workspace.yaml": "packages:
+  "/build/crazyproj/pnpm-workspace.yaml": "packages:
   - services/simple
 ",
-  "/build/monorepo/services/simple/.prettierrc": "{
+  "/build/crazyproj/services/simple/.prettierrc": "{
   "arrowParens": "avoid",
   "singleQuote": true,
   "overrides": [],
   "plugins": ["prettier-plugin-organize-imports"]
 }
 ",
-  "/build/monorepo/services/simple/.qdk/meta.json": "{
+  "/build/crazyproj/services/simple/.qdk/meta.json": "{
   "project": "simple",
   "custom": {},
   "files": [
@@ -811,7 +1133,7 @@ android/generated/
   "subprojects": []
 }
 ",
-  "/build/monorepo/services/simple/.qdk/tree.txt": "·
+  "/build/crazyproj/services/simple/.qdk/tree.txt": "·
 └── Project(simple)
     ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
@@ -827,9 +1149,9 @@ android/generated/
     ├── TextFile(README.md)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/build/monorepo/services/simple/README.md": "123
+  "/build/crazyproj/services/simple/README.md": "123
 ",
-  "/build/monorepo/services/simple/eslint.config.js": "import globals from 'globals';
+  "/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
@@ -856,7 +1178,7 @@ export default tseslint.config(
   },
 );
 ",
-  "/build/monorepo/services/simple/package.json": "{
+  "/build/crazyproj/services/simple/package.json": "{
   "name": "simple",
   "version": "0.1.0",
   "type": "module",
@@ -902,227 +1224,27 @@ export default tseslint.config(
   "_id": "simple@0.1.0"
 }
 ",
-  "/build/monorepo/services/simple/src/index.ts": "export const B = 'B';
+  "/build/crazyproj/services/simple/src/index.ts": "export const B = 'B';
 ",
-  "/build/monorepo/services/simple/tsconfig.json": "{
+  "/build/crazyproj/services/simple/tsconfig.json": "{
   "extends": ["@tsconfig/node20"],
   "include": ["src/**/*", "tests/**/*"]
 }
 ",
-  "/build/monorepo/src/index.ts": "export type A = 'a';
+  "/build/crazyproj/src/index.ts": "export type A = 'a';
 export const a = 'a' satisfies A;
 import { B } from 'simple';
 console.log(B);
 ",
-  "/build/monorepo/tsconfig.json": "{
+  "/build/crazyproj/tsconfig.json": "{
   "extends": ["@tsconfig/node20"],
   "include": ["src/**/*", "tests/**/*"]
 }
 ",
-  "/test2/build/monorepo/.gitignore": "
-### Node.js Standard ###
-# Logs generated by Node.js and related tools
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-
-# Diagnostic reports (https://nodejs.org/api/report.html)
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-
-# Runtime data files (PID files, seeds, locks)
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Dependency directories (Node.js and package managers)
-node_modules/
-jspm_packages/
-web_modules/ # Snowpack (https://snowpack.dev/)
-
-# Build outputs and binary addons (https://nodejs.org/api/addons.html)
-build/Release
-.lock-wscript
-
-# Coverage files used by testing tools like Istanbul/nyc
-coverage/
-*.lcov
-.nyc_output
-
-# Cache directories
-.npm
-.cache
-.parcel-cache # Parcel (https://parceljs.org/)
-.eslintcache # ESLint
-.stylelintcache # Stylelint
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Yarn Integrity file
-.yarn-integrity
-
-# REPL history
-.node_repl_history
-
-# Output from 'npm pack'
-*.tgz
-
-### Environment Variables ###
-# dotenv environment variable files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-### Framework-specific Build Outputs ###
-# Next.js (https://nextjs.org/)
-.next/
-out/
-
-# Nuxt.js (https://nuxtjs.org/)
-.nuxt/
-dist/
-
-# Gatsby (https://gatsbyjs.com/)
-.cache/
-# public/ # Uncomment if using Gatsby instead of Next.js
-
-# SvelteKit (https://kit.svelte.dev/)
-.svelte-kit/
-
-# VuePress (https://vuepress.vuejs.org/)
-.vuepress/dist/
-.temp/ # VuePress v2.x cache
-
-# Docusaurus (https://docusaurus.io/)
-.docusaurus/
-
-# Serverless Framework (https://www.serverless.com/)
-.serverless/
-
-# FuseBox (https://fuse-box.org/)
-.fusebox/
-
-# DynamoDB Local (https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
-.dynamodb/
-
-# Serverless Webpack directories
-.webpack/
-
-### Development Tools ###
-# VSCode
-.vscode-test
-
-# Yarn v2 (https://yarnpkg.com/getting-started/migration)
-.yarn/cache/
-.yarn/unplugged/
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-### macOS ###
-# macOS Finder and Spotlight files
-.DS_Store
-
-### Xcode (https://developer.apple.com/xcode/) ###
-# Xcode-specific files and directories
-build/
-*.pbxuser
-*.mode1v3
-*.mode2v3
-*.perspectivev3
-xcuserdata/
-*.xccheckout
-*.moved-aside
-DerivedData/
-*.hmap
-*.ipa
-*.xcuserstate
-**/.xcode.env.local
-
-### Android/IntelliJ (https://developer.android.com/studio) ###
-# Android Studio/IntelliJ project files
-build/
-.idea/
-.gradle/
-local.properties
-*.iml
-*.hprof
-.cxx/
-*.keystore
-!debug.keystore
-
-### Mobile Development ###
-# Fastlane (https://docs.fastlane.tools/best-practices/source-control/)
-**/fastlane/report.xml
-**/fastlane/Preview.html
-**/fastlane/screenshots/
-**/fastlane/test_output/
-
-# Metro (React Native) health check file
-.metro-health-check*
-
-# Bundle artifacts for mobile platforms
-*.jsbundle
-
-### Ruby/CocoaPods (https://guides.cocoapods.org/) ###
-# Pods and vendor directories
-**/Pods/
-**/vendor/bundle/
-
-### Testing ###
-# Coverage reports and testing output
-/coverage/
-
-### Other ###
-# TernJS (https://ternjs.net/)
-.tern-port
-
-# Eclipse (https://www.eclipse.org/)
-.metadata/
-tmp/
-
-# BUCK (https://buck.build/)
-buck-out/
-.buckd/
-android/app/libs/
-android/keystores/debug.keystore
-
-# Expo (https://expo.dev/)
-.expo/
-
-# Turborepo (https://turborepo.org/)
-.turbo/
-
-# Generated by react native bob builder
-lib/
-
-# React Native Codegen
-ios/generated/
-android/generated/
-
-",
-  "/test2/build/monorepo/.qdk/meta.json": "{
-  "project": "monorepo",
+  "/test2/build/crazyproj/.qdk/meta.json": "{
+  "project": "crazyproj",
   "custom": {},
   "files": [
-    "./.gitignore",
     "./.qdk/meta.json",
     "./.qdk/tree.txt",
     "./package.json",
@@ -1132,10 +1254,8 @@ android/generated/
   "subprojects": ["services/simple"]
 }
 ",
-  "/test2/build/monorepo/.qdk/tree.txt": "·
-└── Project(monorepo)
-    ├── Gitignore
-    │   └── TextFile(.gitignore)
+  "/test2/build/crazyproj/.qdk/tree.txt": "·
+└── Project(crazyproj)
     ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
     │   └── PnpmWorkspace
@@ -1163,8 +1283,8 @@ android/generated/
     │   └── TextFile(.qdk/tree.txt)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/test2/build/monorepo/package.json": "{
-  "name": "monorepo",
+  "/test2/build/crazyproj/package.json": "{
+  "name": "crazyproj",
   "version": "9.9.9-buildsamonoreposampleprojectanddeleteorphanfiles",
   "exports": {
     "require": {
@@ -1197,20 +1317,20 @@ android/generated/
     "pnpm": "^9.12.0"
   },
   "readme": "ERROR: No README data found!",
-  "_id": "monorepo@9.9.9-buildsamonoreposampleprojectanddeleteorphanfiles"
+  "_id": "crazyproj@9.9.9-buildsamonoreposampleprojectanddeleteorphanfiles"
 }
 ",
-  "/test2/build/monorepo/pnpm-workspace.yaml": "packages:
+  "/test2/build/crazyproj/pnpm-workspace.yaml": "packages:
   - services/simple
 ",
-  "/test2/build/monorepo/services/simple/.prettierrc": "{
+  "/test2/build/crazyproj/services/simple/.prettierrc": "{
   "arrowParens": "avoid",
   "singleQuote": true,
   "overrides": [],
   "plugins": ["prettier-plugin-organize-imports"]
 }
 ",
-  "/test2/build/monorepo/services/simple/.qdk/meta.json": "{
+  "/test2/build/crazyproj/services/simple/.qdk/meta.json": "{
   "project": "simple",
   "custom": {},
   "files": [
@@ -1224,7 +1344,7 @@ android/generated/
   "subprojects": []
 }
 ",
-  "/test2/build/monorepo/services/simple/.qdk/tree.txt": "·
+  "/test2/build/crazyproj/services/simple/.qdk/tree.txt": "·
 └── Project(simple)
     ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
@@ -1240,9 +1360,9 @@ android/generated/
     ├── TextFile(README.md)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
-  "/test2/build/monorepo/services/simple/README.md": "123
+  "/test2/build/crazyproj/services/simple/README.md": "123
 ",
-  "/test2/build/monorepo/services/simple/eslint.config.js": "import globals from 'globals';
+  "/test2/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
@@ -1269,7 +1389,7 @@ export default tseslint.config(
   },
 );
 ",
-  "/test2/build/monorepo/services/simple/package.json": "{
+  "/test2/build/crazyproj/services/simple/package.json": "{
   "name": "simple",
   "version": "9.9.9-buildsamonoreposampleprojectanddeleteorphanfiles",
   "exports": {
@@ -1314,22 +1434,24 @@ export default tseslint.config(
   "_id": "simple@9.9.9-buildsamonoreposampleprojectanddeleteorphanfiles"
 }
 ",
-  "/test2/build/monorepo/services/simple/src/index.ts": "export const B = 'B';
+  "/test2/build/crazyproj/services/simple/src/index.ts": "export const B = 'B';
 ",
-  "/test2/build/monorepo/services/simple/tsconfig.json": "{
+  "/test2/build/crazyproj/services/simple/tsconfig.json": "{
   "extends": ["@tsconfig/node20"],
   "include": ["src/**/*", "tests/**/*"]
 }
 ",
-  "/test2/build/monorepo/src/index.ts": "export type A = 'a';
+  "/test2/build/crazyproj/src/index.ts": "export type A = 'a';
 export const a = 'a' satisfies A;
 import { B } from 'simple';
 console.log(B);
 ",
-  "/test2/build/monorepo/tsconfig.json": "{
+  "/test2/build/crazyproj/tsconfig.json": "{
   "extends": ["@tsconfig/node20"],
   "include": ["src/**/*", "tests/**/*"]
 }
 ",
+  "/test2/build/monorepo/.qdk/meta.json": "{"files":[".qdk/meta.json","./orphan.txt"]}",
+  "/test2/build/monorepo/orphan.txt": "some file data",
 }
 `;

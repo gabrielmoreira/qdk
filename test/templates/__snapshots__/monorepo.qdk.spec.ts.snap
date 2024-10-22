@@ -285,9 +285,9 @@ node = "20.18.0"",
 ",
   "/.qdk/tree.txt": "·
 └── MonorepoProject(@repo/root)
+    ├── JsonFile(.qdk/meta.json)
     ├── Gitignore
     │   └── TextFile(.gitignore)
-    ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
     │   └── PnpmWorkspace
     │       └── YamlFile(pnpm-workspace.yaml)
@@ -1076,9 +1076,9 @@ node = "20.18.0"",
 ",
   "/.qdk/tree.txt": "·
 └── MonorepoProject(@repo/root)
+    ├── JsonFile(.qdk/meta.json)
     ├── Gitignore
     │   └── TextFile(.gitignore)
-    ├── JsonFile(.qdk/meta.json)
     ├── PnpmPackageManager(^9.12.0)
     │   └── PnpmWorkspace
     │       └── YamlFile(pnpm-workspace.yaml)
