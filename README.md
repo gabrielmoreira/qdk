@@ -1,5 +1,7 @@
 # QDK - Quick Development Kit
 
+![NPM Version](https://img.shields.io/npm/v/qdk)
+
 **⚠️ Important: This project is experimental and actively evolving. Expect frequent updates and breaking changes. Use cautiously.**
 
 QDK simplifies configuration file generation via TypeScript, offering flexibility like Projen but with more control over project configurations.
