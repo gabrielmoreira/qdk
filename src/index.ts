@@ -43,6 +43,7 @@ export * from './components/Gitignore.js';
 export * from './components/NpmPackageManager.js';
 export * from './components/PnpmPackageManager.js';
 export * from './components/PnpmWorkspace.js';
+export * from './components/YarnPackageManager.js';
 export * from './components/Prettier.js';
 export * from './components/TsConfig.js';
 export * from './components/Typescript.js';

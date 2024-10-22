@@ -37,7 +37,7 @@ export class NpmPackageManager extends PackageManager<NpmPackageManagerOptionsTy
   cmdPrefix = `npm`;
   execCmdPrefix = `npx`;
   constructor(scope: Scope, options: NpmPackageManagerInitialOptionsType = {}) {
-    // fail if this component already exists
+    // fail if a package manager is already defined to this project
     scope.project.ensureComponentIsNotDefined(PackageManager.of);
     super(
       scope.project,

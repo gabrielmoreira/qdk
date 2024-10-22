@@ -43,6 +43,8 @@ export class PnpmPackageManager extends PackageManager<PnpmPackageManagerOptions
     scope: BaseProject,
     options: PnpmPackageManagerInitialOptions = {},
   ) {
+    // fail if a package manager is already defined to this project
+    scope.project.ensureComponentIsNotDefined(PackageManager.of);
     const opts = PnpmPackageManagerOptions.getOptions(options, { scope });
     super(scope, opts, opts.version);
     if (this.options.workspace) {
