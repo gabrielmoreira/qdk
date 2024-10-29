@@ -159,8 +159,12 @@ export abstract class BaseProject<
           .sort(),
       },
     );
-    this.hook('synth:before', this.onBeforeSynth.bind(this));
-    this.hook('synth:after', this.onAfterSynth.bind(this));
+    this.hook('synth:before', (options: SynthOptions) =>
+      this.traceAsyncCall('synth:before', () => this.onBeforeSynth(options)),
+    );
+    this.hook('synth:after', (options: SynthOptions) =>
+      this.traceAsyncCall('synth:after', () => this.onAfterSynth(options)),
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -212,18 +216,20 @@ export abstract class BaseProject<
   }
 
   async deleteFiles(...files: string[]) {
-    await Promise.all(
-      files.map(async file => {
-        this.debug('Deleting file', file);
-        try {
-          await unlink(this.resolvePath(file));
-        } catch (e) {
-          // Do not throw if the file do not exists
-          if (getErrorCode(e) === 'ENOENT') return;
-          throw e;
-        }
-      }),
-    );
+    await this.traceAsyncCall('deleteFiles', async () => {
+      await Promise.all(
+        files.map(async file => {
+          this.debug('Deleting file', file);
+          try {
+            await unlink(this.resolvePath(file));
+          } catch (e) {
+            // Do not throw if the file do not exists
+            if (getErrorCode(e) === 'ENOENT') return;
+            throw e;
+          }
+        }),
+      );
+    });
   }
 
   async makeDirectory(...path: string[]) {

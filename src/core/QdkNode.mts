@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/class-literal-property-style */
+import { Attributes, Span, SpanStatusCode, Tracer } from '@opentelemetry/api';
 import { Hookable } from 'hookable';
 import { TreeNode } from 'tree-console';
 import {
@@ -34,9 +35,13 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
   parent?: Scope;
   tags = new Set<string>();
   children: QdkNode[] = [];
+  _tracer?: Tracer;
   protected logger: Logger;
   get nodeType(): QdkNodeType {
     return 'node';
+  }
+  setTracer(tracer: Tracer) {
+    this._tracer = tracer;
   }
   constructor(parent?: Scope, nodeName?: string) {
     super();
@@ -75,6 +80,13 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
   get root(): Scope {
     if (!this.parent) return this;
     return this.parent.root;
+  }
+
+  get tracer(): Tracer | undefined {
+    if (this._tracer) {
+      return this._tracer;
+    }
+    return this.parent?.tracer;
   }
 
   get app(): QdkApp {
@@ -172,70 +184,168 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
   }
 
   protected async preSynthetize(options: SynthOptions) {
-    const showProjectLogs = this.nodeType === 'project';
-    if (showProjectLogs) {
-      this.log('Synthesizing project files...');
-    }
-    await this.callHook('synth:before', options);
-    for (const child of this.children) {
-      await child.preSynthetize(options);
-    }
+    await this.traceAsyncCall('preSynthetize', async () => {
+      const showProjectLogs = this.nodeType === 'project';
+      if (showProjectLogs) {
+        this.log('Synthesizing project files...');
+      }
+      await this.callHook('synth:before', options);
+      for (const child of this.children) {
+        await child.preSynthetize(options);
+      }
+    });
   }
 
   protected async postSynthetize(options: SynthOptions) {
-    for (const child of this.children) {
-      await child.postSynthetize(options);
-    }
-    await this.callHook('synth:after', options);
+    await this.traceAsyncCall('postSynthetize', async () => {
+      for (const child of this.children) {
+        await child.postSynthetize(options);
+      }
+      await this.callHook('synth:after', options);
+    });
+  }
+
+  callHook<NameT extends string>(
+    name: NameT,
+    ...arguments_: any[]
+  ): Promise<any> {
+    return this.traceAsyncCall(`callHook(${name})`, () =>
+      super.callHook(name, arguments_),
+    );
   }
 
   protected async synthetize(options: SynthOptions) {
-    for (const child of this.children) {
-      await child.synthetize(options);
+    await this.traceAsyncCall('synthetize', async () => {
+      for (const child of this.children) {
+        await child.synthetize(options);
+      }
+      await this.callHook('synth', options);
+    });
+  }
+
+  protected async traceAsyncCall<T>(
+    name: string,
+    fn: () => Promise<T>,
+    context?: { attributes?: Attributes },
+  ): Promise<T> {
+    if (this.tracer) {
+      return this.tracer.startActiveSpan(
+        `${this.nodeName}.${name}`,
+        async span => {
+          try {
+            this.setSpanContext(span, context);
+            const result = await fn();
+            this.setSpanResult(span, result);
+            return result;
+          } catch (e) {
+            this.setSpanError(span, e);
+            throw e;
+          } finally {
+            span.end();
+          }
+        },
+      );
     }
-    await this.callHook('synth', options);
+    return fn();
+  }
+
+  private setSpanContext(
+    span: Span,
+    context?: { attributes?: Attributes },
+  ): void {
+    if (context?.attributes) {
+      span.setAttributes(context.attributes);
+    }
+    span.setAttributes({
+      'qdk.node.type': this.nodeType,
+      'qdk.node.name': this.nodeName,
+      'qdk.node.class': this.constructor.name,
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private setSpanResult(span: Span, _result: any) {
+    span.setStatus({ code: SpanStatusCode.OK });
+  }
+
+  private setSpanError(span: Span, error: any) {
+    if (error instanceof Error) {
+      span.recordException(error);
+    }
+    span.setStatus({
+      code: SpanStatusCode.ERROR,
+      message: error instanceof Error ? error.message : `${error}`,
+    });
+  }
+
+  protected traceSyncCall<T>(
+    name: string,
+    fn: () => T,
+    context?: { attributes?: Attributes },
+  ): T {
+    if (this.tracer) {
+      return this.tracer.startActiveSpan(`${this.nodeName}.${name}`, span => {
+        try {
+          this.setSpanContext(span, context);
+          const result = fn();
+          this.setSpanResult(span, result);
+          return result;
+        } catch (e) {
+          this.setSpanError(span, e);
+          throw e;
+        } finally {
+          span.end();
+        }
+      });
+    }
+    return fn();
   }
 
   async synth(options: SynthOptions = {}) {
-    const showLogs = this.nodeType === 'project' || this.nodeType === 'app';
-    if (showLogs) {
-      this.log('Synthesizing files...');
-    }
-    await this.preSynthetize(options);
-    await this.synthetize(options);
-    await this.postSynthetize(options);
-    if (showLogs) {
-      if (options.checkOnly) {
-        this.log('All synthesized files have been checked!');
-      } else {
-        this.log('Files synthesized successfully!');
+    return this.traceAsyncCall('synth', async () => {
+      const showLogs = this.nodeType === 'project' || this.nodeType === 'app';
+      if (showLogs) {
+        this.log('Synthesizing files...');
       }
-    }
+      await this.preSynthetize(options);
+      await this.synthetize(options);
+      await this.postSynthetize(options);
+      if (showLogs) {
+        if (options.checkOnly) {
+          this.log('All synthesized files have been checked!');
+        } else {
+          this.log('Files synthesized successfully!');
+        }
+      }
+    });
   }
 
   protected async runCmd(cmd: string, opts: { cwd?: string } = {}) {
-    await this.callHook('exec:before', cmd, opts);
+    await this.callHook('runCmd:before', cmd, opts);
     try {
       const cwd = opts.cwd ?? this.project.options.path;
       this.debug('Executing [' + cmd + '] on [' + relativeToCwd(cwd) + ']');
-      const result = await exec(cmd, { cwd });
+      const result = await this.traceAsyncCall(`runCmd(${cmd})`, () =>
+        exec(cmd, { cwd }),
+      );
       this.debug('Result:', result);
       return result;
     } finally {
-      await this.callHook('exec:after', cmd, opts);
+      await this.callHook('runCmd:after', cmd, opts);
     }
   }
 
   runSyncCmd(cmd: string, opts: { cwd?: string } = {}): string {
     return this.useSyncHook(
-      'execSync',
+      'runSyncCmd',
       [cmd, opts],
       (cmd: string, opts: { cwd?: string } = {}): string => {
-        return execSync(cmd, {
-          cwd: opts.cwd ?? this.project.options.path,
-        })
-          .toString()
-          .trim();
+        const result = this.traceSyncCall(`runSyncCmd(${cmd})`, () =>
+          execSync(cmd, {
+            cwd: opts.cwd ?? this.project.options.path,
+          }),
+        );
+        return result.toString().trim();
       },
     );
   }
@@ -248,8 +358,8 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
     let result = null;
     try {
       await this.callHook(`${name}:before`, arguments_);
-      result = await Promise.resolve(
-        fn(...Array.prototype.slice.call(arguments_)),
+      result = await this.traceAsyncCall(`useHook(${name})`, () =>
+        Promise.resolve(fn(...Array.prototype.slice.call(arguments_))),
       );
       return result;
     } finally {
@@ -266,7 +376,7 @@ export abstract class QdkNode extends Hookable implements Scope, CanSynthesize {
     const args = Array.prototype.slice.call(arguments_);
     try {
       // this.callHook(`${name}:before`, ...args);
-      result = fn(...args);
+      result = this.traceSyncCall(`useSyncHook(${name})`, () => fn(...args));
       return result;
     } finally {
       // this.callHook(`${name}:after`, ...args, result);

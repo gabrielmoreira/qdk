@@ -52,6 +52,10 @@ export class NpmPackageManager extends PackageManager<
     // no need to setup npm (except if we wanted to fix a version)
   }
 
+  protected isCorepackInstalledForWorkspace(): boolean {
+    return true;
+  }
+
   createSubprojectInstance(
     scope: Scope,
     options?: NpmPackageManagerInitialOptionsType,

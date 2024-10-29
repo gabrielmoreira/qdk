@@ -193,6 +193,10 @@ export default class MyApp extends qdk.QdkApp {
 }
 ```
 
+### OpenTelemetry OTLP Tracing
+
+QDK now supports OpenTelemetry OTLP tracing, which allows you to visualize the performance of your QDK applications syntheses. This feature can help you identify bottlenecks and optimize your code. For detailed instructions on setting it up, please refer to the [tracing documentation](./docs/tracing.md).
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.

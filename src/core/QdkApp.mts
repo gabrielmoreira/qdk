@@ -51,6 +51,6 @@ export class QdkApp<T extends QdkAppOptions = QdkAppOptions>
 
   synth(options?: SynthOptions): Promise<void> {
     assertRequired(this.project, 'Project is required');
-    return super.synth(options);
+    return this.traceAsyncCall('synth', () => super.synth(options));
   }
 }

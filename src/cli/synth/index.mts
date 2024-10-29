@@ -1,4 +1,8 @@
+import { version } from '#package.json';
+import { QdkApp } from '#qdk';
+import { trace } from '@opentelemetry/api';
 import { Command, Option } from 'clipanion';
+import { startTracing } from '../../instrumentation/instrumentation.mjs';
 import { loadQdk } from '../utils.mjs';
 
 export class SynthCommand extends Command {
@@ -11,18 +15,26 @@ export class SynthCommand extends Command {
     ],
   });
   cwd = Option.String('--cwd', { hidden: true });
+  trace = Option.Boolean('--trace');
+  oltpEndpoint = Option.String('--otlp-endpoint');
   checkOnly = Option.Boolean('--check-only,--check');
   async execute() {
     const opts = { cwd: this.cwd };
     const qdkProject = await loadQdk(opts);
     if (!qdkProject) {
-      console.error(
-        '[qdk.config.mts] The exported configuration is not valid for QDK',
-      );
+      console.error('[qdk.config.mts] Invalid QDK configuration');
       process.exit(1);
     }
     let hasError = false;
     try {
+      const stopTracing = this.trace
+        ? startTracing({ url: this.oltpEndpoint })
+        : () => void 0;
+
+      if (qdkProject instanceof QdkApp) {
+        const tracer = trace.getTracer('qdk', version);
+        qdkProject.setTracer(tracer);
+      }
       await qdkProject.synth({
         checkOnly: this.checkOnly,
         errorReporter: {
@@ -33,6 +45,7 @@ export class SynthCommand extends Command {
           },
         },
       });
+      await stopTracing();
     } catch (e) {
       console.error(e);
     }

@@ -114,8 +114,11 @@ export abstract class QdkFile<
     super(scope, options.basename);
     this.options = options;
     this.codec = this.createCodec();
+
     if (options.freeze) {
-      this.data = freeze(initialData, true);
+      this.data = this.traceSyncCall('freezeData', () =>
+        freeze(initialData, true),
+      );
     } else {
       this.data = initialData;
     }
@@ -123,15 +126,19 @@ export abstract class QdkFile<
       path: join(options.cwd, options.basename),
     });
     if (this.options.readOnInit) {
-      this.readSync({
-        silentWhenMissing: true,
-        useLoadedDataAsDefault: false,
+      this.traceSyncCall('readOnInit', () => {
+        this.readSync({
+          silentWhenMissing: true,
+          useLoadedDataAsDefault: false,
+        });
       });
     }
     if (this.options.writeOnSynth) {
       this.addHooks({
         synth: async (options: SynthOptions) => {
-          await this.write(options);
+          return this.traceAsyncCall('writeOnSynth', async () => {
+            await this.write(options);
+          });
         },
       });
     }
@@ -188,31 +195,35 @@ export abstract class QdkFile<
   }
 
   protected encode(data: T): Buffer {
-    try {
-      return this.codec.encode(data);
-    } catch (e) {
-      console.error(this.nodeName, 'Failed to encode data', e);
-      this.debug('Data', data);
-      throw e;
-    }
+    return this.traceSyncCall('encode', () => {
+      try {
+        return this.codec.encode(data);
+      } catch (e) {
+        console.error(this.nodeName, 'Failed to encode data', e);
+        this.debug('Data', data);
+        throw e;
+      }
+    });
   }
 
   protected decode(
     buffer: Buffer,
     contentOrReference: { toString(): string } = buffer,
   ): T {
-    try {
-      return this.codec.decode(buffer);
-    } catch (e) {
-      console.error(
-        this.nodeName,
-        { cwd: this.options.cwd },
-        'Failed to decode buffer',
-        e,
-      );
-      this.debug('Buffer', contentOrReference.toString());
-      throw e;
-    }
+    return this.traceSyncCall('decode', () => {
+      try {
+        return this.codec.decode(buffer);
+      } catch (e) {
+        console.error(
+          this.nodeName,
+          { cwd: this.options.cwd },
+          'Failed to decode buffer',
+          e,
+        );
+        this.debug('Buffer', contentOrReference.toString());
+        throw e;
+      }
+    });
   }
 
   async write(options: SynthOptions = {}) {
@@ -221,7 +232,9 @@ export abstract class QdkFile<
       return;
     }
     if (options.checkOnly && !this.raw) {
-      this.readSync({ useLoadedDataAsDefault: false, rawOnly: true });
+      return this.traceSyncCall('checkOnly', () => {
+        this.readSync({ useLoadedDataAsDefault: false, rawOnly: true });
+      });
     }
     const buffer = this.encode(this.data);
     this.changed = !this.raw || !buffer.equals(this.raw);
@@ -239,13 +252,15 @@ export abstract class QdkFile<
           const prettierOptions = this.getPrettierOptions();
           this.debug('Prettier format options', prettierOptions);
           try {
-            data.oldCode = await prettier.format(
-              this.raw.toString(),
-              prettierOptions,
+            data.oldCode = await this.traceAsyncCall(
+              'formatOldCode',
+              async () =>
+                await prettier.format(this.raw!.toString(), prettierOptions),
             );
-            data.newCode = await prettier.format(
-              buffer.toString(),
-              prettierOptions,
+            data.newCode = await this.traceAsyncCall(
+              'formatNewCode',
+              async () =>
+                await prettier.format(buffer.toString(), prettierOptions),
             );
             this.debug(
               'Compare both old and new code\n\nOLD:\n' +
@@ -273,24 +288,30 @@ export abstract class QdkFile<
         [this.file, this.data, buffer],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         async (_file, _data, _buffer) => {
-          this.raw = buffer;
-          if (!this.loadedData) {
-            const fileDirname = dirname(this.file.path);
-            this.debug(
-              'Create directory if needed',
-              relativeToCwd(fileDirname),
-            );
-            await mkdir(fileDirname, { recursive: true });
-          }
-          this.debug('Writing file', this.relativePath);
-          if (this.options.formatOnWrite) {
-            try {
-              await this.tryFormat();
-            } catch (e) {
-              this.debug('Ignoring format error', e);
+          await this.traceAsyncCall('write', async () => {
+            this.raw = buffer;
+            if (!this.loadedData) {
+              const fileDirname = dirname(this.file.path);
+              this.debug(
+                'Create directory if needed',
+                relativeToCwd(fileDirname),
+              );
+              await this.traceAsyncCall('mkdir', () =>
+                mkdir(fileDirname, { recursive: true }),
+              );
             }
-          }
-          await writeFile(this.file.path, this.raw);
+            this.debug('Writing file', this.relativePath);
+            if (this.options.formatOnWrite) {
+              try {
+                await this.tryFormat();
+              } catch (e) {
+                this.debug('Ignoring format error', e);
+              }
+            }
+            await this.traceAsyncCall('writeFile', () =>
+              writeFile(this.file.path, this.raw!),
+            );
+          });
         },
       );
     } else {
@@ -330,13 +351,17 @@ export abstract class QdkFile<
   }
 
   protected async tryFormat() {
-    if (!this.raw) return;
-    const fileInfo = await prettier.getFileInfo(this.file.path);
-    if (fileInfo.inferredParser) {
-      const prettierOptions = this.getPrettierOptions();
-      const code = await prettier.format(this.raw.toString(), prettierOptions);
-      this.raw = Buffer.from(code);
-    }
+    await this.traceAsyncCall('tryFormat', async () => {
+      if (!this.raw) return;
+      const fileInfo = await prettier.getFileInfo(this.file.path);
+      if (fileInfo.inferredParser) {
+        const prettierOptions = this.getPrettierOptions();
+        const code = await this.traceAsyncCall('formatCode', () =>
+          prettier.format(this.raw!.toString(), prettierOptions),
+        );
+        this.raw = Buffer.from(code);
+      }
+    });
   }
 
   update(mutate: (data: T) => T | void, record = true) {

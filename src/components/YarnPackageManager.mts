@@ -75,6 +75,7 @@ export class YarnPackageManager extends PackageManager<
   type = 'yarn';
   cmdPrefix = `yarn`; // Command prefix for Yarn commands.
   execCmdPrefix = `yarn dlx`; // Command prefix for executing Yarn commands with `dlx`.
+  private isCorepackInstalled = false;
 
   formatWorkspaceVersion(version?: string): string {
     return version ?? '*';
@@ -88,7 +89,29 @@ export class YarnPackageManager extends PackageManager<
   }
 
   async setup() {
+    // do not setup corepack pnpm if it's already there
+    if (this.isCorepackInstalled) return;
+    // do not setup corepack pnpm if this project is part
+    // of a workspace, and the workspace root project has
+    // corepack pnpm already configured
+    if (this.isCorepackInstalledForWorkspace()) return;
     await this.corepackRun(`use yarn@${this.options.version}`);
+    this.isCorepackInstalled = true;
+  }
+
+  protected isCorepackInstalledForWorkspace(): boolean {
+    const rootPackageManager = PackageManager.for(this.project.root);
+    if (this === rootPackageManager && this.options.workspace) {
+      return this.isCorepackInstalled;
+    }
+    if (rootPackageManager) {
+      if (rootPackageManager instanceof YarnPackageManager) {
+        if (rootPackageManager.isCorepackInstalledForWorkspace()) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**

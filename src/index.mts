@@ -36,6 +36,7 @@ export * from './components/defaults/gitignore.default.mjs';
 export * from './projects/BaseProject.mjs';
 export * from './projects/Project.mjs';
 import { Scope } from './core/Scope.mjs';
+import { Tracer } from '@opentelemetry/api';
 
 export * from './components/PackageManager.mjs';
 export * from './components/PackageJson.mjs';
@@ -67,6 +68,7 @@ export interface ErrorReporter {
 
 export type SynthOptions = {
   removeDeletedFiles?: boolean;
+  tracer?: Tracer;
 } & (
   | {
       checkOnly: true;

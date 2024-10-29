@@ -1,3 +1,4 @@
+import { Tracer } from '@opentelemetry/api';
 import {
   BaseProject,
   BaseProjectOptionsType,
@@ -16,6 +17,7 @@ export interface Scope {
   get tags(): Set<string>;
   get nodeType(): QdkNodeType;
   get nodeName(): string;
+  get tracer(): Tracer | undefined;
   children: QdkNode[];
   addChild(node: QdkNode): void;
   hasAllTags(...tag: string[]): boolean;

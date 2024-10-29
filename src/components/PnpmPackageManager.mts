@@ -44,12 +44,36 @@ export class PnpmPackageManager extends PackageManager<
   cmdPrefix = `pnpm`;
   execCmdPrefix = `pnpx`;
 
+  private isCorepackInstalled = false;
+
   formatWorkspaceVersion(version?: string): string {
     return `workspace:${version ?? '*'}`;
   }
 
   async setup() {
+    // do not setup corepack pnpm if it's already there
+    if (this.isCorepackInstalled) return;
+    // do not setup corepack pnpm if this project is part
+    // of a workspace, and the workspace root project has
+    // corepack pnpm already configured
+    if (this.isCorepackInstalledForWorkspace()) return;
     await this.corepackRun(`use pnpm@${this.options.version}`);
+    this.isCorepackInstalled = true;
+  }
+
+  protected isCorepackInstalledForWorkspace(): boolean {
+    const rootPackageManager = PackageManager.for(this.project.root);
+    if (this === rootPackageManager && this.options.workspace) {
+      return this.isCorepackInstalled;
+    }
+    if (rootPackageManager) {
+      if (rootPackageManager instanceof PnpmPackageManager) {
+        if (rootPackageManager.isCorepackInstalledForWorkspace()) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   createSubprojectInstance(

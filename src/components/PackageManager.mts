@@ -38,8 +38,12 @@ export abstract class PackageManager<T = unknown, Y = T> extends Component<T> {
     super(scope, options, nodeName);
     this.hook('synth:before', async (options?: SynthOptions) => {
       if (!options?.checkOnly) {
-        await mkdir(this.project.path, { recursive: true });
-        await this.setup();
+        await this.traceAsyncCall('mkdir', async () => {
+          await mkdir(this.project.path, { recursive: true });
+        });
+        await this.traceAsyncCall('setup', async () => {
+          await this.setup();
+        });
       }
     });
   }
@@ -48,33 +52,43 @@ export abstract class PackageManager<T = unknown, Y = T> extends Component<T> {
 
   abstract setup(): Promise<void>;
 
+  protected abstract isCorepackInstalledForWorkspace(): boolean;
+
   async corepackRun(cmd: string) {
-    await this.runCmd(`npx corepack ${cmd}`);
+    return this.traceAsyncCall(`corepackRun(${cmd})`, () => {
+      return this.runCmd(`npx corepack ${cmd}`);
+    });
   }
 
   async pkgRun(cmd: string) {
-    return await this.runCmd(`${this.cmdPrefix} ${cmd}`);
+    return this.traceAsyncCall(`pkgRun(${cmd})`, () => {
+      return this.runCmd(`${this.cmdPrefix} ${cmd}`);
+    });
   }
   async pkgExec(cmd: string) {
-    return await this.runCmd(`${this.execCmdPrefix} ${cmd}`);
+    return this.traceAsyncCall(`pkgExec(${cmd})`, () => {
+      return this.runCmd(`${this.execCmdPrefix} ${cmd}`);
+    });
   }
 
   latestVersion(
     dependencyName: string,
     { forceUpdate }: { forceUpdate: boolean } = { forceUpdate: false },
   ) {
-    this.debug('Resolving npm latest version for', dependencyName);
-    if (!forceUpdate && _packageVersionCache[dependencyName])
-      return _packageVersionCache[dependencyName];
-    try {
-      const version = this.runSyncCmd(`npm view ${dependencyName} version`, {
-        cwd: processCwd(),
-      });
-      _packageVersionCache[dependencyName] = version;
-      return version;
-    } catch (e) {
-      this.warn('Could not find the latest version for', dependencyName, e);
-      return '*';
-    }
+    return this.traceSyncCall('latestVersion', () => {
+      this.debug('Resolving npm latest version for', dependencyName);
+      if (!forceUpdate && _packageVersionCache[dependencyName])
+        return _packageVersionCache[dependencyName];
+      try {
+        const version = this.runSyncCmd(`npm view ${dependencyName} version`, {
+          cwd: processCwd(),
+        });
+        _packageVersionCache[dependencyName] = version;
+        return version;
+      } catch (e) {
+        this.warn('Could not find the latest version for', dependencyName, e);
+        return '*';
+      }
+    });
   }
 }
