@@ -3,6 +3,8 @@ import dedentInstance from 'dedent';
 export const dedent: typeof dedentInstance = dedentInstance;
 import chalkInstance from 'chalk';
 export const chalk: typeof chalkInstance = chalkInstance;
+import jsConvert from 'js-convert-case';
+export const caseConverter: typeof jsConvert = jsConvert;
 
 export * from './options.mjs';
 
