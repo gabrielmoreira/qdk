@@ -1,0 +1,52 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`blank template > synthetize a blank template 1`] = `
+"/
+└─ .qdk/
+   ├─ meta.json
+   └─ tree.txt"
+`;
+
+exports[`blank template > synthetize a blank template 2`] = `
+{
+  "/.qdk/meta.json": "{
+  "project": "qdk-sample",
+  "custom": {},
+  "files": ["./.qdk/meta.json", "./.qdk/tree.txt"],
+  "subprojects": []
+}
+",
+  "/.qdk/tree.txt": "·
+└── Project(qdk-sample)
+    └── JsonFile(.qdk/meta.json)",
+}
+`;
+
+exports[`blank template > synthetize a blank template and delete orphan files 1`] = `
+"/
+├─ .qdk/
+│  ├─ meta.json
+│  └─ tree.txt
+└─ build/
+   └─ readme/
+      ├─ .qdk/
+      │  └─ meta.json
+      └─ orphan.txt"
+`;
+
+exports[`blank template > synthetize a blank template and delete orphan files 2`] = `
+{
+  "/.qdk/meta.json": "{
+  "project": "qdk-sample",
+  "custom": {},
+  "files": ["./.qdk/meta.json", "./.qdk/tree.txt"],
+  "subprojects": []
+}
+",
+  "/.qdk/tree.txt": "·
+└── Project(qdk-sample)
+    └── JsonFile(.qdk/meta.json)",
+  "/build/readme/.qdk/meta.json": "{"files":[".qdk/meta.json","./orphan.txt"]}",
+  "/build/readme/orphan.txt": "some file data",
+}
+`;

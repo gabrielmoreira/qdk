@@ -1,0 +1,5 @@
+<%=it.moduleName%>_kotlinVersion=1.7.0
+<%=it.moduleName%>_minSdkVersion=21
+<%=it.moduleName%>_targetSdkVersion=31
+<%=it.moduleName%>_compileSdkVersion=31
+<%=it.moduleName%>_ndkversion=21.4.7075529

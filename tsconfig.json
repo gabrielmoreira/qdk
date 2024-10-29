@@ -1,12 +1,25 @@
 {
   "extends": ["@tsconfig/node20"],
-  "include": ["src/**/*", "test/**/*", "*.ts", "templates/**/*.ts"],
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    "*.{ts,mts,cts}",
+    "__mocks__"
+  ],
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "build/ts",
     "paths": {
-      "qdk": ["./src/index"]
+      "qdk": ["./src/index"],
+      "#@/system/*.mjs": ["./src/system/*.mts"],
+      "#@/files/*.mjs": ["./src/files/*.mts"],
+      "#@/core/*.mjs": ["./src/core/*.mts"],
+      "#@/components/*.mjs": ["./src/components/*.mts"],
+      "#@/projects/*.mjs": ["./src/projects/*.mts"],
+      "#@/cli/*.mjs": ["./src/cli/*.mts"],
+      "#test/*.mjs": ["./test/*.mts"]
     },
+    "customConditions": ["source"],
+    "noEmit": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true

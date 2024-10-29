@@ -1,10 +1,12 @@
 {
   "extends": ["@tsconfig/node20"],
   "include": ["src/**/*"],
+  "exclude": ["src/templates/**", "**/__tests__/**", "**/*.spec.ts", "test/**"],
   "compilerOptions": {
     "outDir": "dist/lib",
     "rootDir": "src",
     "declarationDir": "dist/lib",
+    "customConditions": ["source"],
     "declaration": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,

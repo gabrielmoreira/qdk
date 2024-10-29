@@ -1,0 +1,30 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`components/TemplateFiles >  1`] = `
+{
+  "/tmp/template-files/project/.qdk/meta.json": "{
+  "project": "template-files",
+  "custom": {},
+  "files": [
+    "./.qdk/meta.json",
+    "./.qdk/tree.txt",
+    "./hello.js",
+    "./some/directory/world.js"
+  ],
+  "subprojects": []
+}
+",
+  "/tmp/template-files/project/.qdk/tree.txt": "·
+└── Project(template-files)
+    ├── JsonFile(.qdk/meta.json)
+    └── TemplateFiles
+        ├── TextFile(hello.js)
+        └── TextFile(some/directory/world.js)",
+  "/tmp/template-files/project/hello.js": "export const hello = 'Gabriel';
+",
+  "/tmp/template-files/project/some/directory/world.js": "export const world = 'Gabriel';
+",
+  "/tmp/template-files/templates/hello.js.eta": "export const hello = "<%= it.name %>"",
+  "/tmp/template-files/templates/some/directory/world.js.eta": "export const world = "<%= it.name %>"",
+}
+`;

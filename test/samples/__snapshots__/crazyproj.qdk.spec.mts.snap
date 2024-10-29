@@ -16,7 +16,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project 1`] = `
       │     │  ├─ meta.json
       │     │  └─ tree.txt
       │     ├─ README.md
-      │     ├─ eslint.config.js
+      │     ├─ eslint.config.mjs
       │     ├─ package.json
       │     ├─ src/
       │     │  └─ index.ts
@@ -63,7 +63,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project 2`] = `
     │   ├── EsLint
     │   │   ├── Prettier
     │   │   │   └── JsonFile(.prettierrc)
-    │   │   └── TemplateFile(eslint.config.js)
+    │   │   └── TemplateFile(eslint.config.mjs)
     │   ├── TextFile(README.md)
     │   ├── Pkgroll
     │   ├── TextFile(src/index.ts)
@@ -126,7 +126,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project 2`] = `
     "./.prettierrc",
     "./.qdk/meta.json",
     "./.qdk/tree.txt",
-    "./eslint.config.js",
+    "./eslint.config.mjs",
     "./package.json",
     "./tsconfig.json"
   ],
@@ -145,13 +145,13 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project 2`] = `
     ├── EsLint
     │   ├── Prettier
     │   │   └── JsonFile(.prettierrc)
-    │   └── TemplateFile(eslint.config.js)
+    │   └── TemplateFile(eslint.config.mjs)
     ├── TextFile(README.md)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
   "/build/crazyproj/services/simple/README.md": "123
 ",
-  "/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
+  "/build/crazyproj/services/simple/eslint.config.mjs": "import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
@@ -160,7 +160,7 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   eslintPluginPrettierRecommended,
-  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { files: ['eslint.config.mjs', 'src/**/*.ts', 'test/**/*.ts'] },
   { ignores: ['dist/**/*'] },
   { languageOptions: { globals: globals.nodeBuiltin } },
   {
@@ -258,7 +258,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orp
 │     │     │  ├─ meta.json
 │     │     │  └─ tree.txt
 │     │     ├─ README.md
-│     │     ├─ eslint.config.js
+│     │     ├─ eslint.config.mjs
 │     │     ├─ package.json
 │     │     ├─ src/
 │     │     │  └─ index.ts
@@ -281,7 +281,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orp
          │     │  ├─ meta.json
          │     │  └─ tree.txt
          │     ├─ README.md
-         │     ├─ eslint.config.js
+         │     ├─ eslint.config.mjs
          │     ├─ package.json
          │     ├─ src/
          │     │  └─ index.ts
@@ -328,7 +328,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orp
     │   ├── EsLint
     │   │   ├── Prettier
     │   │   │   └── JsonFile(.prettierrc)
-    │   │   └── TemplateFile(eslint.config.js)
+    │   │   └── TemplateFile(eslint.config.mjs)
     │   ├── TextFile(README.md)
     │   ├── Pkgroll
     │   ├── TextFile(src/index.ts)
@@ -391,7 +391,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orp
     "./.prettierrc",
     "./.qdk/meta.json",
     "./.qdk/tree.txt",
-    "./eslint.config.js",
+    "./eslint.config.mjs",
     "./package.json",
     "./tsconfig.json"
   ],
@@ -410,13 +410,13 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orp
     ├── EsLint
     │   ├── Prettier
     │   │   └── JsonFile(.prettierrc)
-    │   └── TemplateFile(eslint.config.js)
+    │   └── TemplateFile(eslint.config.mjs)
     ├── TextFile(README.md)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
   "/build/crazyproj/services/simple/README.md": "123
 ",
-  "/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
+  "/build/crazyproj/services/simple/eslint.config.mjs": "import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
@@ -425,7 +425,7 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   eslintPluginPrettierRecommended,
-  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { files: ['eslint.config.mjs', 'src/**/*.ts', 'test/**/*.ts'] },
   { ignores: ['dist/**/*'] },
   { languageOptions: { globals: globals.nodeBuiltin } },
   {
@@ -539,7 +539,7 @@ console.log(B);
     │   ├── EsLint
     │   │   ├── Prettier
     │   │   │   └── JsonFile(.prettierrc)
-    │   │   └── TemplateFile(eslint.config.js)
+    │   │   └── TemplateFile(eslint.config.mjs)
     │   ├── TextFile(README.md)
     │   ├── Pkgroll
     │   ├── TextFile(src/index.ts)
@@ -598,7 +598,7 @@ console.log(B);
     "./.prettierrc",
     "./.qdk/meta.json",
     "./.qdk/tree.txt",
-    "./eslint.config.js",
+    "./eslint.config.mjs",
     "./package.json",
     "./tsconfig.json"
   ],
@@ -617,13 +617,13 @@ console.log(B);
     ├── EsLint
     │   ├── Prettier
     │   │   └── JsonFile(.prettierrc)
-    │   └── TemplateFile(eslint.config.js)
+    │   └── TemplateFile(eslint.config.mjs)
     ├── TextFile(README.md)
     ├── Pkgroll
     └── TextFile(src/index.ts)",
   "/test2/build/crazyproj/services/simple/README.md": "123
 ",
-  "/test2/build/crazyproj/services/simple/eslint.config.js": "import globals from 'globals';
+  "/test2/build/crazyproj/services/simple/eslint.config.mjs": "import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
@@ -632,7 +632,7 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   eslintPluginPrettierRecommended,
-  { files: ['eslint.config.js', 'src/**/*.ts', 'test/**/*.ts'] },
+  { files: ['eslint.config.mjs', 'src/**/*.ts', 'test/**/*.ts'] },
   { ignores: ['dist/**/*'] },
   { languageOptions: { globals: globals.nodeBuiltin } },
   {

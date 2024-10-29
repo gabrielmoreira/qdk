@@ -13,14 +13,50 @@
   "license": "MIT",
   "author": "Gabriel Moreira <gabrielmoreira@gmail.com>",
   "type": "module",
-  "bin": "./dist/lib/cli/index.js",
-  "main": "./dist/cjs/index.js",
-  "types": "./dist/lib/index.d.ts",
+  "bin": "./dist/lib/cli/index.mjs",
+  "main": "./dist/lib/index.mjs",
+  "types": "./dist/lib/index.d.mts",
+  "imports": {
+    "#qdk": {
+      "source": "./src/index.mts",
+      "import": "./dist/lib/index.mjs"
+    },
+    "#@/cli/*.mjs": {
+      "source": "./src/cli/*.mts",
+      "import": "./dist/lib/cli/*.mts"
+    },
+    "#@/components/*.mjs": {
+      "source": "./src/components/*.mts",
+      "import": "./dist/lib/components/*.mts"
+    },
+    "#@/core/*.mjs": {
+      "source": "./src/core/*.mts",
+      "import": "./dist/lib/core/*.mts"
+    },
+    "#@/files/*.mjs": {
+      "source": "./src/files/*.mts",
+      "import": "./dist/lib/files/*.mts"
+    },
+    "#@/projects/*.mjs": {
+      "source": "./src/projects/*.mts",
+      "import": "./dist/lib/projects/*.mts"
+    },
+    "#@/system/*.mjs": {
+      "source": "./src/system/*.mts",
+      "import": "./dist/lib/system/*.mts"
+    },
+    "#@/utils/*.mjs": {
+      "source": "./src/utils/*.mts",
+      "import": "./dist/lib/utils/*.mts"
+    },
+    "#test/*.mjs": "./test/*.mts"
+  },
   "exports": {
     ".": {
-      "import": "./dist/lib/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/lib/index.d.ts"
+      "import": {
+        "types": "./dist/lib/index.d.mts",
+        "default": "./dist/lib/index.mjs"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -30,12 +66,14 @@
   ],
   "scripts": {
     "prebuild": "nr clean",
-    "build": "nr typescript:prod:build",
+    "build": "nr build:esm",
+    "build:esm": "tsc -p tsconfig.production.json",
+    "postbuild": "shx cp -rf ./src/templates ./dist/lib/ && shx rm -rf dist/lib/templates/__tests__",
     "clean": "rimraf .nyc_output coverage dist",
     "eslint": "eslint",
     "eslint:fix": "eslint --fix",
     "format": "prettier . --write",
-    "prepack": "nr build",
+    "prepack": "nr build && publint",
     "prepare": "simple-git-hooks",
     "publish": "clean-publish",
     "next-version": "bumpp --no-commit --no-tag --no-push",
@@ -44,22 +82,23 @@
     "sample:monorepo": "tsx test/samples/monorepo.qdk.ts",
     "test": "vitest",
     "typescript:check": "tsc -p tsconfig.json --noEmit",
-    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt",
-    "typescript:prod:build": "tsc -p tsconfig.production.json && tsc -p tsconfig.production.json --moduleResolution node --module commonjs --outdir ./dist/cjs",
-    "typescript:dev:build": "tsc -p tsconfig.json"
+    "typescript:explain": "tsc -p tsconfig.json --noEmit --explainFiles > explainTypes.txt"
   },
   "simple-git-hooks": {
     "pre-commit": "npx nr eslint"
   },
   "dependencies": {
+    "@ladjs/consolidate": "^1.0.4",
     "@types/debug": "^4.1.12",
     "@types/ini": "^4.1.1",
     "@types/lodash-es": "^4.17.12",
     "@types/vinyl": "^2.0.12",
     "chalk": "^5.3.0",
     "clipanion": "^4.0.0-rc.4",
+    "consolidate": "^1.0.4",
     "debug": "^4.3.7",
     "dedent": "^1.5.3",
+    "eta": "^3.5.0",
     "find-up-simple": "^1.0.0",
     "globby": "^14.0.2",
     "hookable": "^5.5.3",
@@ -85,16 +124,20 @@
     "@eslint/js": "^9.11.1",
     "@rollup/plugin-typescript": "^12.1.0",
     "@tsconfig/node20": "^20.1.4",
+    "@types/consolidate": "^0.14.4",
     "@types/node": "^20.16.10",
     "@types/normalize-package-data": "^2.4.4",
     "bumpp": "^9.6.1",
     "clean-publish": "^5.0.0",
+    "concurrently": "^9.0.1",
     "eslint": "^9.11.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.10.0",
     "memfs": "^4.12.0",
+    "publint": "^0.2.12",
     "rimraf": "^6.0.1",
+    "shx": "^0.3.4",
     "simple-git-hooks": "^2.11.1",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2",
