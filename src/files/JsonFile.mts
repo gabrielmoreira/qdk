@@ -15,7 +15,7 @@ import {
 
 export { Jsonifiable };
 export type JsonifiableObject =
-  | { [Key in string]?: Jsonifiable }
+  | Partial<Record<string, Jsonifiable>>
   | { toJSON: () => Jsonifiable };
 
 export type JsonFileOptionsType = QdkFileOptionsType & {};

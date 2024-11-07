@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsx
+#!/usr/bin/env -S node --import tsx
 import { Cli } from 'clipanion';
 import { InitCommand } from './init/index.mjs';
 import { SynthCommand } from './synth/index.mjs';

@@ -341,21 +341,21 @@ node = "20.18.0"",
     ├── TomlFile(.mise.toml)
     ├── Gitignore
     │   └── TextFile(.gitignore)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     │   └── PnpmWorkspace
     │       └── YamlFile(pnpm-workspace.yaml)
     ├── PackageJson
     │   └── JsonFile(package.json)
     ├── ReactNativeAppProject(@repo/myapp)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── TextFile(.qdk/tree.txt)
     │   └── TextFile(.qdk/tree.txt)
     ├── ReactNativeLibProject(@repo/react-native-multiply)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── TemplateFiles
@@ -378,13 +378,13 @@ node = "20.18.0"",
     │   └── TextFile(.qdk/tree.txt)
     ├── NodeProject(@repo/my-lib-a)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   └── TextFile(.qdk/tree.txt)
     ├── TsProject(@repo/my-lib-b)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── Typescript(^5.6.2)
@@ -393,7 +393,7 @@ node = "20.18.0"",
     │   └── TextFile(.qdk/tree.txt)
     ├── TsProject(@repo/my-lib-c)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── Typescript(^5.6.2)
@@ -402,7 +402,7 @@ node = "20.18.0"",
     │   └── TextFile(.qdk/tree.txt)
     └── NodeProject(@repo/tsconfig)
         ├── JsonFile(.qdk/meta.json)
-        ├── PnpmPackageManager(9.12.2)
+        ├── PnpmPackageManager(9.12.3)
         ├── PackageJson
         │   └── JsonFile(package.json)
         ├── TsConfig
@@ -425,7 +425,7 @@ node = "20.18.0"",
   "/apps/repo-myapp/.qdk/tree.txt": "·
 └── ReactNativeAppProject(@repo/myapp)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     └── TextFile(.qdk/tree.txt)",
@@ -513,7 +513,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
     "jest": "^29.6.3",
     "react-test-renderer": "18.3.1"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/myapp@0.1.0"
 }
@@ -535,7 +535,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "devDependencies": {
     "qdk": "9.9.9-mock-latest"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/root@0.1.0"
 }
@@ -550,7 +550,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "/packages/repo-my-lib-a/.qdk/tree.txt": "·
 └── NodeProject(@repo/my-lib-a)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     └── PackageJson
         └── JsonFile(package.json)",
   "/packages/repo-my-lib-a/package.json": "{
@@ -563,7 +563,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   },
   "type": "module",
   "scripts": {},
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/my-lib-a@0.1.0"
 }
@@ -583,7 +583,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "/packages/repo-my-lib-b/.qdk/tree.txt": "·
 └── TsProject(@repo/my-lib-b)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     └── Typescript(^5.6.2)
@@ -610,7 +610,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "devDependencies": {
     "typescript": "^5.6.2"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/my-lib-b@0.1.0"
 }
@@ -634,7 +634,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "/packages/repo-my-lib-c/.qdk/tree.txt": "·
 └── TsProject(@repo/my-lib-c)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     └── Typescript(^5.6.2)
@@ -665,7 +665,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
     "del-cli": "^6.0.0",
     "typescript": "^5.6.2"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/my-lib-c@0.1.0"
 }
@@ -684,7 +684,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "/packages/repo-react-native-multiply/.qdk/tree.txt": "·
 └── ReactNativeLibProject(@repo/react-native-multiply)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     └── TemplateFiles
@@ -963,7 +963,7 @@ class ReactNativeMultiply: NSObject {
     "react": "*",
     "react-native": "*"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
@@ -1560,7 +1560,7 @@ export function multiply(a: number, b: number): Promise<number> {
   "/shared/repo-tsconfig/.qdk/tree.txt": "·
 └── NodeProject(@repo/tsconfig)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     ├── TsConfig
@@ -1585,7 +1585,7 @@ export function multiply(a: number, b: number): Promise<number> {
     "@tsconfig/node20": "^20.1.4",
     "@tsconfig/react-native": "9.9.9-mock-latest"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/tsconfig@0.1.0"
 }
@@ -1938,21 +1938,21 @@ node = "20.18.0"",
     ├── TomlFile(.mise.toml)
     ├── Gitignore
     │   └── TextFile(.gitignore)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     │   └── PnpmWorkspace
     │       └── YamlFile(pnpm-workspace.yaml)
     ├── PackageJson
     │   └── JsonFile(package.json)
     ├── ReactNativeAppProject(@repo/myapp)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── TextFile(.qdk/tree.txt)
     │   └── TextFile(.qdk/tree.txt)
     ├── ReactNativeLibProject(@repo/react-native-multiply)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── TemplateFiles
@@ -1975,13 +1975,13 @@ node = "20.18.0"",
     │   └── TextFile(.qdk/tree.txt)
     ├── NodeProject(@repo/my-lib-a)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   └── TextFile(.qdk/tree.txt)
     ├── TsProject(@repo/my-lib-b)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── Typescript(^5.6.2)
@@ -1990,7 +1990,7 @@ node = "20.18.0"",
     │   └── TextFile(.qdk/tree.txt)
     ├── TsProject(@repo/my-lib-c)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── Typescript(^5.6.2)
@@ -1999,7 +1999,7 @@ node = "20.18.0"",
     │   └── TextFile(.qdk/tree.txt)
     └── NodeProject(@repo/tsconfig)
         ├── JsonFile(.qdk/meta.json)
-        ├── PnpmPackageManager(9.12.2)
+        ├── PnpmPackageManager(9.12.3)
         ├── PackageJson
         │   └── JsonFile(package.json)
         ├── TsConfig
@@ -2022,7 +2022,7 @@ node = "20.18.0"",
   "/apps/repo-myapp/.qdk/tree.txt": "·
 └── ReactNativeAppProject(@repo/myapp)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     └── TextFile(.qdk/tree.txt)",
@@ -2110,7 +2110,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
     "jest": "^29.6.3",
     "react-test-renderer": "18.3.1"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/myapp@0.1.0"
 }
@@ -2132,7 +2132,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "devDependencies": {
     "qdk": "9.9.9-mock-latest"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/root@0.1.0"
 }
@@ -2147,7 +2147,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "/packages/repo-my-lib-a/.qdk/tree.txt": "·
 └── NodeProject(@repo/my-lib-a)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     └── PackageJson
         └── JsonFile(package.json)",
   "/packages/repo-my-lib-a/package.json": "{
@@ -2160,7 +2160,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   },
   "type": "module",
   "scripts": {},
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/my-lib-a@0.1.0"
 }
@@ -2180,7 +2180,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "/packages/repo-my-lib-b/.qdk/tree.txt": "·
 └── TsProject(@repo/my-lib-b)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     └── Typescript(^5.6.2)
@@ -2207,7 +2207,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "devDependencies": {
     "typescript": "^5.6.2"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/my-lib-b@0.1.0"
 }
@@ -2231,7 +2231,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "/packages/repo-my-lib-c/.qdk/tree.txt": "·
 └── TsProject(@repo/my-lib-c)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     └── Typescript(^5.6.2)
@@ -2262,7 +2262,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
     "del-cli": "^6.0.0",
     "typescript": "^5.6.2"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/my-lib-c@0.1.0"
 }
@@ -2281,7 +2281,7 @@ includeBuild('../../../node_modules/@react-native/gradle-plugin')",
   "/packages/repo-react-native-multiply/.qdk/tree.txt": "·
 └── ReactNativeLibProject(@repo/react-native-multiply)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     └── TemplateFiles
@@ -2560,7 +2560,7 @@ class ReactNativeMultiply: NSObject {
     "react": "*",
     "react-native": "*"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
@@ -3157,7 +3157,7 @@ export function multiply(a: number, b: number): Promise<number> {
   "/shared/repo-tsconfig/.qdk/tree.txt": "·
 └── NodeProject(@repo/tsconfig)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     ├── TsConfig
@@ -3182,7 +3182,7 @@ export function multiply(a: number, b: number): Promise<number> {
     "@tsconfig/node20": "^20.1.4",
     "@tsconfig/react-native": "9.9.9-mock-latest"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "@repo/tsconfig@0.1.0"
 }

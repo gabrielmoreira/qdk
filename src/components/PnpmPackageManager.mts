@@ -16,7 +16,7 @@ export type PnpmPackageManagerInitialOptions =
 
 const PnpmPackageManagerDefaults = {
   workspace: false,
-  version: '9.12.2',
+  version: '9.12.3',
 } satisfies PnpmPackageManagerOptionsType;
 
 const optionsMerger: OptionsMerger<

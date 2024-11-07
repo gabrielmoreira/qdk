@@ -27,10 +27,8 @@ type PackageJsonOptionsTypeWithoutRoot = PackageJsonType.NodeJsStandard &
     name: string;
     defaultVersions: Record<string, string>;
     defaultScripts: Record<string, string>;
-  } & {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [key in AnyString]?: any;
-  };
+  } & Record<AnyString, any>;
 
 type PackageJsonOptionsType = PackageJsonOptionsTypeWithoutRoot & {
   rootOptions?: Pick<

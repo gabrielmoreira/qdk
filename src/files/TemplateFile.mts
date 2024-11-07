@@ -33,9 +33,7 @@ export interface SourceFileTemplateLine<T extends TemplateParams> {
   template:
     | string
     | ((params: T, data: TemplateFileData<T>) => string | undefined | false);
-  hooks?: (scope: Scope) => {
-    [event in string]?: HookCallback;
-  };
+  hooks?: (scope: Scope) => Partial<Record<string, HookCallback>>;
   onBeforeSynth?: (scope: Scope) => unknown;
   onAfterSynth?: (scope: Scope) => unknown;
 }

@@ -44,7 +44,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project 2`] = `
   "/build/crazyproj/.qdk/tree.txt": "·
 └── Project(crazyproj)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     │   └── PnpmWorkspace
     │       └── YamlFile(pnpm-workspace.yaml)
     ├── PackageJson
@@ -54,7 +54,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project 2`] = `
     │       └── TsConfigJsonFile(tsconfig.json)
     ├── Project(simple)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── Typescript(^5.6.2)
@@ -104,7 +104,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project 2`] = `
     "qdk": "9.9.9-mock-latest",
     "typescript": "^5.6.2"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "crazyproj@0.1.0"
 }
@@ -136,7 +136,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project 2`] = `
   "/build/crazyproj/services/simple/.qdk/tree.txt": "·
 └── Project(simple)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     ├── Typescript(^5.6.2)
@@ -217,7 +217,7 @@ export default tseslint.config(
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.9.0"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "simple@0.1.0"
 }
@@ -309,7 +309,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orp
   "/build/crazyproj/.qdk/tree.txt": "·
 └── Project(crazyproj)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     │   └── PnpmWorkspace
     │       └── YamlFile(pnpm-workspace.yaml)
     ├── PackageJson
@@ -319,7 +319,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orp
     │       └── TsConfigJsonFile(tsconfig.json)
     ├── Project(simple)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── Typescript(^5.6.2)
@@ -369,7 +369,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orp
     "qdk": "9.9.9-mock-latest",
     "typescript": "^5.6.2"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "crazyproj@0.1.0"
 }
@@ -401,7 +401,7 @@ exports[`qdk/crazyproj sample > builds a crazyproj sample project and delete orp
   "/build/crazyproj/services/simple/.qdk/tree.txt": "·
 └── Project(simple)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     ├── Typescript(^5.6.2)
@@ -482,7 +482,7 @@ export default tseslint.config(
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.9.0"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "simple@0.1.0"
 }
@@ -520,7 +520,7 @@ console.log(B);
   "/test2/build/crazyproj/.qdk/tree.txt": "·
 └── Project(crazyproj)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     │   └── PnpmWorkspace
     │       └── YamlFile(pnpm-workspace.yaml)
     ├── PackageJson
@@ -530,7 +530,7 @@ console.log(B);
     │       └── TsConfigJsonFile(tsconfig.json)
     ├── Project(simple)
     │   ├── JsonFile(.qdk/meta.json)
-    │   ├── PnpmPackageManager(9.12.2)
+    │   ├── PnpmPackageManager(9.12.3)
     │   ├── PackageJson
     │   │   └── JsonFile(package.json)
     │   ├── Typescript(^5.6.2)
@@ -576,7 +576,7 @@ console.log(B);
     "pkgroll": "9.9.9-mock-latest",
     "typescript": "^5.6.2"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "crazyproj@9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles"
 }
@@ -608,7 +608,7 @@ console.log(B);
   "/test2/build/crazyproj/services/simple/.qdk/tree.txt": "·
 └── Project(simple)
     ├── JsonFile(.qdk/meta.json)
-    ├── PnpmPackageManager(9.12.2)
+    ├── PnpmPackageManager(9.12.3)
     ├── PackageJson
     │   └── JsonFile(package.json)
     ├── Typescript(^5.6.2)
@@ -688,7 +688,7 @@ export default tseslint.config(
     "typescript": "^5.6.2",
     "typescript-eslint": "9.9.9-mock-latest"
   },
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@9.12.3",
   "readme": "ERROR: No README data found!",
   "_id": "simple@9.9.9-buildsacrazyprojsampleprojectanddeleteorphanfiles"
 }

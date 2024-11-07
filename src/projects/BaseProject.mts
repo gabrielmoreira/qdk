@@ -40,9 +40,7 @@ export interface BaseProjectOptionsType {
 
 type SourceSetType = 'main' | 'tests' | 'qdk' | 'assets' | AnyString;
 
-type SourceSets = {
-  [name in SourceSetType]?: SourceSet;
-};
+type SourceSets = Partial<Record<SourceSetType, SourceSet>>;
 interface SourceSet {
   pattern: string[];
 }
