@@ -185,9 +185,13 @@ export class PackageJson
       (deps, dependency) => {
         const { name, version } = parseDependency(dependency);
         deps[name] =
+          // use explicit version if available
           version ??
-          defaults?.[name] ??
+          // or get from PackageJson default versions
           this.getDefaultVersion(name) ??
+          // or get from the last installed version
+          defaults?.[name] ??
+          // or fetch the latest from npm
           PackageManager.required(this).latestVersion(name);
         // console.log(name, deps[name]);
         return deps;
