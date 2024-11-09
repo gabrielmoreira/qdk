@@ -1,9 +1,9 @@
 import * as qdk from '#qdk';
 import {
   NodeProject,
-  NodeProjectInitialOptionsType,
+  type NodeProjectInitialOptionsType,
   NodeProjectOptions,
-  NodeProjectOptionsType,
+  type NodeProjectOptionsType,
 } from './NodeProject.mjs';
 
 /**
@@ -12,6 +12,7 @@ import {
  */
 interface TsProjectOptionsBaseType {
   tsconfig: qdk.TsConfigInitialOptionsType; // Initial configuration for tsconfig
+  vitest?: boolean;
 }
 
 /**
@@ -38,6 +39,7 @@ const TsProjectDefaults = {
     autoInstallDevDependencies: false, // Prevents automatic installation of dev dependencies by default
     extends: ['@repo/tsconfig/node.json'],
   },
+  vitest: true,
 } as const satisfies Partial<TsProjectOptionsType>;
 
 /**
@@ -112,7 +114,7 @@ export class TsProject<
     // --------------------------------------
     // Ensure the project depends on the shared tsconfig in the monorepo
     // --------------------------------------
-    qdk.PackageJson.required(this).addDeps(
+    const pkg = qdk.PackageJson.required(this).addDeps(
       `@repo/tsconfig@${this.packageManager.formatWorkspaceVersion()}`,
     );
 
@@ -122,5 +124,9 @@ export class TsProject<
     this.typescript = new qdk.Typescript(this, {
       tsconfig: this.options.tsconfig,
     });
+
+    if (this.options.vitest) {
+      pkg.addDevDeps('vitest').setScript('test', 'vitest --passWithNoTests');
+    }
   }
 }

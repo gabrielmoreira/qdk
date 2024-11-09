@@ -183,6 +183,6 @@ export class MonorepoProject extends qdk.BaseProject<MonorepoProjectOptionsType>
     // --------------------------------------
     // Initialize package.json with provided or default options
     // --------------------------------------
-    new qdk.PackageJson(this, this.options.packageJson);
+    new qdk.PackageJson(this, this.options.packageJson).addDevDeps('tsx');
   }
 }

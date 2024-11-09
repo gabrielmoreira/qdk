@@ -30,6 +30,9 @@ export type NodeProjectInitialOptionsType = qdk.BaseProjectInitialOptionsType &
  */
 const NodeProjectDefaults = {
   basedir: 'packages/', // Default directory name for a node project
+  packageJson: {
+    scripts: {},
+  },
 } satisfies Partial<NodeProjectOptionsType>;
 
 /**
@@ -56,6 +59,14 @@ const nodeProjectOptionsMerger: qdk.OptionsMerger<
       },
       context,
     ),
+    packageJson: {
+      ...defaults.packageJson,
+      ...initialOptions.packageJson,
+      scripts: {
+        ...defaults.packageJson?.scripts,
+        ...initialOptions.packageJson?.scripts,
+      },
+    },
   };
 };
 

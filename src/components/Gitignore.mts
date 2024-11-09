@@ -10,6 +10,7 @@ import {
 export interface GitignoreOptionsType {
   pattern?: string[];
   mergeDefaults?: boolean;
+  sample?: boolean;
 }
 
 export type GitignoreInitialOptionsType = Partial<GitignoreOptionsType>;
@@ -17,6 +18,7 @@ export type GitignoreInitialOptionsType = Partial<GitignoreOptionsType>;
 const GitignoreDefaults: Partial<GitignoreOptionsType> = {
   pattern: gitignoreDefault,
   mergeDefaults: true,
+  sample: true,
 };
 
 const optionsMerger: OptionsMerger<
@@ -43,7 +45,11 @@ export class Gitignore extends Component<GitignoreOptionsType> {
   readonly file: TextFile;
   constructor(scope: Scope, options: GitignoreInitialOptionsType = {}) {
     super(scope, GitignoreOptions.getOptions(options, { scope }));
-    this.file = new TextFile(this, { basename: '.gitignore' }, '');
+    this.file = new TextFile(
+      this,
+      { basename: '.gitignore', sample: this.options.sample },
+      '',
+    );
     if (this.options.pattern?.length) this.add(...this.options.pattern);
     this.hook('synth:before', () => {
       this.file.update(() => this.ignored.join('\n'));
