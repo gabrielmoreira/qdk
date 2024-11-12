@@ -1,5 +1,6 @@
 import { findUp } from 'find-up-simple';
-import { dirname } from 'node:path';
+import { existsSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
 import { CanSynthesize, exec } from '../index.mjs';
 
 export const log = (...msg: unknown[]) => {
@@ -66,9 +67,23 @@ export async function hasQdk({ cwd }: { cwd?: string }) {
   }
 }
 
+let version: string | undefined;
+export async function getQdkVersion() {
+  if (version) return version;
+  let dir = import.meta.dirname;
+  while (!existsSync(join(dir, 'package.json'))) {
+    const parent = dirname(dir);
+    if (parent === dir) throw new Error('package.json not found');
+    dir = parent;
+  }
+  const path = join(relative(import.meta.dirname, dir), 'package.json');
+  const json = (await import(path)) as Record<string, string>;
+  return (version = json.version);
+}
+
 export async function installQdk({ cwd }: { cwd?: string }) {
   try {
-    await exec('npm install qdk', { cwd });
+    await exec(`npm install qdk@${await getQdkVersion()} --no-save`, { cwd });
     log('qdk installed!');
     return true;
   } catch (e) {
