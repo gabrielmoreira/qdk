@@ -184,13 +184,20 @@ export class PackageJson
     return dependencies.reduce(
       (deps, dependency) => {
         const { name, version } = parseDependency(dependency);
+        const warnPreferExplicit = (
+          version: string | undefined,
+          msg = `Consider setting a default version using PackageJson.setDefaultVersions({ '${name}': 'version' })`,
+        ) => {
+          this.warn(msg);
+          return version;
+        };
         deps[name] =
           // use explicit version if available
           version ??
           // or get from PackageJson default versions
           this.getDefaultVersion(name) ??
           // or get from the last installed version
-          defaults?.[name] ??
+          warnPreferExplicit(defaults?.[name]) ??
           // or fetch the latest from npm
           PackageManager.required(this).latestVersion(name);
         // console.log(name, deps[name]);
