@@ -184,22 +184,19 @@ export class PackageJson
     return dependencies.reduce(
       (deps, dependency) => {
         const { name, version } = parseDependency(dependency);
-        const warnPreferExplicit = (
-          version: string | undefined,
-          msg = `Consider setting a default version using PackageJson.setDefaultVersions({ '${name}': 'version' })`,
-        ) => {
-          this.warn(msg);
-          return version;
-        };
         deps[name] =
           // use explicit version if available
           version ??
           // or get from PackageJson default versions
           this.getDefaultVersion(name) ??
           // or get from the last installed version
-          warnPreferExplicit(defaults?.[name]) ??
+          warnPreferExplicit(name, defaults?.[name], this) ??
           // or fetch the latest from npm
-          PackageManager.required(this).latestVersion(name);
+          warnPreferExplicit(
+            name,
+            PackageManager.required(this).latestVersion(name),
+            this,
+          );
         // console.log(name, deps[name]);
         return deps;
       },
@@ -270,3 +267,19 @@ export class PackageJson
     return this;
   }
 }
+
+const warningMsgs = new Set<string>();
+
+const warnPreferExplicit = (
+  name: string,
+  version: string | undefined,
+  ref: QdkNode,
+  msg = `Consider setting a default version using PackageJson.setDefaultVersions({ '${name}': '${version}' })`,
+) => {
+  if (warningMsgs.has(msg)) return;
+  if (version) {
+    ref.warn(msg);
+    warningMsgs.add(msg);
+  }
+  return version;
+};
