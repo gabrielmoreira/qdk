@@ -1,6 +1,6 @@
 {
   "name": "qdk",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "QDK (Quick Development Kit) is a tooling solution for generating configuration files via TypeScript, inspired by Projen.",
   "homepage": "https://github.com/gabrielmoreira/qdk#readme",
   "bugs": {
