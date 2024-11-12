@@ -1,4 +1,3 @@
-#!/usr/bin/env -S node --import tsx
 import { Cli, Command } from 'clipanion';
 import { existsSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
