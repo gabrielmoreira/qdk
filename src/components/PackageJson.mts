@@ -276,7 +276,7 @@ const warnPreferExplicit = (
   ref: QdkNode,
   msg = `Consider setting a default version using PackageJson.setDefaultVersions({ '${name}': '${version}' })`,
 ) => {
-  if (warningMsgs.has(msg)) return;
+  if (warningMsgs.has(msg)) return version;
   if (version) {
     ref.warn(msg);
     warningMsgs.add(msg);

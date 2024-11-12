@@ -54,6 +54,7 @@ const tsProjectOptionsMerger: qdk.OptionsMerger<
   typeof TsProjectDefaults
 > = (initialOptions, defaults, context) => {
   return {
+    ...defaults,
     ...NodeProjectOptions.getOptions(
       {
         ...defaults,
