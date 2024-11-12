@@ -1,5 +1,5 @@
 import { version } from '#package.json';
-import { QdkApp } from '#qdk';
+import { QdkApp, setForceAllPackageManagerInstall } from '#qdk';
 import { trace } from '@opentelemetry/api';
 import { Command, Option } from 'clipanion';
 import { startTracing } from '../../instrumentation/instrumentation.mjs';
@@ -18,8 +18,12 @@ export class SynthCommand extends Command {
   trace = Option.Boolean('--trace');
   oltpEndpoint = Option.String('--otlp-endpoint');
   checkOnly = Option.Boolean('--check-only,--check');
+  forcePkgInstall = Option.Boolean('--force-pkg-install,-pi', {
+    description: 'Do not skip any subproject install on a monorepo',
+  });
   async execute() {
     const opts = { cwd: this.cwd };
+    setForceAllPackageManagerInstall(!this.forcePkgInstall);
     const qdkProject = await loadQdk(opts);
     if (!qdkProject) {
       console.error('[qdk.config.mts] Invalid QDK configuration');

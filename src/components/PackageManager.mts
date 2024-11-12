@@ -15,6 +15,13 @@ export const clearPackageVersionCache = () => (_packageVersionCache = {});
 export const clearPackageVersionCacheEntry = (name: string) =>
   delete _packageVersionCache[name];
 
+let forceAllPackageManagerInstall = false;
+export const setForceAllPackageManagerInstall = (value: boolean) => {
+  forceAllPackageManagerInstall = value;
+};
+export const getForceAllPackageManagerInstall = () =>
+  forceAllPackageManagerInstall;
+
 export abstract class PackageManager<T = unknown, Y = T> extends Component<T> {
   abstract type: string;
   abstract cmdPrefix: string;

@@ -1,5 +1,6 @@
 import {
   createOptions,
+  getForceAllPackageManagerInstall,
   OptionsMerger,
   PackageJson,
   PackageManager,
@@ -43,6 +44,7 @@ export class PnpmPackageManager extends PackageManager<
   type = 'pnpm';
   cmdPrefix = `pnpm`;
   execCmdPrefix = `pnpx`;
+  didInstallRun = false;
 
   private isCorepackInstalled = false;
 
@@ -97,8 +99,34 @@ export class PnpmPackageManager extends PackageManager<
       );
     });
   }
-  async install(opts: { frozen?: boolean } = {}) {
+  async install(opts: { frozen?: boolean; force?: boolean } = {}) {
+    const shouldForceInstall = opts.force ?? getForceAllPackageManagerInstall();
+    const workspacePnpmPackageManager = shouldForceInstall
+      ? null
+      : this.getWorkspacePnpmPackageManager();
+
+    if (
+      // if we are the workspace project, we can't skip project install
+      workspacePnpmPackageManager !== this &&
+      // if we have a workspace pkg manager and it did install before,
+      // we can skip this subproject installation
+      workspacePnpmPackageManager?.didInstallRun
+    ) {
+      this.debug('Skipping pnpm install for subproject');
+      return { stdout: 'Skipping pnpm install for subproject', stderr: '' };
+    }
     this.debug('Install dependencies. Options =', opts);
-    return this.pkgRun(`install${opts.frozen ? ' --frozen-lockfile' : ''}`);
+    const output = this.pkgRun(
+      `install${opts.frozen ? ' --frozen-lockfile' : ''}`,
+    );
+    this.didInstallRun = true;
+    return output;
+  }
+
+  getWorkspacePnpmPackageManager() {
+    const rootPkg = PackageManager.for(this.project.root);
+    if (!(rootPkg instanceof PnpmPackageManager)) return null; // not pnpm package manager
+    if (!rootPkg.options.workspace) return null; // not a workspace
+    return rootPkg;
   }
 }
