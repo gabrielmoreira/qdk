@@ -78,6 +78,8 @@ export async function installQdk({ cwd }: { cwd?: string }) {
 }
 
 async function findQdkConfig({ cwd }: { cwd?: string }) {
-  const config = await findUp('qdk.config.mts', { cwd });
+  const config =
+    (await findUp('qdk.config.mts', { cwd })) ??
+    (await findUp('qdk.config.ts', { cwd }));
   return config;
 }
