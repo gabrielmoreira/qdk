@@ -56,7 +56,7 @@ export abstract class PackageManager<T = unknown, Y = T> extends Component<T> {
 
   async corepackRun(cmd: string) {
     return this.traceAsyncCall(`corepackRun(${cmd})`, () => {
-      return this.runCmd(`npx corepack ${cmd}`);
+      return this.runCmd(`corepack ${cmd}`);
     });
   }
 
