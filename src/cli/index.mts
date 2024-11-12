@@ -1,5 +1,7 @@
 #!/usr/bin/env -S node --import tsx
-import { Cli } from 'clipanion';
+import { Cli, Command } from 'clipanion';
+import { existsSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
 import { InitCommand } from './init/index.mjs';
 import { SynthCommand } from './synth/index.mjs';
 
@@ -13,6 +15,22 @@ const cli = new Cli({
 
 cli.register(InitCommand);
 cli.register(SynthCommand);
+cli.register(
+  class VersionCommand extends Command {
+    static readonly paths = [['version']];
+    async execute() {
+      let dir = import.meta.dirname;
+      while (!existsSync(join(dir, 'package.json'))) {
+        const parent = dirname(dir);
+        if (parent === dir) throw new Error('package.json not found');
+        dir = parent;
+      }
+      const path = join(relative(import.meta.dirname, dir), 'package.json');
+      const json = (await import(path)) as Record<string, string>;
+      console.log(json.version);
+    }
+  },
+);
 
 cli
   .runExit(args)
